@@ -57,7 +57,12 @@ button{font-family:inherit;cursor:pointer}
 /* Hero */
 .hero{padding:22px 0}
 .hero-grid{display:grid;grid-template-columns:2fr 1fr;gap:14px;align-items:stretch}
-.hero-main{position:relative;border-radius:14px;overflow:hidden;background:#eef3f8;aspect-ratio:16/8;display:block}
+.hero-main{position:relative;border-radius:14px;overflow:hidden;background:#eef3f8;display:block}
+/* Aspect-ratio via the classic padding-top hack instead of the CSS aspect-ratio property.
+   aspect-ratio is unreliable inside nested CSS Grid on some WebKit versions (the box can
+   collapse to 0 height, hiding the absolutely-positioned image). Padding-top on a ::before
+   spacer works identically on every browser/device, old or new, so this fixes it everywhere. */
+.hero-main::before{content:"";display:block;width:100%;padding-top:50%}/* 16:8 */
 .hero-main img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;display:block}
 .hero-arrows{position:absolute;inset:0;display:flex;justify-content:space-between;align-items:center;padding:0 14px;pointer-events:none}
 .hero-arrow{width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.85);border:none;color:#333;font-size:14px;pointer-events:auto;box-shadow:0 2px 8px rgba(0,0,0,.1)}
@@ -66,19 +71,8 @@ button{font-family:inherit;cursor:pointer}
 .hero-dots span.active{background:#fff;width:22px;border-radius:4px}
 .hero-side{display:grid;grid-template-rows:1fr 1fr;gap:14px;min-height:0}
 .hero-side-item{border-radius:14px;overflow:hidden;background:#eef3f8;position:relative;display:block;min-height:0}
+.hero-side-item::before{content:"";display:block;width:100%}
 .hero-side-item img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;display:block}
-/* Fallback for browsers (older iOS Safari) that don't support the aspect-ratio property.
-   Without it the hero containers collapse to 0 height, hiding the absolutely-positioned images. */
-@supports not (aspect-ratio: 16/8){
-  .hero-main{height:280px}
-  .hero-side-item{height:133px}
-}
-@media(max-width:720px){
-  @supports not (aspect-ratio: 16/9){
-    .hero-main{height:170px}
-    .hero-side-item{height:80px}
-  }
-}
 
 /* Section */
 .section{padding:30px 0}
@@ -246,9 +240,9 @@ button{font-family:inherit;cursor:pointer}
 }
 @media(max-width:1000px){
   .hero-grid{grid-template-columns:1fr}
-  .hero-main{aspect-ratio:16/8}
+  .hero-main::before{padding-top:50%}
   .hero-side{grid-template-rows:unset;grid-template-columns:1fr 1fr}
-  .hero-side-item{aspect-ratio:16/9}
+  .hero-side-item::before{padding-top:56.25%}
   .products-grid{grid-template-columns:repeat(3,1fr)}
   .footer-grid{grid-template-columns:repeat(2,1fr)}
 }
@@ -261,9 +255,11 @@ button{font-family:inherit;cursor:pointer}
   .hero{padding:10px 0}
   /* Hero sized like the reference image */
   .hero-grid{gap:8px}
-  .hero-main{min-height:0;aspect-ratio:16/9;border-radius:10px}
+  .hero-main{min-height:0;border-radius:10px}
+  .hero-main::before{padding-top:56.25%}
   .hero-side{gap:8px;grid-template-columns:1fr 1fr;grid-template-rows:unset}
-  .hero-side-item{min-height:0;aspect-ratio:16/10;border-radius:10px}
+  .hero-side-item{min-height:0;border-radius:10px}
+  .hero-side-item::before{padding-top:62.5%}
   .hero-arrow{width:30px;height:30px;font-size:11px}
   .hero-dots span{width:6px;height:6px}
   .hero-dots span.active{width:16px}
