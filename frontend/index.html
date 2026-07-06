@@ -774,6 +774,26 @@ body.route-services .hero,body.route-services .section:not(.page-view),body.rout
 .svc-modal .svc-cta:hover{background:var(--green-dark)}
 </style>
 
+
+<!-- ===== Dhopa Mama API Bridge (auto-injected) ===== -->
+<script>
+window.API_BASE = window.API_BASE || 'https://dhopa-mama-api.onrender.com'; // ← Render URL এখানে বসান
+
+/* Preload settings (bkash/nagad numbers) if code uses localStorage */
+(function(){
+  try {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', window.API_BASE + '/api/settings', false);
+    xhr.timeout = 5000;
+    xhr.send();
+    if (xhr.status === 200 && xhr.responseText) {
+      localStorage.setItem('falaqSettings', xhr.responseText);
+    }
+  } catch(e){}
+})();
+</script>
+<!-- ===== end API Bridge ===== -->
+
 </head>
 <body>
 
@@ -2590,6 +2610,53 @@ function closeServiceDetailModal(){
 })();
 if(location.hash==='#/services'){ renderServiceGallery(); }
 </script>
+
+
+<!-- ===== Dhopa Mama API — submit overrides (auto-injected) ===== -->
+<script>
+(function(){
+  var API = window.API_BASE;
+
+  /* Checkout → POST /api/orders */
+  var _origSubmit = window.submitCheckout;
+  window.submitCheckout = function(){
+    if (typeof _origSubmit === 'function') _origSubmit();
+    try {
+      if (window.orders && window.orders.length){
+        var o = Object.assign({}, window.orders[window.orders.length - 1]);
+        o.customerName    = (document.getElementById('chkName')||{}).value || '';
+        o.customerMobile  = (document.getElementById('chkMobile')||{}).value || '';
+        o.customerAddress = (document.getElementById('chkAddress')||{}).value || '';
+        o.txn             = (document.getElementById('chkTxn')||{}).value || '';
+        fetch(API + '/api/orders', {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify(o)
+        }).catch(function(){});
+      }
+    } catch(e){ console.warn('order post failed', e); }
+  };
+
+  /* Register / Login → POST backend */
+  var _origAccount = window.submitAccount;
+  window.submitAccount = function(){
+    if (typeof _origAccount === 'function') _origAccount();
+    try {
+      var contact = (document.getElementById('accMobile')||{}).value || '';
+      var pass    = (document.getElementById('accPass')||{}).value || '';
+      var name    = (document.getElementById('accName')||{}).value || '';
+      if (!contact || !pass) return;
+      var ep = (window.authMode === 'register') ? '/api/register' : '/api/login';
+      fetch(API + ep, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ name: name, contact: contact, password: pass })
+      }).catch(function(){});
+    } catch(e){ console.warn('auth post failed', e); }
+  };
+})();
+</script>
+<!-- ===== end submit overrides ===== -->
 
 </body>
 </html>
