@@ -464,13 +464,15 @@ window.API_BASE = window.API_BASE || 'https://dhopa-mama0.onrender.com'; // ← 
   function setToken(t){ try { sessionStorage.setItem(TOKEN_KEY, t); } catch(e){} }
   function clearToken(){ try { sessionStorage.removeItem(TOKEN_KEY); } catch(e){} }
 
+  function cb(){ return '?t=' + Date.now(); }
+
   // ---- 1) Preload: MongoDB থেকে সব ডেটা এনে in-memory cache এ রাখা (sync XHR) ----
   function preloadAll(){
     Object.keys(LS_MAP).forEach(function(lsKey){
       try {
         var xhr = new XMLHttpRequest();
-        xhr.open('GET', window.API_BASE + '/api/' + LS_MAP[lsKey], false);
-        xhr.timeout = 8000;
+        xhr.open('GET', window.API_BASE + '/api/' + LS_MAP[lsKey] + cb(), false);
+        xhr.timeout = 12000;
         xhr.send();
         if (xhr.status === 200 && xhr.responseText && xhr.responseText !== 'null'){
           MEM[lsKey] = xhr.responseText;
@@ -500,8 +502,16 @@ window.API_BASE = window.API_BASE || 'https://dhopa-mama0.onrender.com'; // ← 
       fetch(window.API_BASE + '/api/' + LS_MAP[k], {
         method: 'PUT', headers: headers, body: v
       }).then(function(r){
-        if (r.status === 401) window.showLoginScreen('সেশনের মেয়াদ শেষ হয়ে গেছে, আবার লগইন করুন।');
-      }).catch(function(){});
+        if (r.status === 401){
+          window.showLoginScreen && window.showLoginScreen('সেশনের মেয়াদ শেষ হয়ে গেছে, আবার লগইন করুন।');
+        } else if (!r.ok){
+          console.error('Save failed for', k, r.status);
+          try { alert('সেভ ব্যর্থ (' + k + '): ' + r.status + ' — ইন্টারনেট/সার্ভার চেক করুন।'); } catch(e){}
+        }
+      }).catch(function(err){
+        console.error('Save network error for', k, err);
+        try { alert('সেভ ব্যর্থ (' + k + '): নেটওয়ার্ক/CORS সমস্যা — API_BASE ও সার্ভার চেক করুন।'); } catch(e){}
+      });
     } catch(e){}
   };
   localStorage.removeItem = function(k){
@@ -509,11 +519,11 @@ window.API_BASE = window.API_BASE || 'https://dhopa-mama0.onrender.com'; // ← 
     return _rawDel(k);
   };
 
-  // ---- 3) Auto-refresh orders / users প্রতি 15 সেকেন্ডে (front-end থেকে আসা নতুন data) ----
+  // ---- 3) Auto-refresh প্রতি 10 সেকেন্ডে (front-end থেকে আসা নতুন data) ----
   setInterval(function(){
     if (!getToken()) return;
     ['falaqOrders','falaqUsers','falaqProducts','falaqCategories','falaqServices','falaqSettings'].forEach(function(lsKey){
-      fetch(window.API_BASE + '/api/' + LS_MAP[lsKey])
+      fetch(window.API_BASE + '/api/' + LS_MAP[lsKey] + cb(), { cache:'no-store' })
         .then(function(r){ return r.ok ? r.text() : null; })
         .then(function(txt){
           if (!txt || txt === 'null') return;
@@ -526,7 +536,7 @@ window.API_BASE = window.API_BASE || 'https://dhopa-mama0.onrender.com'; // ← 
           }
         }).catch(function(){});
     });
-  }, 15000);
+  }, 10000);
 
   // ---- 4) Admin auth: লগইন / লগআউট / সেশন চেক ----
   function showLoginScreen(message){
