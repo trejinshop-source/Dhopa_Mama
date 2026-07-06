@@ -790,23 +790,17 @@ window.API_BASE = window.API_BASE || 'https://dhopa-mama0.onrender.com'; // ← 
   function bust(){ return (window.API_BASE + '/api/'); }
   function cb(){ return '?t=' + Date.now(); }
 
-  // ---- preload (page render হবার আগেই cats / products / services পাবে) ----
-  // আগে এখানে ৪টি sync XHR ধারাবাহিকভাবে চলত (একটার পর একটা, প্রতিটি সর্বোচ্চ ১২ সেকেন্ড
-  // পর্যন্ত ব্লক করতে পারত) — এখন সবগুলো একসাথে (parallel async fetch) পাঠানো হয়,
-  // ফলে পেজ অনেক দ্রুত লোড হয় এবং ব্রাউজার ফ্রিজ হয় না।
-  window.__PRELOAD_DONE = false;
-  window.__PRELOAD_READY = Promise.all(Object.keys(EP).map(function(k){
-    var controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
-    var t = controller ? setTimeout(function(){ controller.abort(); }, 6000) : null;
-    return fetch(bust() + EP[k] + cb(), { cache:'no-store', signal: controller ? controller.signal : undefined })
-      .then(function(r){ if (t) clearTimeout(t); return r.ok ? r.text() : null; })
-      .then(function(text){
-        if (!text || text === 'null') return;
-        try { window.__API_DATA[k] = JSON.parse(text); } catch(e){}
-      }).catch(function(e){ if (t) clearTimeout(t); console.warn('preload failed for', k, e && e.message); });
-  })).then(function(){
-    window.__PRELOAD_DONE = true;
-    try { window.dispatchEvent(new CustomEvent('falaq:preload-done')); } catch(e){}
+  // ---- sync preload (page render হবার আগেই cats / products পাবে) ----
+  Object.keys(EP).forEach(function(k){
+    try {
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', bust() + EP[k] + cb(), false);
+      xhr.timeout = 12000;
+      xhr.send();
+      if (xhr.status === 200 && xhr.responseText && xhr.responseText !== 'null'){
+        try { window.__API_DATA[k] = JSON.parse(xhr.responseText); } catch(e){}
+      }
+    } catch(e){ console.warn('preload failed for', k, e && e.message); }
   });
 
   // helper — যদি API থেকে valid array/object আসে সেটা ব্যবহার করো, নাহলে default
@@ -816,12 +810,11 @@ window.API_BASE = window.API_BASE || 'https://dhopa-mama0.onrender.com'; // ← 
     return (v && typeof v === 'object') ? v : fallback;
   };
 
-  // ---- Fresh async refresh: cats / products / services কে reassign করে ভিউ রি-রেন্ডার করে ----
+  // ---- Fresh async refresh: cats / products কে reassign করে renderProducts + renderCategories কল করে ----
   window.__rerenderFromApi = function(){
     try {
       var newCats = window.__API_DATA.categories;
       var newProducts = window.__API_DATA.products;
-      var newServices = window.__API_DATA.services;
       if (Array.isArray(newCats) && newCats.length && typeof window.cats !== 'undefined'){
         window.cats = newCats;
         try { window.catLabelMap = {}; newCats.forEach(function(c){ if (c.key) window.catLabelMap[c.key] = c.n; }); } catch(e){}
@@ -831,16 +824,8 @@ window.API_BASE = window.API_BASE || 'https://dhopa-mama0.onrender.com'; // ← 
         window.products = newProducts;
         if (typeof window.renderProducts === 'function') window.renderProducts();
       }
-      // অ্যাডমিন প্যানেলে "সার্ভিস প্যাকেজ" পরিবর্তন করলে এখানেও সাথে সাথে দেখাবে
-      if (Array.isArray(newServices) && newServices.length && typeof window.SERVICES_LIST !== 'undefined'){
-        window.SERVICES_LIST = newServices;
-        if (typeof window.renderServiceGallery === 'function') window.renderServiceGallery();
-      }
     } catch(e){ console.warn('rerender failed', e); }
   };
-  window.addEventListener('falaq:preload-done', function(){
-    if (typeof window.__rerenderFromApi === 'function') window.__rerenderFromApi();
-  });
 
   function fetchAndUpdate(k){
     return fetch(bust() + EP[k] + cb(), { cache:'no-store' })
@@ -2596,7 +2581,7 @@ function svcImgUrl(icon, w){
   var id = SVC_IMG_IDS[icon];
   return id ? ('https://images.pexels.com/photos/'+id+'/pexels-photo-'+id+'.jpeg?auto=compress&cs=tinysrgb&w='+w) : '';
 }
-var DEFAULT_SERVICES_LIST = [
+var SERVICES_LIST = [
   {
     id:'normal-wash', icon:'fa-water', title:'নরমাল ওয়াশ', popular:true,
     short:'দৈনন্দিন পোশাকের জন্য মেশিন ওয়াশ, সফট ডিটারজেন্টে পরিষ্কার।',
@@ -2647,15 +2632,9 @@ var DEFAULT_SERVICES_LIST = [
   }
 ];
 
-var SERVICES_LIST = window.__pickApi ? window.__pickApi('services', DEFAULT_SERVICES_LIST) : DEFAULT_SERVICES_LIST;
-window.SERVICES_LIST = SERVICES_LIST;
-
 function renderServiceGallery(){
   var grid = document.getElementById('svcGalleryGrid');
-  if(!grid) return;
-  // নোট: আগে এখানে একটি data-rendered guard ছিল যা static HTML-এ আগে থেকেই সেট
-  // থাকায় এই ফাংশনটি কখনোই re-render করত না — ফলে অ্যাডমিন প্যানেলে সার্ভিস
-  // পরিবর্তন করলেও index.html-এ তা দেখা যেত না। এখন সবসময় ফ্রেশ ডেটা দিয়ে রি-রেন্ডার হয়।
+  if(!grid || grid.dataset.rendered) return;
   grid.innerHTML = SERVICES_LIST.map(function(s, i){
     return '<div class="svc-gallery-card" onclick="openServiceDetailModal('+i+')">'
       + (s.popular ? '<div class="svc-badge-popular">জনপ্রিয়</div>' : '')
@@ -2668,6 +2647,7 @@ function renderServiceGallery(){
       + '</div>'
     + '</div>';
   }).join('');
+  grid.dataset.rendered = '1';
 }
 function openServiceDetailModal(i){
   var s = SERVICES_LIST[i];
