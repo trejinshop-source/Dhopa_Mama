@@ -31,7 +31,7 @@
    NODE_ENV = production
    CORS_ORIGIN = *
    ```
-6. Deploy → URL কপি করুন (যেমন: `https://dhopa-mama-backend.onrender.com`)
+6. Deploy → URL কপি করুন (যেমন: `https://dhopa-mama0.onrender.com`)
 
 ---
 
@@ -39,7 +39,7 @@
 
 1. `index.html` ও `admin.html` এ **API_URL** পরিবর্তন করুন:
    ```js
-   const API_URL = 'https://YOUR-RENDER-URL.onrender.com';
+   const API_URL = 'https://dhopa-mama0.onrender.com';
    ```
 2. https://vercel.com এ যান → **Add New Project**
 3. দুটি ফাইল GitHub repo বা সরাসরি drag-drop এ আপলোড
