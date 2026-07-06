@@ -1,11 +1,12 @@
 /**
  * Dhopa Mama / Falaq Laundry — Backend API
- * Stack: Express + MongoDB (Mongoose)
+ * Stack: Express + MongoDB (Mongoose) + Cloudinary
  * Deploy: Render.com (Web Service, Node)
  *
  * Environment variables (Render → Environment):
  *   MONGODB_URI, JWT_SECRET, ADMIN_USERNAME, ADMIN_PASSWORD,
- *   ALLOWED_ORIGINS (comma-separated), PORT (Render auto-sets)
+ *   ALLOWED_ORIGINS (comma-separated), PORT (Render auto-sets),
+ *   CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET
  */
 
 require('dotenv').config();
@@ -14,9 +15,18 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const cloudinary = require('cloudinary').v2;
 
 const app = express();
-app.use(express.json({ limit: '5mb' }));
+app.use(express.json({ limit: '15mb' }));
+
+/* ---------------- Cloudinary ---------------- */
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key:    process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+  secure: true
+});
 
 /* ---------------- CORS ---------------- */
 const allowed = (process.env.ALLOWED_ORIGINS || '')
@@ -67,7 +77,9 @@ const OrderSchema = new mongoose.Schema({
   customerName:    String,
   customerMobile:  String,
   customerAddress: String,
-  txn:             String
+  txn:             String,
+  userId:          { type: String, index: true },
+  userContact:     { type: String, index: true }
 }, { timestamps: true });
 const Order = mongoose.model('Order', OrderSchema, 'orders');
 
@@ -90,19 +102,46 @@ async function putBucket(Model, data) {
   );
 }
 
-/* ---------------- Admin auth ---------------- */
+/* ---------------- Auth: tokens ---------------- */
+const SECRET = process.env.JWT_SECRET || 'dev';
 function signAdminToken() {
-  return jwt.sign({ role: 'admin' }, process.env.JWT_SECRET || 'dev', { expiresIn: '30d' });
+  return jwt.sign({ role: 'admin' }, SECRET, { expiresIn: '365d' });
+}
+function signUserToken(u) {
+  return jwt.sign({ role: 'user', id: String(u._id), contact: u.contact, name: u.name }, SECRET, { expiresIn: '365d' });
 }
 function requireAdmin(req, res, next) {
   const h = req.headers.authorization || '';
   const token = h.startsWith('Bearer ') ? h.slice(7) : null;
   if (!token) return res.status(401).json({ error: 'No token' });
   try {
-    const p = jwt.verify(token, process.env.JWT_SECRET || 'dev');
+    const p = jwt.verify(token, SECRET);
     if (p.role !== 'admin') throw new Error('bad role');
     next();
   } catch (e) { return res.status(401).json({ error: 'Invalid token' }); }
+}
+function requireUser(req, res, next) {
+  const h = req.headers.authorization || '';
+  const token = h.startsWith('Bearer ') ? h.slice(7) : null;
+  if (!token) return res.status(401).json({ error: 'No token' });
+  try {
+    const p = jwt.verify(token, SECRET);
+    if (p.role !== 'user') throw new Error('bad role');
+    req.user = p;
+    next();
+  } catch (e) { return res.status(401).json({ error: 'Invalid token' }); }
+}
+// Optional user — attaches req.user if a valid user token is present, else continues
+function optionalUser(req, _res, next) {
+  const h = req.headers.authorization || '';
+  const token = h.startsWith('Bearer ') ? h.slice(7) : null;
+  if (token) {
+    try {
+      const p = jwt.verify(token, SECRET);
+      if (p.role === 'user') req.user = p;
+    } catch (e) { /* ignore */ }
+  }
+  next();
 }
 
 /* ---------------- Routes: health ---------------- */
@@ -116,6 +155,25 @@ app.post('/api/admin/login', (req, res) => {
     return res.json({ token: signAdminToken() });
   }
   return res.status(401).json({ error: 'Invalid credentials' });
+});
+
+/* ---------------- Cloudinary image upload (admin only) ----------------
+ * Body: { image: "data:image/png;base64,...." , folder?: "dhopa-mama" }
+ * Returns: { url, public_id }
+ */
+app.post('/api/upload', requireAdmin, async (req, res) => {
+  try {
+    const { image, folder } = req.body || {};
+    if (!image) return res.status(400).json({ error: 'image (dataURL) required' });
+    const result = await cloudinary.uploader.upload(image, {
+      folder: folder || 'dhopa-mama',
+      resource_type: 'image'
+    });
+    res.json({ url: result.secure_url, public_id: result.public_id });
+  } catch (e) {
+    console.error('Cloudinary upload error:', e.message);
+    res.status(500).json({ error: e.message || 'Upload failed' });
+  }
 });
 
 /* ---------------- Bucket collections (products, categories, services, settings) ---------------- */
@@ -141,11 +199,25 @@ app.get('/api/orders', async (_req, res) => {
   const list = await Order.find().sort({ createdAt: -1 }).lean();
   res.json(list);
 });
-// Public: place order (from index.html checkout)
-app.post('/api/orders', async (req, res) => {
+// Logged-in user: only their own orders (with status)
+app.get('/api/my-orders', requireUser, async (req, res) => {
+  try {
+    const or = [{ userId: req.user.id }];
+    if (req.user.contact) or.push({ userContact: req.user.contact });
+    const list = await Order.find({ $or: or }).sort({ createdAt: -1 }).lean();
+    res.json(list);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+// Place order (from index.html checkout). If user token present, links order to user.
+app.post('/api/orders', optionalUser, async (req, res) => {
   try {
     const body = req.body || {};
     if (!body.id) body.id = 'ORD' + Date.now();
+    if (req.user) {
+      body.userId = req.user.id;
+      body.userContact = req.user.contact;
+      if (!body.customerName) body.customerName = req.user.name;
+    }
     const doc = await Order.findOneAndUpdate(
       { id: body.id }, { $set: body }, { upsert: true, new: true }
     );
@@ -180,24 +252,34 @@ app.get('/api/users', async (_req, res) => {
   const list = await User.find().sort({ createdAt: -1 }).select('-password').lean();
   res.json(list);
 });
+// Register → saves to MongoDB and returns a long-lived token (stays logged in)
 app.post('/api/register', async (req, res) => {
   try {
     const { name, contact, password } = req.body || {};
     if (!contact || !password) return res.status(400).json({ error: 'contact & password required' });
     const exists = await User.findOne({ contact });
-    if (exists) return res.status(409).json({ error: 'Already registered' });
+    if (exists) return res.status(409).json({ error: 'এই নাম্বার/ইমেইল দিয়ে আগে থেকেই রেজিস্টার করা আছে। লগইন করুন।' });
     const hash = await bcrypt.hash(password, 10);
     const u = await User.create({ name: name || contact, contact, password: hash });
-    res.json({ id: u._id, name: u.name, contact: u.contact });
+    res.json({ id: u._id, name: u.name, contact: u.contact, token: signUserToken(u) });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
+// Login → returns a long-lived token
 app.post('/api/login', async (req, res) => {
   try {
     const { contact, password } = req.body || {};
     const u = await User.findOne({ contact });
-    if (!u) return res.status(401).json({ error: 'User not found' });
+    if (!u) return res.status(401).json({ error: 'একাউন্ট খুঁজে পাওয়া যায়নি। আগে রেজিস্টার করুন।' });
     const ok = await bcrypt.compare(password, u.password || '');
-    if (!ok) return res.status(401).json({ error: 'Invalid password' });
+    if (!ok) return res.status(401).json({ error: 'পাসওয়ার্ড ভুল হয়েছে।' });
+    res.json({ id: u._id, name: u.name, contact: u.contact, token: signUserToken(u) });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+// Current user info from token (used to keep session alive on page load)
+app.get('/api/me', requireUser, async (req, res) => {
+  try {
+    const u = await User.findById(req.user.id).select('-password').lean();
+    if (!u) return res.status(401).json({ error: 'User not found' });
     res.json({ id: u._id, name: u.name, contact: u.contact });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });

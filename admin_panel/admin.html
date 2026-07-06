@@ -505,6 +505,7 @@ window.API_BASE = window.API_BASE || 'https://dhopa-mama0.onrender.com'; // ← 
   function getToken(){ try { return sessionStorage.getItem(TOKEN_KEY) || ''; } catch(e){ return ''; } }
   function setToken(t){ try { sessionStorage.setItem(TOKEN_KEY, t); } catch(e){} }
   function clearToken(){ try { sessionStorage.removeItem(TOKEN_KEY); } catch(e){} }
+  window.getAdminToken = getToken; // Cloudinary আপলোডের জন্য টোকেন দরকার হয়
 
   function cb(){ return '?t=' + Date.now(); }
 
@@ -1550,10 +1551,42 @@ function clearImageUpload(prefix){
 function handleImageFile(prefix, file){
   if (!file) return;
   if (!file.type || !file.type.startsWith('image/')){ alert('শুধুমাত্র ছবি ফাইল (PNG/JPG) আপলোড করুন।'); return; }
-  if (file.size > 2*1024*1024){ alert('ছবির সাইজ ২MB এর বেশি হতে পারবে না।'); return; }
+  if (file.size > 8*1024*1024){ alert('ছবির সাইজ ৮MB এর বেশি হতে পারবে না।'); return; }
   const reader = new FileReader();
-  reader.onload = (e)=> setImagePreview(prefix, e.target.result);
+  reader.onload = (e)=>{
+    const dataUrl = e.target.result;
+    // সাথে সাথে প্রিভিউ দেখাই (base64), তারপর Cloudinary এ আপলোড করে URL বসাই
+    setImagePreview(prefix, dataUrl);
+    uploadToCloudinary(prefix, dataUrl);
+  };
   reader.readAsDataURL(file);
+}
+
+/* ছবি Cloudinary তে আপলোড করে ফেরত আসা secure_url টি hidden ইনপুটে বসায় */
+function uploadToCloudinary(prefix, dataUrl){
+  const hidden = document.getElementById(prefix+'Img');
+  const wrap   = document.getElementById(prefix+'ImgPreviewWrap');
+  const token  = (typeof window.getAdminToken === 'function') ? window.getAdminToken() : '';
+  if (!token){ alert('আপলোডের জন্য অ্যাডমিন লগইন দরকার।'); return; }
+  if (wrap){ wrap.style.opacity = '0.55'; wrap.setAttribute('data-uploading','1'); }
+  fetch(window.API_BASE + '/api/upload', {
+    method: 'POST',
+    headers: { 'Content-Type':'application/json', 'Authorization':'Bearer ' + token },
+    body: JSON.stringify({ image: dataUrl, folder: 'dhopa-mama' })
+  })
+  .then(function(r){ return r.json().then(function(d){ return { status:r.status, data:d }; }); })
+  .then(function(res){
+    if (res.status === 200 && res.data && res.data.url){
+      if (hidden) hidden.value = res.data.url;         // MongoDB তে Cloudinary URL সেভ হবে
+      var imgEl = document.getElementById(prefix+'ImgPreview');
+      if (imgEl) imgEl.src = res.data.url;
+    } else {
+      alert('ছবি আপলোড ব্যর্থ: ' + ((res.data && res.data.error) || res.status));
+      clearImageUpload(prefix);
+    }
+  })
+  .catch(function(){ alert('ছবি আপলোডে নেটওয়ার্ক সমস্যা — API_BASE ও ইন্টারনেট চেক করুন।'); clearImageUpload(prefix); })
+  .finally(function(){ if (wrap){ wrap.style.opacity = '1'; wrap.removeAttribute('data-uploading'); } });
 }
 function setupImageUpload(prefix){
   const zone = document.getElementById(prefix+'ImgDropzone');

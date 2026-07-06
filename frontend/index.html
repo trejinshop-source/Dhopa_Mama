@@ -2222,34 +2222,88 @@ function closeOrderSuccessModal(){
 }
 
 /* ===================== আমার অর্ডার মডাল ===================== */
+function renderOrdersList(arr){
+  var list = document.getElementById('ordersList');
+  if (!list) return;
+  if (!arr || arr.length === 0){
+    list.innerHTML = '<div class="order-empty"><i class="fas fa-box-open"></i>এখনো কোনো অর্ডার করা হয়নি।</div>';
+    return;
+  }
+  list.innerHTML = arr.map(function(o){
+    var isDone = /deliver|complete|সম্পন্ন|ডেলিভারি/i.test(o.status||'');
+    var when = o.date ? o.date : (o.createdAt ? new Date(o.createdAt).toLocaleDateString('bn-BD') : new Date().toLocaleDateString('bn-BD'));
+    var total = Number(o.total||0).toLocaleString();
+    return '<div class="order-card">'
+      + '<div class="order-card-top">'
+      +   '<span class="order-id"><i class="fas fa-hashtag" style="color:var(--green);margin-right:4px"></i>'+o.id+'</span>'
+      +   '<span class="order-pill'+(isDone?' done':'')+'">'+(o.status||'Pending')+'</span>'
+      + '</div>'
+      + '<div class="order-total">৳ '+total+'</div>'
+      + '<div class="order-meta"><i class="far fa-clock"></i> '+when+(o.time?(' , '+o.time):'')+'</div>'
+      + '</div>';
+  }).join('');
+}
+
 function openOrdersModal(){
   var list = document.getElementById('ordersList');
-  if (orders.length === 0){
-    list.innerHTML = '<div class="order-empty"><i class="fas fa-box-open"></i>এখনো কোনো অর্ডার করা হয়নি।</div>';
-  } else {
-    list.innerHTML = orders.map(function(o){
-      var isDone = /deliver|complete|সম্পন্ন|ডেলিভারি/i.test(o.status||'');
-      var when = o.date ? o.date : new Date().toLocaleDateString('bn-BD');
-      return '<div class="order-card">'
-        + '<div class="order-card-top">'
-        +   '<span class="order-id"><i class="fas fa-hashtag" style="color:var(--green);margin-right:4px"></i>'+o.id+'</span>'
-        +   '<span class="order-pill'+(isDone?' done':'')+'">'+(o.status||'Pending')+'</span>'
-        + '</div>'
-        + '<div class="order-total">৳ '+o.total.toLocaleString()+'</div>'
-        + '<div class="order-meta"><i class="far fa-clock"></i> '+when+'</div>'
-        + '</div>';
-    }).join('');
-  }
   closeSidebar();
   closeAllModals();
   document.getElementById('ordersModalOverlay').classList.add('open');
+
+  // লগইন না থাকলে লগইন করতে বলি
+  if (!currentUser || !authToken){
+    if (list) list.innerHTML = '<div class="order-empty"><i class="fas fa-user-lock"></i>অর্ডার দেখতে অনুগ্রহ করে লগইন করুন।</div>';
+    return;
+  }
+
+  if (list) list.innerHTML = '<div class="order-empty"><i class="fas fa-spinner fa-spin"></i>অর্ডার লোড হচ্ছে...</div>';
+  fetch(window.API_BASE + '/api/my-orders', {
+    headers: { 'Authorization':'Bearer ' + authToken }, cache:'no-store'
+  })
+  .then(function(r){
+    if (r.status === 401){ throw new Error('unauth'); }
+    return r.ok ? r.json() : [];
+  })
+  .then(function(arr){ renderOrdersList(Array.isArray(arr) ? arr : []); })
+  .catch(function(err){
+    if (err && err.message === 'unauth'){
+      if (list) list.innerHTML = '<div class="order-empty"><i class="fas fa-user-lock"></i>সেশন শেষ — আবার লগইন করুন।</div>';
+    } else {
+      if (list) list.innerHTML = '<div class="order-empty"><i class="fas fa-exclamation-circle"></i>অর্ডার লোড করা যায়নি।</div>';
+    }
+  });
 }
 function closeOrdersModal(){
   document.getElementById('ordersModalOverlay').classList.remove('open');
 }
 
 /* ===================== সাইন ইন / অ্যাকাউন্ট মডাল ===================== */
-var currentUser = null;   // সেশনে সংরক্ষিত লগইন তথ্য — পেজ রিফ্রেশে মুছে যাবে
+/* লগইন/রেজিস্টার তথ্য localStorage এ সংরক্ষিত — একবার লগইন করলে ডিভাইসে
+   স্থায়ীভাবে লগইন থাকবে, নিজে লগআউট না করা পর্যন্ত কখনো লগআউট হবে না। */
+var AUTH_KEY = 'dm_auth';
+var currentUser = null;   // { name, contact }
+var authToken = '';       // JWT — localStorage এ সংরক্ষিত
+
+(function restoreSession(){
+  try {
+    var raw = localStorage.getItem(AUTH_KEY);
+    if (raw){
+      var saved = JSON.parse(raw);
+      if (saved && saved.token && saved.user){
+        authToken = saved.token;
+        currentUser = saved.user;
+      }
+    }
+  } catch(e){}
+})();
+window.__getAuthToken = function(){ return authToken; };
+
+function saveSession(){
+  try { localStorage.setItem(AUTH_KEY, JSON.stringify({ token: authToken, user: currentUser })); } catch(e){}
+}
+function clearSession(){
+  try { localStorage.removeItem(AUTH_KEY); } catch(e){}
+}
 var authMode = 'signin';  // 'signin' | 'register'
 
 function switchAuthTab(mode){
@@ -2330,16 +2384,44 @@ function submitAccount(){
   }
   errEl.style.display = 'none';
 
-  currentUser = {
-    name: (authMode === 'register') ? name : (name || contact.split('@')[0]),
-    contact: contact
-  };
-  refreshAccountUI();
-  openAccountModal();
+  var btn = document.getElementById('authSubmitLabel');
+  var prevLabel = btn ? btn.textContent : '';
+  if (btn) btn.textContent = 'অপেক্ষা করুন...';
+
+  var ep = (authMode === 'register') ? '/api/register' : '/api/login';
+  var payload = (authMode === 'register')
+    ? { name: name, contact: contact, password: pass }
+    : { contact: contact, password: pass };
+
+  fetch(window.API_BASE + ep, {
+    method: 'POST',
+    headers: { 'Content-Type':'application/json' },
+    body: JSON.stringify(payload)
+  })
+  .then(function(r){ return r.json().then(function(d){ return { status:r.status, data:d }; }); })
+  .then(function(res){
+    if ((res.status === 200 || res.status === 201) && res.data && res.data.token){
+      authToken = res.data.token;
+      currentUser = { name: res.data.name || name || contact, contact: res.data.contact || contact };
+      saveSession();           // ডিভাইসে স্থায়ী লগইন
+      refreshAccountUI();
+      openAccountModal();
+    } else {
+      errEl.textContent = (res.data && res.data.error) || 'সমস্যা হয়েছে, আবার চেষ্টা করুন।';
+      errEl.style.display = 'block';
+    }
+  })
+  .catch(function(){
+    errEl.textContent = 'সার্ভারে সংযোগ করা যায়নি — ইন্টারনেট চেক করুন।';
+    errEl.style.display = 'block';
+  })
+  .finally(function(){ if (btn) btn.textContent = prevLabel; });
 }
 
 function logoutAccount(){
   currentUser = null;
+  authToken = '';
+  clearSession();
   refreshAccountUI();
   closeAccountModal();
 }
@@ -2664,12 +2746,12 @@ renderServiceGallery(); window.addEventListener("hashchange", function(){ if(loc
 </script>
 
 
-<!-- ===== Dhopa Mama API — submit overrides (auto-injected) ===== -->
+<!-- ===== Dhopa Mama API — submit overrides ===== -->
 <script>
 (function(){
   var API = window.API_BASE;
 
-  /* Checkout → POST /api/orders */
+  /* Checkout → POST /api/orders (লগইন থাকলে অর্ডার ইউজারের সাথে যুক্ত হয়) */
   var _origSubmit = window.submitCheckout;
   window.submitCheckout = function(){
     if (typeof _origSubmit === 'function') _origSubmit();
@@ -2680,33 +2762,26 @@ renderServiceGallery(); window.addEventListener("hashchange", function(){ if(loc
         o.customerMobile  = (document.getElementById('chkMobile')||{}).value || '';
         o.customerAddress = (document.getElementById('chkAddress')||{}).value || '';
         o.txn             = (document.getElementById('chkTxn')||{}).value || '';
+        if (typeof currentUser !== 'undefined' && currentUser){
+          o.userContact = currentUser.contact;
+        }
+        var headers = { 'Content-Type':'application/json' };
+        var t = (typeof window.__getAuthToken === 'function') ? window.__getAuthToken() : '';
+        if (t) headers['Authorization'] = 'Bearer ' + t;
         fetch(API + '/api/orders', {
           method:'POST',
-          headers:{'Content-Type':'application/json'},
+          headers: headers,
           body: JSON.stringify(o)
         }).catch(function(){});
       }
     } catch(e){ console.warn('order post failed', e); }
   };
-
-  /* Register / Login → POST backend */
-  var _origAccount = window.submitAccount;
-  window.submitAccount = function(){
-    if (typeof _origAccount === 'function') _origAccount();
-    try {
-      var contact = (document.getElementById('accMobile')||{}).value || '';
-      var pass    = (document.getElementById('accPass')||{}).value || '';
-      var name    = (document.getElementById('accName')||{}).value || '';
-      if (!contact || !pass) return;
-      var ep = (window.authMode === 'register') ? '/api/register' : '/api/login';
-      fetch(API + ep, {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ name: name, contact: contact, password: pass })
-      }).catch(function(){});
-    } catch(e){ console.warn('auth post failed', e); }
-  };
 })();
+
+/* পেজ লোডে সংরক্ষিত সেশন থাকলে UI আপডেট করি (স্থায়ী লগইন) */
+document.addEventListener('DOMContentLoaded', function(){
+  try { if (typeof refreshAccountUI === 'function') refreshAccountUI(); } catch(e){}
+});
 </script>
 <!-- ===== end submit overrides ===== -->
 
