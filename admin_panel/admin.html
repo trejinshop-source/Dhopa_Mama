@@ -434,10 +434,15 @@ tr.row-new td{background:var(--brand-light)!important;}
 .app.app-hidden{ display:none; }
 </style>
 
-<!-- ===== Dhopa Mama API Bridge (auto-injected) ===== -->
+<!-- ===== Dhopa Mama API Bridge — MongoDB ONLY (no localStorage data) ===== -->
 <script>
-/* এই স্ক্রিপ্ট admin panel এর মূল কোড ছোঁয়া ছাড়াই localStorage কে backend এর
-   সাথে sync করে দেয়। ডিজাইন / ফাংশনালিটি অপরিবর্তিত। */
+/*
+  এই স্ক্রিপ্ট admin panel এর সকল data (products / categories / services /
+  orders / users / settings) কে সরাসরি MongoDB API এর সাথে sync করে।
+  ব্রাউজার localStorage এ কোনো ডেটা সংরক্ষণ করা হয় না — শুধু in-memory cache
+  ব্যবহৃত হয় যাতে admin panel এর বাকি কোড অপরিবর্তিত থাকতে পারে।
+  শুধু admin login token টি sessionStorage এ রাখা হয় (session ভিত্তিক)।
+*/
 window.API_BASE = window.API_BASE || 'https://dhopa-mama0.onrender.com'; // ← Render URL এখানে বসান
 
 (function(){
@@ -451,63 +456,79 @@ window.API_BASE = window.API_BASE || 'https://dhopa-mama0.onrender.com'; // ← 
   };
   var TOKEN_KEY = 'adminToken';
 
-  function getToken(){ return localStorage.getItem(TOKEN_KEY) || ''; }
+  // In-memory cache — এখানেই সব ডেটা রাখা হয়, localStorage এ নয়
+  var MEM = {};
+  window.__DB = MEM;
 
-  /* ---- 1) Preload: backend থেকে সব ডেটা এনে localStorage সিড করা (sync XHR) ---- */
-  try {
+  function getToken(){ try { return sessionStorage.getItem(TOKEN_KEY) || ''; } catch(e){ return ''; } }
+  function setToken(t){ try { sessionStorage.setItem(TOKEN_KEY, t); } catch(e){} }
+  function clearToken(){ try { sessionStorage.removeItem(TOKEN_KEY); } catch(e){} }
+
+  // ---- 1) Preload: MongoDB থেকে সব ডেটা এনে in-memory cache এ রাখা (sync XHR) ----
+  function preloadAll(){
     Object.keys(LS_MAP).forEach(function(lsKey){
       try {
         var xhr = new XMLHttpRequest();
         xhr.open('GET', window.API_BASE + '/api/' + LS_MAP[lsKey], false);
         xhr.timeout = 8000;
         xhr.send();
-        if (xhr.status === 200 && xhr.responseText && xhr.responseText !== 'null') {
-          localStorage.setItem(lsKey, xhr.responseText);
+        if (xhr.status === 200 && xhr.responseText && xhr.responseText !== 'null'){
+          MEM[lsKey] = xhr.responseText;
         }
       } catch(e){ console.warn('preload failed for', lsKey, e && e.message); }
     });
-  } catch(e){ console.warn('API preload skipped:', e && e.message); }
+  }
+  preloadAll();
 
-  /* ---- 2) localStorage.setItem override → backend এ PUT (admin token সহ) ---- */
-  var origSet = localStorage.setItem.bind(localStorage);
+  // ---- 2) localStorage override — data keys মেমরি + MongoDB, বাকি সব normal ----
+  var _rawGet    = localStorage.getItem.bind(localStorage);
+  var _rawSet    = localStorage.setItem.bind(localStorage);
+  var _rawDel    = localStorage.removeItem.bind(localStorage);
+
+  localStorage.getItem = function(k){
+    if (LS_MAP[k]) return (k in MEM) ? MEM[k] : null;
+    return _rawGet(k);
+  };
   localStorage.setItem = function(k, v){
-    origSet(k, v);
-    var ep = LS_MAP[k];
-    if (!ep) return;
+    if (!LS_MAP[k]) return _rawSet(k, v);
+    // ডেটা কী → শুধু মেমরিতে রাখো এবং MongoDB তে PUT করো
+    MEM[k] = v;
     try {
       var headers = {'Content-Type':'application/json'};
       var token = getToken();
       if (token) headers['Authorization'] = 'Bearer ' + token;
-      fetch(window.API_BASE + '/api/' + ep, {
-        method: 'PUT',
-        headers: headers,
-        body: v
+      fetch(window.API_BASE + '/api/' + LS_MAP[k], {
+        method: 'PUT', headers: headers, body: v
       }).then(function(r){
         if (r.status === 401) window.showLoginScreen('সেশনের মেয়াদ শেষ হয়ে গেছে, আবার লগইন করুন।');
       }).catch(function(){});
     } catch(e){}
   };
+  localStorage.removeItem = function(k){
+    if (LS_MAP[k]) { delete MEM[k]; return; }
+    return _rawDel(k);
+  };
 
-  /* ---- 3) Auto-refresh orders/users প্রতি 15 সেকেন্ডে (frontend থেকে আসা নতুন data দেখতে) ---- */
+  // ---- 3) Auto-refresh orders / users প্রতি 15 সেকেন্ডে (front-end থেকে আসা নতুন data) ----
   setInterval(function(){
-    if (!getToken()) return; // লগইন না করা পর্যন্ত পোলিং বন্ধ থাকবে
-    ['falaqOrders','falaqUsers'].forEach(function(lsKey){
+    if (!getToken()) return;
+    ['falaqOrders','falaqUsers','falaqProducts','falaqCategories','falaqServices','falaqSettings'].forEach(function(lsKey){
       fetch(window.API_BASE + '/api/' + LS_MAP[lsKey])
         .then(function(r){ return r.ok ? r.text() : null; })
         .then(function(txt){
           if (!txt || txt === 'null') return;
-          if (localStorage.getItem(lsKey) === txt) return;
-          origSet(lsKey, txt);
-          if (typeof window.reloadAllFromStorage === 'function') {
+          if (MEM[lsKey] === txt) return;
+          MEM[lsKey] = txt;
+          if (typeof window.reloadAllFromStorage === 'function'){
             try { window.reloadAllFromStorage(); } catch(e){}
-          } else if (typeof window.renderAll === 'function') {
+          } else if (typeof window.renderAll === 'function'){
             try { window.renderAll(); } catch(e){}
           }
         }).catch(function(){});
     });
   }, 15000);
 
-  /* ---- 4) Admin auth: লগইন / লগআউট / সেশন চেক ---- */
+  // ---- 4) Admin auth: লগইন / লগআউট / সেশন চেক ----
   function showLoginScreen(message){
     var appRoot = document.getElementById('appRoot');
     var loginScreen = document.getElementById('loginScreen');
@@ -527,12 +548,11 @@ window.API_BASE = window.API_BASE || 'https://dhopa-mama0.onrender.com'; // ← 
   }
   window.showLoginScreen = showLoginScreen;
   window.adminLogout = function(){
-    localStorage.removeItem(TOKEN_KEY);
+    clearToken();
     showLoginScreen();
   };
 
   document.addEventListener('DOMContentLoaded', function(){
-    // ইতিমধ্যে টোকেন থাকলে সরাসরি অ্যাপ দেখাও, নাহলে লগইন স্ক্রিন
     if (getToken()) showApp(); else showLoginScreen();
 
     var form = document.getElementById('loginForm');
@@ -554,8 +574,13 @@ window.API_BASE = window.API_BASE || 'https://dhopa-mama0.onrender.com'; // ← 
       .then(function(r){ return r.json().then(function(data){ return {status:r.status, data:data}; }); })
       .then(function(res){
         if (res.status === 200 && res.data && res.data.token){
-          localStorage.setItem(TOKEN_KEY, res.data.token);
+          setToken(res.data.token);
+          // লগইনের পরে আবার সবচেয়ে ফ্রেশ ডেটা লোড করি এবং UI রি-রেন্ডার করি
+          preloadAll();
           showApp();
+          if (typeof window.reloadAllFromStorage === 'function'){
+            try { window.reloadAllFromStorage(); } catch(e){}
+          }
         } else {
           if (errBox){ errBox.textContent = (res.data && res.data.error) || 'ভুল ইউজারনেম বা পাসওয়ার্ড।'; errBox.classList.add('show'); }
         }
@@ -670,7 +695,7 @@ window.API_BASE = window.API_BASE || 'https://dhopa-mama0.onrender.com'; // ← 
 
     <div class="sync-note">
       <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-      <span>এই প্যানেলে করা পরিবর্তন (প্রোডাক্ট/ক্যাটাগরি/সার্ভিস/মূল্য) ব্রাউজারের <b>localStorage</b> এর মাধ্যমে <b>index.html</b> এর সাথে সিঙ্ক হয় — একই ব্রাউজার ও একই ফোল্ডার থেকে দুটো ফাইল চালালে পরিবর্তন সাথে সাথে ওয়েবসাইটে দেখা যাবে। অর্ডার ও নতুন গ্রাহক ওয়েবসাইট থেকে অটোমেটিক এখানে জমা হবে।</span>
+      <span>এই প্যানেলে করা পরিবর্তন (প্রোডাক্ট/ক্যাটাগরি/সার্ভিস/মূল্য) সরাসরি <b>MongoDB</b> এ সংরক্ষিত হয় এবং <b>index.html</b> এ কয়েক সেকেন্ডের মধ্যেই দেখা যাবে — যেকোনো ডিভাইস / ব্রাউজার থেকে। অর্ডার ও নতুন গ্রাহক ওয়েবসাইট থেকে অটোমেটিক এখানে জমা হবে।</span>
     </div>
 
     <!-- ================= DASHBOARD ================= -->
