@@ -346,6 +346,35 @@ select.status-select{
 .toast-notif .t-sub{font-size:12px;color:var(--muted);}
 .toast-notif .t-close{color:#C9C8DA;font-size:16px;line-height:1;flex-shrink:0;}
 
+/* ===== TOP CATEGORY BAR CHART ===== */
+.cat-chart-card{padding:22px 22px 18px;border-radius:22px;background:#fff;border:1px solid var(--border);}
+.cat-chart-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:6px;}
+.cat-chart-title{font-size:13px;font-weight:600;color:var(--text);letter-spacing:.2px;}
+.cat-chart-total{font-size:34px;font-weight:800;color:var(--text);line-height:1.05;margin-top:8px;}
+.cat-chart-sub{font-size:13px;color:var(--muted);margin-top:2px;}
+.cat-chart-legend{display:inline-flex;align-items:center;gap:8px;margin-top:14px;font-size:12.5px;color:var(--muted);}
+.cat-chart-legend .sw{width:14px;height:14px;border-radius:4px;background:var(--brand-light);border:1px solid var(--brand);}
+.cat-chart-legend b{color:var(--text);font-weight:700;}
+.cat-chart-legend .up{color:var(--ok);font-weight:700;}
+.cat-chart-tabs{display:flex;gap:14px;font-size:12.5px;color:var(--muted);font-weight:600;}
+.cat-chart-tabs span{cursor:pointer;padding:2px 2px;}
+.cat-chart-tabs span.on{color:var(--brand);}
+.cat-chart-body{display:flex;gap:14px;margin-top:22px;align-items:flex-end;height:180px;}
+.cat-chart-yaxis{display:flex;flex-direction:column;justify-content:space-between;font-size:11px;color:#c9c8da;padding-bottom:26px;text-align:right;min-width:22px;}
+.cat-chart-bars{flex:1;display:flex;justify-content:space-around;align-items:flex-end;gap:10px;position:relative;border-bottom:1px dashed transparent;}
+.cat-chart-bars::before,.cat-chart-bars::after{content:"";position:absolute;left:0;right:0;height:1px;background:#f4ece0;}
+.cat-chart-bars::before{top:0;}
+.cat-chart-bars::after{top:50%;}
+.cat-bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;position:relative;height:100%;justify-content:flex-end;max-width:44px;}
+.cat-bar{width:100%;background:var(--brand-light);border-radius:10px 10px 4px 4px;min-height:6px;transition:height .35s ease;}
+.cat-bar.top{background:var(--brand);box-shadow:0 6px 16px -6px color-mix(in oklab, var(--brand) 55%, transparent);}
+.cat-bar-label{font-size:11.5px;color:var(--muted);font-weight:600;}
+.cat-bar-col.top .cat-bar-label{color:var(--brand-dark);}
+@media(max-width:520px){
+  .cat-chart-total{font-size:28px;}
+  .cat-chart-body{height:150px;}
+}
+
 /* new order row highlight in tables */
 tr.row-new td{background:var(--brand-light)!important;}
 .new-badge{display:inline-flex;align-items:center;gap:4px;background:var(--danger);color:#fff;font-size:10.5px;font-weight:700;padding:3px 8px;border-radius:20px;margin-left:8px;}
@@ -363,12 +392,25 @@ tr.row-new td{background:var(--brand-light)!important;}
   .sidebar .nav-label, .sidebar .brand-text, .sidebar .nav-label-text, .sidebar .logout-icon .tip{display:inline-block!important;}
   .nav-icons .icon, .logout-icon{width:100%; justify-content:flex-start; padding:0 14px;}
   .menu-toggle{display:flex;}
-  main{padding:16px 14px 32px;}
-  .topbar{gap:10px;}
-  .topbar h1{font-size:18px;}
-  .topbar .sub{font-size:12px;}
-  .topbar-left{display:flex;align-items:center;gap:12px;}
-  .search{order:4; max-width:100%; flex:1 1 100%;}
+  main{padding:64px 14px 32px;}
+  /* মোবাইলে topbar স্থির (fixed) এবং চিকন */
+  .topbar{
+    position:fixed; top:0; left:0; right:0; z-index:220;
+    background:#fff; border-bottom:1px solid var(--border);
+    padding:8px 14px; margin:0 0 0 0; gap:8px;
+    box-shadow:0 2px 10px -6px rgba(20,18,35,.12);
+    flex-wrap:nowrap;
+  }
+  .topbar h1{font-size:15px;font-weight:700;line-height:1.15;}
+  .topbar .sub{display:none;}
+  .topbar-left{display:flex;align-items:center;gap:10px;min-width:0;flex:1;}
+  .topbar-left > div:nth-child(2){min-width:0;overflow:hidden;}
+  .topbar-left > div:nth-child(2) h1{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .menu-toggle{width:36px;height:36px;border-radius:10px;}
+  .menu-toggle svg{width:17px;height:17px;}
+  .search{display:none;}
+  .user-area .icon-btn{width:34px;height:34px;}
+  .avatar{width:32px;height:32px;font-size:12px;}
   .user-name, .user-role{display:none;}
   .user-profile{gap:0;}
   .stat-grid{grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px;}
@@ -466,18 +508,33 @@ window.API_BASE = window.API_BASE || 'https://dhopa-mama0.onrender.com'; // ← 
 
   function cb(){ return '?t=' + Date.now(); }
 
-  // ---- 1) Preload: MongoDB থেকে সব ডেটা এনে in-memory cache এ রাখা (sync XHR) ----
+  // ---- 1) Instant load: আগের cache থেকে সাথে সাথে ডেটা দেখাও, ব্যাকগ্রাউন্ডে refresh ----
+  var CACHE_PREFIX = '__dm_cache_';
+  var _rawGetInit = localStorage.getItem.bind(localStorage);
+  var _rawSetInit = localStorage.setItem.bind(localStorage);
+
+  // ধাপ ১: cache থেকে সঙ্গে সঙ্গে load — কোনো delay নেই
+  Object.keys(LS_MAP).forEach(function(lsKey){
+    try {
+      var cached = _rawGetInit(CACHE_PREFIX + lsKey);
+      if (cached && cached !== 'null') MEM[lsKey] = cached;
+    } catch(e){}
+  });
+
+  // ধাপ ২: ব্যাকগ্রাউন্ডে async fetch, তারপর re-render
   function preloadAll(){
     Object.keys(LS_MAP).forEach(function(lsKey){
-      try {
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', window.API_BASE + '/api/' + LS_MAP[lsKey] + cb(), false);
-        xhr.timeout = 12000;
-        xhr.send();
-        if (xhr.status === 200 && xhr.responseText && xhr.responseText !== 'null'){
-          MEM[lsKey] = xhr.responseText;
-        }
-      } catch(e){ console.warn('preload failed for', lsKey, e && e.message); }
+      fetch(window.API_BASE + '/api/' + LS_MAP[lsKey] + cb(), { cache:'no-store' })
+        .then(function(r){ return r.ok ? r.text() : null; })
+        .then(function(txt){
+          if (!txt || txt === 'null') return;
+          if (MEM[lsKey] === txt) return;
+          MEM[lsKey] = txt;
+          try { _rawSetInit(CACHE_PREFIX + lsKey, txt); } catch(e){}
+          if (typeof window.reloadAllFromStorage === 'function'){
+            try { window.reloadAllFromStorage(); window.renderAll && window.renderAll(); } catch(e){}
+          }
+        }).catch(function(){});
     });
   }
   preloadAll();
@@ -495,6 +552,7 @@ window.API_BASE = window.API_BASE || 'https://dhopa-mama0.onrender.com'; // ← 
     if (!LS_MAP[k]) return _rawSet(k, v);
     // ডেটা কী → শুধু মেমরিতে রাখো এবং MongoDB তে PUT করো
     MEM[k] = v;
+    try { _rawSetInit(CACHE_PREFIX + k, v); } catch(e){}
     try {
       var headers = {'Content-Type':'application/json'};
       var token = getToken();
@@ -529,6 +587,7 @@ window.API_BASE = window.API_BASE || 'https://dhopa-mama0.onrender.com'; // ← 
           if (!txt || txt === 'null') return;
           if (MEM[lsKey] === txt) return;
           MEM[lsKey] = txt;
+          try { _rawSetInit(CACHE_PREFIX + lsKey, txt); } catch(e){}
           if (typeof window.reloadAllFromStorage === 'function'){
             try { window.reloadAllFromStorage(); } catch(e){}
           } else if (typeof window.renderAll === 'function'){
@@ -742,8 +801,25 @@ window.API_BASE = window.API_BASE || 'https://dhopa-mama0.onrender.com'; // ← 
       </div>
 
       <div class="section-head"><h2>সবচেয়ে বেশি বিক্রিত প্রোডাক্ট ক্যাটাগরি</h2></div>
-      <div class="card" style="padding:18px 20px">
-        <div id="dashCatBreakdown" style="display:flex;flex-direction:column;gap:10px;font-size:13.5px;color:var(--muted)">লোড হচ্ছে...</div>
+      <div class="cat-chart-card" id="dashCatBreakdown">
+        <div class="cat-chart-head">
+          <div>
+            <div class="cat-chart-title">মোট বিক্রিত পিস</div>
+            <div class="cat-chart-total" id="catChartTotal">0</div>
+            <div class="cat-chart-sub" id="catChartSub">0 অর্ডার</div>
+          </div>
+          <div class="cat-chart-tabs">
+            <span>দিন</span><span class="on">সপ্তাহ</span><span>মাস</span>
+          </div>
+        </div>
+        <div class="cat-chart-legend">
+          <span class="sw"></span>
+          <span><b id="catChartTopLabel">—</b> সর্বাধিক বিক্রিত <span class="up" id="catChartUp">+0%</span></span>
+        </div>
+        <div class="cat-chart-body">
+          <div class="cat-chart-yaxis" id="catChartYAxis"><span>0</span><span>0</span><span>0</span><span>0</span></div>
+          <div class="cat-chart-bars" id="catChartBars"></div>
+        </div>
       </div>
     </div>
 
@@ -1201,24 +1277,61 @@ function renderDashboard(){
       </tr>`).join('');
   }
 
-  const catCounts = {};
-  products.forEach(p=>{ catCounts[p.cat] = (catCounts[p.cat]||0)+1; });
-  const maxCount = Math.max(1, ...Object.values(catCounts));
-  const catBox = document.getElementById('dashCatBreakdown');
-  const entries = Object.entries(catCounts);
+  // অর্ডার আইটেম থেকে category-ভিত্তিক বিক্রি গণনা
+  const catSold = {};
+  const prodByTitle = {};
+  products.forEach(p=>{ prodByTitle[p.t] = p.cat; });
+  orders.forEach(o=>{
+    (o.items||[]).forEach(it=>{
+      const cat = it.cat || prodByTitle[it.title] || prodByTitle[it.t] || 'other';
+      const qty = Number(it.qty||it.quantity||1);
+      catSold[cat] = (catSold[cat]||0) + qty;
+    });
+  });
+  // যদি কোনো অর্ডার না থাকে, fallback হিসেবে product count দেখাও
+  let entries = Object.entries(catSold);
   if (!entries.length){
-    catBox.innerHTML = 'কোনো প্রোডাক্ট নেই।';
-  } else {
-    catBox.innerHTML = entries.map(([key,count])=>`
-      <div>
-        <div style="display:flex;justify-content:space-between;margin-bottom:5px;font-size:13px;color:var(--text)">
-          <span>${catLabel(key)}</span><span>${count}টি</span>
-        </div>
-        <div style="background:#f4ece0;border-radius:8px;height:8px;overflow:hidden">
-          <div style="background:var(--brand);height:100%;width:${(count/maxCount*100).toFixed(0)}%"></div>
-        </div>
-      </div>`).join('');
+    const catCounts = {};
+    products.forEach(p=>{ catCounts[p.cat] = (catCounts[p.cat]||0)+1; });
+    entries = Object.entries(catCounts);
   }
+  // সর্বোচ্চ ৭টি দেখাও, বিক্রি অনুসারে descending
+  entries.sort((a,b)=>b[1]-a[1]);
+  entries = entries.slice(0,7);
+  const totalSold = entries.reduce((s,e)=>s+e[1],0);
+  const maxCount = Math.max(1, ...entries.map(e=>e[1]));
+  const barsEl = document.getElementById('catChartBars');
+  const yEl = document.getElementById('catChartYAxis');
+  document.getElementById('catChartTotal').textContent = totalSold + ' পিস';
+  document.getElementById('catChartSub').textContent = orders.length + ' অর্ডার';
+  if (!entries.length){
+    barsEl.innerHTML = '<div style="width:100%;text-align:center;color:var(--muted);font-size:13px;padding:30px 0">এখনো কোনো ডেটা নেই।</div>';
+    document.getElementById('catChartTopLabel').textContent = '—';
+    return;
+  }
+  // Y-axis labels — max, 2/3, 1/3, 0
+  const yMax = Math.ceil(maxCount / 10) * 10 || 10;
+  yEl.innerHTML = ['<span>'+yMax+'</span>','<span>'+Math.round(yMax*2/3)+'</span>','<span>'+Math.round(yMax/3)+'</span>','<span>0</span>'].join('');
+  // Bars
+  const topIdx = 0; // sorted desc; first is top
+  barsEl.innerHTML = entries.map(([key,count],i)=>{
+    const h = Math.max(6, (count/yMax)*100);
+    const isTop = (i===topIdx);
+    return '<div class="cat-bar-col'+(isTop?' top':'')+'">'
+      + '<div class="cat-bar'+(isTop?' top':'')+'" style="height:'+h+'%"></div>'
+      + '<div class="cat-bar-label">'+shortCatLabel(key)+'</div>'
+      + '</div>';
+  }).join('');
+  const topLabel = catLabel(entries[topIdx][0]);
+  document.getElementById('catChartTopLabel').textContent = topLabel + ' — ' + entries[topIdx][1] + ' পিস';
+  const share = totalSold ? Math.round(entries[topIdx][1]/totalSold*100) : 0;
+  document.getElementById('catChartUp').textContent = '+' + share + '%';
+}
+
+// ছোট bar-label এর জন্য সংক্ষিপ্ত নাম
+function shortCatLabel(key){
+  const full = catLabel(key) || key || '—';
+  return full.length > 6 ? full.slice(0,6) : full;
 }
 
 /* ================= PRODUCTS ================= */

@@ -424,6 +424,19 @@ button{font-family:inherit;cursor:pointer}
 .sidebar-user-sign::after{content:"\2192";margin-left:8px}
 
 .svc-gallery-title{font-size:22px;line-height:1.4}.svc-gallery-title .svc-sub{font-weight:600;color:var(--green-dark)}@media(max-width:560px){.svc-gallery-title{font-size:17px;line-height:1.5;text-align:center}.svc-gallery-title .svc-sep{display:none}.svc-gallery-title .svc-sub{display:block;font-size:13.5px;color:#666;margin-top:4px;font-weight:500}}
+
+/* Mobile hero slider: show only hero-main, auto-slide 3 images */
+@media(max-width:720px){
+  .hero-grid{grid-template-columns:1fr}
+  .hero-side{display:none !important}
+  .hero-main{position:relative}
+  .hero-main .hero-slide{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .6s ease}
+  .hero-main .hero-slide.active{opacity:1}
+  .hero-main > img:not(.hero-slide){opacity:0}
+  .hero-slide-dots{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:6px;z-index:3}
+  .hero-slide-dots span{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.55);transition:all .3s}
+  .hero-slide-dots span.active{background:#fff;width:20px;border-radius:4px}
+}
 </style>
 <style>
 /* ===== নতুন যোগ করা মডালসমূহ (সার্ভিস বাছাই, চেকআউট, অর্ডার, একাউন্ট) ===== */
@@ -965,8 +978,12 @@ window.API_BASE = window.API_BASE || 'https://dhopa-mama0.onrender.com'; // ← 
 
 <section class="hero">
   <div class="container hero-grid">
-    <a href="#/services" onclick="navTo('services');return false;" class="hero-main" aria-label="ঘরে বসে লন্ড্রি সার্ভিস">
+    <a href="#/services" onclick="navTo('services');return false;" class="hero-main" id="heroMainSlider" aria-label="ঘরে বসে লন্ড্রি সার্ভিস">
       <img src="images/laundry.png" alt="ঘরে বসে লন্ড্রি সার্ভিস">
+      <img src="images/laundry.png" class="hero-slide active" alt="ঘরে বসে লন্ড্রি সার্ভিস" data-mobile-only>
+      <img src="images/laundry1.png" class="hero-slide" alt="ফ্রি পিকআপ ও ড্রপ" data-mobile-only>
+      <img src="images/laundry2.png" class="hero-slide" alt="দ্রুত ও নির্ভরযোগ্য সার্ভিস" data-mobile-only>
+      <div class="hero-slide-dots" data-mobile-only><span class="active"></span><span></span><span></span></div>
     </a>
     <div class="hero-side">
       <a href="#/services" onclick="navTo('services');return false;" class="hero-side-item" aria-label="ফ্রি পিকআপ ও ড্রপ">
@@ -2693,5 +2710,28 @@ renderServiceGallery(); window.addEventListener("hashchange", function(){ if(loc
 </script>
 <!-- ===== end submit overrides ===== -->
 
+
+<script>
+(function(){
+  var slider = document.getElementById('heroMainSlider');
+  if(!slider) return;
+  var slides = slider.querySelectorAll('.hero-slide');
+  var dots = slider.querySelectorAll('.hero-slide-dots span');
+  var i = 0, timer = null;
+  function show(n){
+    slides.forEach(function(el,idx){ el.classList.toggle('active', idx===n); });
+    dots.forEach(function(el,idx){ el.classList.toggle('active', idx===n); });
+  }
+  function next(){ i = (i+1) % slides.length; show(i); }
+  function start(){ if(!timer) timer = setInterval(next, 3500); }
+  function stop(){ if(timer){ clearInterval(timer); timer=null; } }
+  function check(){
+    if(window.matchMedia('(max-width:720px)').matches){ start(); }
+    else{ stop(); i=0; show(0); }
+  }
+  check();
+  window.addEventListener('resize', check);
+})();
+</script>
 </body>
 </html>
