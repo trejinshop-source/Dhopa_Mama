@@ -18,7 +18,16 @@ const jwt = require('jsonwebtoken');
 const cloudinary = require('cloudinary').v2;
 
 const app = express();
-app.use(express.json({ limit: '15mb' }));
+app.use(express.json({ limit: '25mb' }));
+// Return a clear JSON error instead of a raw connection failure when a
+// request body is too large (this is what most "network/CORS" save errors
+// on the admin panel actually are, once legacy base64 images pile up).
+app.use((err, req, res, next) => {
+  if (err && err.type === 'entity.too.large') {
+    return res.status(413).json({ error: 'Payload too large — run the image migration script to move remaining base64 images to Cloudinary.' });
+  }
+  next(err);
+});
 
 /* ---------------- Cloudinary ---------------- */
 cloudinary.config({
