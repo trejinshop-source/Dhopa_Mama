@@ -563,9 +563,18 @@ window.API_BASE = window.API_BASE || 'https://dhopa-mama0.onrender.com'; // ← 
       }).then(function(r){
         if (r.status === 401){
           window.showLoginScreen && window.showLoginScreen('সেশনের মেয়াদ শেষ হয়ে গেছে, আবার লগইন করুন।');
-        } else if (!r.ok){
-          console.error('Save failed for', k, r.status);
-          try { alert('সেভ ব্যর্থ (' + k + '): ' + r.status + ' — ইন্টারনেট/সার্ভার চেক করুন।'); } catch(e){}
+          return;
+        }
+        if (!r.ok){
+          r.text().then(function(bodyText){
+            var msg = bodyText;
+            try { var j = JSON.parse(bodyText); msg = j.error || bodyText; } catch(e){}
+            console.error('Save failed for', k, r.status, msg);
+            try { alert('সেভ ব্যর্থ (' + k + '): ' + r.status + ' — ' + msg); } catch(e){}
+          }).catch(function(){
+            console.error('Save failed for', k, r.status);
+            try { alert('সেভ ব্যর্থ (' + k + '): ' + r.status + ' — ইন্টারনেট/সার্ভার চেক করুন।'); } catch(e){}
+          });
         }
       }).catch(function(err){
         console.error('Save network error for', k, err);

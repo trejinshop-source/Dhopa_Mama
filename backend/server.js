@@ -194,7 +194,10 @@ function bucketRoutes(path, Model) {
   // Admin overwrites the whole array/object (matches admin panel's saveData behavior)
   app.put(`/api/${path}`, requireAdmin, async (req, res) => {
     try { const b = await putBucket(Model, req.body); res.json(b.data); }
-    catch (e) { res.status(500).json({ error: e.message }); }
+    catch (e) {
+      console.error(`PUT /api/${path} failed:`, e.message, e.stack);
+      res.status(500).json({ error: e.message });
+    }
   });
 }
 bucketRoutes('products',   Products);
