@@ -125,7 +125,7 @@ function bucketRoutes(path, Model) {
     catch (e) { res.status(500).json({ error: e.message }); }
   });
   // Admin overwrites the whole array/object (matches admin panel's saveData behavior)
-  app.put(`/api/${path}`, async (req, res) => {
+  app.put(`/api/${path}`, requireAdmin, async (req, res) => {
     try { const b = await putBucket(Model, req.body); res.json(b.data); }
     catch (e) { res.status(500).json({ error: e.message }); }
   });
@@ -153,7 +153,7 @@ app.post('/api/orders', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 // Admin: bulk replace (admin panel saveData(LS.orders, orders))
-app.put('/api/orders', async (req, res) => {
+app.put('/api/orders', requireAdmin, async (req, res) => {
   try {
     const arr = Array.isArray(req.body) ? req.body : [];
     // upsert each; do not delete missing (safer)
@@ -166,11 +166,11 @@ app.put('/api/orders', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 // Admin: update single order status
-app.patch('/api/orders/:id', async (req, res) => {
+app.patch('/api/orders/:id', requireAdmin, async (req, res) => {
   const doc = await Order.findOneAndUpdate({ id: req.params.id }, { $set: req.body }, { new: true });
   res.json(doc);
 });
-app.delete('/api/orders/:id', async (req, res) => {
+app.delete('/api/orders/:id', requireAdmin, async (req, res) => {
   await Order.deleteOne({ id: req.params.id });
   res.json({ ok: true });
 });
@@ -202,7 +202,7 @@ app.post('/api/login', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 // Admin: bulk replace users list (matches admin panel behavior)
-app.put('/api/users', async (req, res) => {
+app.put('/api/users', requireAdmin, async (req, res) => {
   try {
     const arr = Array.isArray(req.body) ? req.body : [];
     for (const u of arr) {
@@ -217,6 +217,3 @@ app.put('/api/users', async (req, res) => {
 /* ---------------- Start ---------------- */
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Dhopa Mama API on :${PORT}`));
-
-// silence unused warning
-void requireAdmin;
