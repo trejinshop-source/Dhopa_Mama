@@ -896,12 +896,12 @@ window.API_BASE = window.API_BASE || 'https://dhopa-mama0.onrender.com'; // ← 
     <div class="avatar"><i class="fas fa-user"></i></div>
     <div>
       <div class="user-text">Hello, what are you looking for?</div>
-      <div class="user-sub">Sign In to your account</div>
+      <div class="user-sub">আপনার অ্যাকাউন্টে লগইন করুন</div>
     </div>
-    <button class="sidebar-user-sign" onclick="openAccountModal()">Sign In</button>
+    <button class="sidebar-user-sign" onclick="openAccountModal()">Login</button>
   </div>
   <div class="sidebar-nav-row">
-    <a href="#" class="active"><i class="fas fa-home"></i>Home</a>
+    <a href="#" class="active" onclick="navTo('home');return false;"><i class="fas fa-home"></i>Home</a>
     <a href="#/services" onclick="navTo('services');return false;">Services</a>
     <a href="#" onclick="openOrdersModal();return false;"><i class="fas fa-receipt"></i>My Orders</a>
   </div>
@@ -925,7 +925,7 @@ window.API_BASE = window.API_BASE || 'https://dhopa-mama0.onrender.com'; // ← 
     <i class="fas fa-chevron-right chevron"></i>
   </a>
   <a href="#" class="sidebar-action" onclick="openAccountModal();return false;">
-    <span class="action-left"><i class="fas fa-sign-in-alt"></i> Sign In / Account</span>
+    <span class="action-left"><i class="fas fa-sign-in-alt"></i> Login / Account</span>
     <i class="fas fa-chevron-right chevron"></i>
   </a>
 </div>
@@ -933,11 +933,11 @@ window.API_BASE = window.API_BASE || 'https://dhopa-mama0.onrender.com'; // ← 
 <!-- Mobile Bottom Nav -->
 <nav class="mobile-bottom-nav">
   <div class="nav-items">
-    <div class="nav-item active"><i class="fas fa-home"></i><span>Home</span></div>
+    <div class="nav-item" onclick="navTo('home')"><i class="fas fa-home"></i><span>Home</span></div>
     <div class="nav-item" onclick="navTo('services')"><i class="fas fa-concierge-bell"></i><span>Service</span></div>
     <div class="nav-item" onclick="navTo('about')"><i class="fas fa-info-circle"></i><span>About Us</span></div>
     <div class="nav-item"><i class="fas fa-shopping-cart"></i><span>Cart</span></div>
-    <div class="nav-item" onclick="openAccountModal()"><i class="far fa-user"></i><span>Sign In</span></div>
+    <div class="nav-item" onclick="openAccountModal()"><i class="far fa-user"></i><span>Login</span></div>
   </div>
 </nav>
 
@@ -962,7 +962,7 @@ window.API_BASE = window.API_BASE || 'https://dhopa-mama0.onrender.com'; // ← 
     </div>
     <div class="header-icons">
       <div class="icon-btn"><i class="fas fa-shopping-cart"></i><span class="cart-count">0</span><span>Cart</span></div>
-      <div class="icon-btn" id="headerSignInBtn" onclick="openAccountModal()"><i class="far fa-user"></i><span>Sign In</span></div>
+      <div class="icon-btn" id="headerSignInBtn" onclick="openAccountModal()"><i class="far fa-user"></i><span>Login</span></div>
     </div>
   </div>
   <nav class="cat-nav">
@@ -1481,23 +1481,23 @@ window.API_BASE = window.API_BASE || 'https://dhopa-mama0.onrender.com'; // ← 
   </div>
 </div>
 
-<!-- Sign In / Account Modal -->
+<!-- লগইন / অ্যাকাউন্ট Modal -->
 <div class="modal-overlay" id="accountModalOverlay">
   <div class="modal-box">
     <button class="modal-close" onclick="closeAccountModal()">&times;</button>
 
     <div id="authView">
-      <h3><i class="fas fa-sign-in-alt" style="margin-right:8px"></i><span id="authTitle">Sign In</span></h3>
+      <h3><i class="fas fa-sign-in-alt" style="margin-right:8px"></i><span id="authTitle">Login</span></h3>
       <div class="auth-tabs">
-        <button type="button" class="auth-tab active" id="tabSignIn" onclick="switchAuthTab('signin')"><i class="fas fa-unlock-alt"></i> Sign In</button>
-        <button type="button" class="auth-tab" id="tabRegister" onclick="switchAuthTab('register')"><i class="fas fa-user-plus"></i> Register</button>
+        <button type="button" class="auth-tab active" id="tabSignIn" onclick="switchAuthTab('signin')"><i class="fas fa-unlock-alt"></i> Login</button>
+        <button type="button" class="auth-tab" id="tabRegister" onclick="switchAuthTab('register')"><i class="fas fa-user-plus"></i> Registration</button>
       </div>
 
       <div class="form-field" id="accNameField" style="display:none"><label>নাম</label><input type="text" id="accName" placeholder="আপনার পূর্ণ নাম"></div>
       <div class="form-field"><label>মোবাইল / ইমেইল</label><input type="text" id="accMobile" placeholder="নাম্বার/জিমেইল"></div>
       <div class="form-field"><label>পাসওয়ার্ড</label><input type="password" id="accPass" placeholder="••••••"></div>
       <p id="accError" style="color:#e53935;font-size:13px;margin-bottom:10px;display:none"></p>
-      <button class="btn-primary" onclick="submitAccount()"><i class="fas fa-sign-in-alt"></i> <span id="authSubmitLabel">Sign In</span></button>
+      <button class="btn-primary" onclick="submitAccount()"><i class="fas fa-sign-in-alt"></i> <span id="authSubmitLabel">Login</span></button>
     </div>
 
     <div id="accountView" style="display:none">
@@ -1513,7 +1513,7 @@ window.API_BASE = window.API_BASE || 'https://dhopa-mama0.onrender.com'; // ← 
         <span class="action-left"><i class="fas fa-receipt"></i> আমার অর্ডারসমূহ</span>
         <i class="fas fa-chevron-right chevron"></i>
       </a>
-      <button class="btn-primary" style="background:#e53935" onclick="logoutAccount()"><i class="fas fa-sign-out-alt"></i> Log Out</button>
+      <button class="btn-primary" style="background:#e53935" onclick="logoutAccount()"><i class="fas fa-sign-out-alt"></i> লগ আউট</button>
     </div>
 
   </div>
@@ -2257,8 +2257,8 @@ function switchAuthTab(mode){
   document.getElementById('tabSignIn').classList.toggle('active', mode === 'signin');
   document.getElementById('tabRegister').classList.toggle('active', mode === 'register');
   document.getElementById('accNameField').style.display = (mode === 'register') ? 'block' : 'none';
-  document.getElementById('authTitle').textContent = (mode === 'register') ? 'Register' : 'Sign In';
-  document.getElementById('authSubmitLabel').textContent = (mode === 'register') ? 'Register' : 'Sign In';
+  document.getElementById('authTitle').textContent = (mode === 'register') ? 'Registration' : 'Login';
+  document.getElementById('authSubmitLabel').textContent = (mode === 'register') ? 'Registration' : 'Login';
   document.getElementById('accError').style.display = 'none';
 }
 
@@ -2266,7 +2266,7 @@ function refreshAccountUI(){
   var signedIn = !!currentUser;
 
   var headerBtn = document.getElementById('headerSignInBtn');
-  if (headerBtn) headerBtn.querySelector('span:not(.cart-count)').textContent = signedIn ? currentUser.name.split(' ')[0] : 'Sign In';
+  if (headerBtn) headerBtn.querySelector('span:not(.cart-count)').textContent = signedIn ? currentUser.name.split(' ')[0] : 'Login';
 
   var sideText = document.querySelector('.sidebar-user .user-text');
   var sideSub = document.querySelector('.sidebar-user .user-sub');
@@ -2275,18 +2275,18 @@ function refreshAccountUI(){
     if (signedIn){
       sideText.textContent = 'Hello, ' + currentUser.name;
       sideSub.textContent = currentUser.contact;
-      sideBtn.textContent = 'Log Out';
+      sideBtn.textContent = 'লগ আউট';
       sideBtn.setAttribute('onclick', 'logoutAccount()');
     } else {
       sideText.textContent = 'Hello, what are you looking for?';
-      sideSub.textContent = 'Sign In to your account';
-      sideBtn.textContent = 'Sign In';
+      sideSub.textContent = 'আপনার অ্যাকাউন্টে লগইন করুন';
+      sideBtn.textContent = 'Login';
       sideBtn.setAttribute('onclick', 'openAccountModal()');
     }
   }
 
   var bottomNavLabel = document.querySelector('.mobile-bottom-nav .nav-item:last-child span');
-  if (bottomNavLabel) bottomNavLabel.textContent = signedIn ? currentUser.name.split(' ')[0] : 'Sign In';
+  if (bottomNavLabel) bottomNavLabel.textContent = signedIn ? currentUser.name.split(' ')[0] : 'Login';
 }
 
 function openAccountModal(){
