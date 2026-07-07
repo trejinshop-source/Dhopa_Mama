@@ -346,35 +346,38 @@ select.status-select{
 .toast-notif .t-sub{font-size:12px;color:var(--muted);}
 .toast-notif .t-close{color:#C9C8DA;font-size:16px;line-height:1;flex-shrink:0;}
 
-/* ===== TOP CATEGORY DONUT CHART ===== */
-.donut-card{padding:22px 24px 24px;border-radius:22px;background:#fff;border:1px solid var(--border);}
-.donut-card-head{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:18px;}
-.donut-card-head h3{font-size:15px;font-weight:700;color:var(--text);}
-.donut-period{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--muted);background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:6px 12px;cursor:pointer;user-select:none;}
+/* ===== TOP CATEGORY DONUT CHART (হুবহু রেফারেন্স ডিজাইন অনুযায়ী) ===== */
+.donut-card{padding:24px 26px 26px;border-radius:22px;background:#fff;border:1px solid var(--border);}
+.donut-card-head{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:20px;}
+.donut-card-head h3{font-size:15px;font-weight:700;color:var(--text);letter-spacing:.1px;}
+.donut-refresh-btn{width:36px;height:36px;border-radius:50%;background:var(--ok);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;box-shadow:0 6px 14px -6px rgba(46,217,166,.55);transition:transform .15s ease,opacity .15s ease;}
+.donut-refresh-btn:hover{opacity:.88;transform:translateX(1px);}
+.donut-refresh-btn svg{width:16px;height:16px;}
+.donut-stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px;}
+.donut-stat{padding:0;}
+.donut-stat-label{font-size:12px;color:var(--muted);font-weight:500;margin-bottom:6px;}
+.donut-stat-value{font-size:19px;font-weight:800;color:var(--text);}
+.donut-period-row{margin-bottom:22px;}
+.donut-period{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--muted);cursor:pointer;user-select:none;}
 .donut-period svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;}
-.donut-stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px;}
-.donut-stat{padding:0 14px;}
-.donut-stat+.donut-stat{border-left:1px solid var(--border);}
-.donut-stat-label{font-size:12px;color:var(--muted);font-weight:600;margin-bottom:6px;}
-.donut-stat-value{font-size:20px;font-weight:800;color:var(--text);}
-.donut-card-body{display:flex;align-items:center;gap:28px;flex-wrap:wrap;}
-.donut-wrap{position:relative;width:190px;height:190px;flex-shrink:0;margin:0 auto;}
-.donut-ring{width:100%;height:100%;border-radius:50%;position:relative;transition:background 0.4s ease;}
-.donut-ring::before{content:"";position:absolute;inset:22%;border-radius:50%;background:#fff;box-shadow:0 4px 18px -6px rgba(43,41,66,.10);}
-.donut-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 20px;}
-.donut-center-label{font-size:13px;font-weight:700;color:var(--brand-dark);margin-bottom:4px;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.donut-center-value{font-size:19px;font-weight:800;color:var(--text);}
-.donut-legend{flex:1;min-width:180px;display:flex;flex-direction:column;gap:13px;}
-.donut-legend-item{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text);font-weight:600;}
-.donut-legend-item .sw{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
-.donut-legend-item .lg-name{flex:1;color:var(--muted);font-weight:500;}
-.donut-legend-item .lg-val{color:var(--text);font-weight:700;}
+.donut-card-body{display:flex;align-items:center;gap:30px;flex-wrap:wrap;}
+.donut-wrap{position:relative;width:196px;height:196px;flex-shrink:0;margin:0 auto;}
+.donut-svg{width:100%;height:100%;overflow:visible;}
+.donut-seg{transition:opacity .2s ease;cursor:pointer;}
+.donut-seg:hover{opacity:.85;}
+.donut-halo{opacity:.16;}
+.donut-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 26px;pointer-events:none;}
+.donut-center-label{font-size:12.5px;font-weight:700;margin-bottom:5px;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.donut-center-value{font-size:21px;font-weight:800;color:var(--text);}
+.donut-legend{flex:1;min-width:160px;display:flex;flex-direction:column;gap:14px;}
+.donut-legend-item{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--muted);font-weight:500;cursor:default;}
+.donut-legend-item .sw{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.donut-legend-item.is-top{color:var(--text);font-weight:700;}
 .donut-empty{width:100%;text-align:center;color:var(--muted);font-size:13px;padding:30px 0;}
 @media(max-width:520px){
   .donut-card-body{justify-content:center;}
   .donut-stats-row{grid-template-columns:1fr 1fr 1fr;gap:8px;}
-  .donut-stat{padding:0 6px;}
-  .donut-stat-value{font-size:17px;}
+  .donut-stat-value{font-size:16px;}
 }
 
 /* new order row highlight in tables */
@@ -812,18 +815,16 @@ window.API_BASE = window.API_BASE || 'https://dhopa-mama0.onrender.com'; // ← 
         </table>
       </div>
 
-      <div class="section-head"><h2>সবচেয়ে বেশি বিক্রিত প্রোডাক্ট ক্যাটাগরি</h2></div>
       <div class="donut-card" id="dashCatBreakdown">
         <div class="donut-card-head">
-          <h3>বিক্রির পরিমাণ</h3>
-          <div class="donut-period">
-            <span id="catChartSub">সর্বমোট</span>
-            <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+          <h3>সবচেয়ে বেশি বিক্রিত প্রোডাক্ট ক্যাটাগরি</h3>
+          <div class="donut-refresh-btn" onclick="renderCategoryDonut()" title="রিফ্রেশ করুন">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg>
           </div>
         </div>
         <div class="donut-stats-row">
           <div class="donut-stat">
-            <div class="donut-stat-label">দৈনিক (আজ)</div>
+            <div class="donut-stat-label">দৈনিক</div>
             <div class="donut-stat-value" id="catStatDaily">0 পিস</div>
           </div>
           <div class="donut-stat">
@@ -835,9 +836,15 @@ window.API_BASE = window.API_BASE || 'https://dhopa-mama0.onrender.com'; // ← 
             <div class="donut-stat-value" id="catStatMonthly">0 পিস</div>
           </div>
         </div>
+        <div class="donut-period-row">
+          <div class="donut-period">
+            <span id="catChartSub">সর্বমোট</span>
+            <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+        </div>
         <div class="donut-card-body" id="catDonutBody">
           <div class="donut-wrap">
-            <div class="donut-ring" id="catDonutRing"></div>
+            <svg viewBox="0 0 200 200" class="donut-svg" id="catDonutSvg"></svg>
             <div class="donut-center">
               <div class="donut-center-label" id="catDonutTopLabel">—</div>
               <div class="donut-center-value" id="catDonutTopValue">0 পিস</div>
@@ -1450,12 +1457,15 @@ const VIEW_TITLES = {
   settings:['সেটিংস','পেমেন্ট নাম্বার ও ডেটা পরিচালনা']
 };
 
+const ADMIN_VIEW_KEY = 'adminActiveView';
 function switchView(view){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.getElementById('view-'+view).classList.add('active');
   document.querySelectorAll('.nav-icons .icon').forEach(i=>i.classList.toggle('active', i.dataset.view===view));
   document.getElementById('viewTitle').textContent = VIEW_TITLES[view][0];
   document.getElementById('viewSub').textContent = VIEW_TITLES[view][1];
+  // রিফ্রেশ দিলেও একই মেনুতে থাকার জন্য বর্তমান ভিউ সংরক্ষণ করা হয়
+  try { localStorage.setItem(ADMIN_VIEW_KEY, view); } catch(e){}
   renderAll();
   toggleSidebar(false);
 }
@@ -1512,8 +1522,10 @@ function renderDashboard(){
   renderCategoryDonut();
 }
 
-// ডোনাট চার্টের রং প্যালেট (ক্রমান্বয়ে ব্যবহৃত হয়)
-const DONUT_COLORS = ['#FF9F43','#8D7BF0','#4AA3F7','#2ED9A6','#F16A63','#2B2942','#F7C948'];
+// ডোনাট চার্টের রং প্যালেট — রেফারেন্স ইমেজের রং অনুযায়ী (নেভি, বেগুনি, কোরাল, টিল, হলুদ, মেরুন)
+const DONUT_COLORS = ['#2B2942','#8D7BF0','#F16A63','#2ED9A6','#F7C948','#B33951','#4AA3F7'];
+const DONUT_TOP_COLOR = '#F16A63'; // সর্বাধিক বিক্রিত (exploded) সেগমেন্টের রং — ইমেজের কোরাল রং
+const DONUT_EXPLODE = 9; // পুল-আউট দূরত্ব (px, viewBox ইউনিটে)
 
 // একটি নির্দিষ্ট সময়সীমার (দিন সংখ্যা) মধ্যে বিক্রিত মোট পিস গণনা করে
 function soldPiecesSince(daysBack){
@@ -1529,7 +1541,23 @@ function soldPiecesSince(daysBack){
   return total;
 }
 
-// "সবচেয়ে বেশি বিক্রিত প্রোডাক্ট ক্যাটাগরি" — ডোনাট চার্ট রেন্ডার করে
+// পোলার কো-অর্ডিনেট → কার্টেসিয়ান (0° = উপরে, ঘড়ির কাঁটার দিকে)
+function donutPolarPoint(cx, cy, r, angleDeg){
+  const a = (angleDeg - 90) * Math.PI / 180;
+  return { x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) };
+}
+// ডোনাট ওয়েজ (arc) এর SVG path তৈরি করে
+function donutWedgePath(cx, cy, rOuter, rInner, startAngle, endAngle){
+  const so = donutPolarPoint(cx, cy, rOuter, endAngle);
+  const eo = donutPolarPoint(cx, cy, rOuter, startAngle);
+  const si = donutPolarPoint(cx, cy, rInner, endAngle);
+  const ei = donutPolarPoint(cx, cy, rInner, startAngle);
+  const largeArc = (endAngle - startAngle) > 180 ? 1 : 0;
+  return ['M', so.x, so.y, 'A', rOuter, rOuter, 0, largeArc, 0, eo.x, eo.y,
+          'L', ei.x, ei.y, 'A', rInner, rInner, 0, largeArc, 1, si.x, si.y, 'Z'].join(' ');
+}
+
+// "সবচেয়ে বেশি বিক্রিত প্রোডাক্ট ক্যাটাগরি" — হুবহু রেফারেন্স ডিজাইন অনুযায়ী exploded ডোনাট চার্ট
 function renderCategoryDonut(){
   // দৈনিক / সাপ্তাহিক / মাসিক বিক্রির সারসংক্ষেপ
   document.getElementById('catStatDaily').textContent = soldPiecesSince(1) + ' পিস';
@@ -1564,42 +1592,64 @@ function renderCategoryDonut(){
   }
   const totalSold = shown.reduce((s,e)=>s+e[1],0);
 
-  const ring = document.getElementById('catDonutRing');
+  const svg = document.getElementById('catDonutSvg');
   const legendEl = document.getElementById('catDonutLegend');
-  const body = document.getElementById('catDonutBody');
+  const topLabelEl = document.getElementById('catDonutTopLabel');
+  const topValueEl = document.getElementById('catDonutTopValue');
 
   if (!shown.length || !totalSold){
-    ring.style.background = 'var(--border)';
+    svg.innerHTML = '<circle cx="100" cy="100" r="82" fill="none" stroke="var(--border)" stroke-width="30"/>';
     legendEl.innerHTML = '<div class="donut-empty">এখনো কোনো বিক্রির ডেটা নেই।</div>';
-    document.getElementById('catDonutTopLabel').textContent = '—';
-    document.getElementById('catDonutTopValue').textContent = '0 পিস';
+    topLabelEl.textContent = '—';
+    topLabelEl.style.color = 'var(--muted)';
+    topValueEl.textContent = '0 পিস';
     return;
   }
 
-  // conic-gradient দিয়ে ডোনাট রিং তৈরি
-  let pct = 0;
-  const stops = shown.map(([key,count],i)=>{
-    const start = pct;
-    pct += (count/totalSold)*100;
-    const color = key==='other-misc' ? '#C9C8DA' : DONUT_COLORS[i % DONUT_COLORS.length];
-    return color + ' ' + start.toFixed(2) + '% ' + pct.toFixed(2) + '%';
+  const cx = 100, cy = 100, rOuter = 88, rInner = 55;
+  let angle = 0;
+  let svgParts = '';
+  let haloParts = '';
+
+  shown.forEach(([key,count],i)=>{
+    const sweep = (count/totalSold)*360;
+    const start = angle, end = angle + sweep;
+    angle = end;
+    const isTop = (i===0);
+    const color = isTop ? DONUT_TOP_COLOR : (key==='other-misc' ? '#C9C8DA' : DONUT_COLORS[i % DONUT_COLORS.length]);
+
+    let dx = 0, dy = 0;
+    if (isTop){
+      const mid = (start+end)/2;
+      const midRad = (mid-90) * Math.PI/180;
+      dx = DONUT_EXPLODE * Math.cos(midRad);
+      dy = DONUT_EXPLODE * Math.sin(midRad);
+      // exploded সেগমেন্টের পেছনে হালকা রঙের হালো (ইমেজের মতো সফট গ্লো)
+      haloParts += '<path class="donut-halo" d="'+donutWedgePath(cx,cy,rOuter+10,rInner-14,start,end)+'" fill="'+color+'" transform="translate('+dx.toFixed(2)+','+dy.toFixed(2)+')"></path>';
+    }
+    const path = donutWedgePath(cx, cy, rOuter, rInner, start, end);
+    const transform = isTop ? ' transform="translate('+dx.toFixed(2)+','+dy.toFixed(2)+')"' : '';
+    const label = key==='other-misc' ? 'অন্যান্য' : catLabel(key);
+    svgParts += '<path class="donut-seg" d="'+path+'" fill="'+color+'"'+transform+'><title>'+label+' — '+count+' পিস</title></path>';
   });
-  ring.style.background = 'conic-gradient(' + stops.join(',') + ')';
+
+  svg.innerHTML = haloParts + svgParts;
 
   // কেন্দ্রে সর্বাধিক বিক্রিত ক্যাটাগরি
   const topKey = shown[0][0];
   const topLabel = topKey==='other-misc' ? 'অন্যান্য' : catLabel(topKey);
-  document.getElementById('catDonutTopLabel').textContent = topLabel;
-  document.getElementById('catDonutTopValue').textContent = shown[0][1] + ' পিস';
+  topLabelEl.textContent = topLabel;
+  topLabelEl.style.color = DONUT_TOP_COLOR;
+  topValueEl.textContent = shown[0][1] + ' পিস';
 
-  // legend তালিকা
+  // legend তালিকা (ডট + নাম — রেফারেন্স ইমেজের মতো)
   legendEl.innerHTML = shown.map(([key,count],i)=>{
-    const color = key==='other-misc' ? '#C9C8DA' : DONUT_COLORS[i % DONUT_COLORS.length];
+    const isTop = (i===0);
+    const color = isTop ? DONUT_TOP_COLOR : (key==='other-misc' ? '#C9C8DA' : DONUT_COLORS[i % DONUT_COLORS.length]);
     const label = key==='other-misc' ? 'অন্যান্য' : catLabel(key);
-    return '<div class="donut-legend-item">'
+    return '<div class="donut-legend-item'+(isTop?' is-top':'')+'" title="'+count+' পিস">'
       + '<span class="sw" style="background:'+color+'"></span>'
-      + '<span class="lg-name">'+label+'</span>'
-      + '<span class="lg-val">'+count+' পিস</span>'
+      + '<span>'+label+'</span>'
       + '</div>';
   }).join('');
 }
@@ -2149,6 +2199,16 @@ setInterval(function(){
 }, 8000);
 
 renderAll();
+
+/* পেজ রিফ্রেশ করলেও অ্যাডমিন যে মেনু/ভিউতে ছিলেন সেটিতেই ফিরিয়ে আনা হয় */
+(function restoreLastView(){
+  let savedView = 'dashboard';
+  try { savedView = localStorage.getItem(ADMIN_VIEW_KEY) || 'dashboard'; } catch(e){}
+  if (savedView !== 'dashboard' && VIEW_TITLES[savedView] && document.getElementById('view-'+savedView)){
+    switchView(savedView);
+  }
+})();
+
 </script>
 </body>
 </html>
