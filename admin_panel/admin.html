@@ -780,11 +780,6 @@ window.API_BASE = window.API_BASE || 'https://dhopa-mama0.onrender.com'; // ← 
       </div>
     </div>
 
-    <div class="sync-note">
-      <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-      <span>এই প্যানেলে করা পরিবর্তন (প্রোডাক্ট/ক্যাটাগরি/সার্ভিস/মূল্য) সরাসরি <b>MongoDB</b> এ সংরক্ষিত হয় এবং <b>index.html</b> এ কয়েক সেকেন্ডের মধ্যেই দেখা যাবে — যেকোনো ডিভাইস / ব্রাউজার থেকে। অর্ডার ও নতুন গ্রাহক ওয়েবসাইট থেকে অটোমেটিক এখানে জমা হবে।</span>
-    </div>
-
     <!-- ================= DASHBOARD ================= -->
     <div class="view active" id="view-dashboard">
       <div class="stat-grid">
@@ -1652,7 +1647,7 @@ function populateCatOptions(){
 function renderProductsTable(filter){
   filter = (filter||'').toLowerCase();
   const body = document.getElementById('productsBody');
-  const list = products.filter(p=> !filter || p.t.toLowerCase().includes(filter));
+  const list = products.filter(p=> !filter || String(p.t||'').toLowerCase().includes(filter));
   document.getElementById('productCount').textContent = products.length;
   if (!list.length){
     body.innerHTML = '<tr><td colspan="6"><div class="empty-state"><i class="fas fa-tshirt"></i>কোনো প্রোডাক্ট পাওয়া যায়নি।</div></td></tr>';
@@ -2155,14 +2150,24 @@ function reloadAllFromStorage(){
   settings   = loadData(LS.settings, { bkash:'01700-000000', nagad:'01800-000000' });
 }
 function renderAll(){
-  renderDashboard();
-  renderProductsTable(document.getElementById('globalSearch').value);
-  renderCategoriesTable();
-  renderServicesGrid();
-  renderOrders();
-  renderCustomers();
-  renderSettings();
-  renderAside();
+  // প্রতিটি সেকশন আলাদাভাবে try/catch এ চালানো হয় — যাতে কোনো একটি সেকশনের
+  // ডেটাতে সমস্যা (যেমন কোনো প্রোডাক্ট/অর্ডারে missing field) থাকলে সেটি শুধু
+  // ওই সেকশনকেই প্রভাবিত করে, বাকি সবগুলো প্যানেল (ড্যাশবোর্ড/ক্যাটাগরি/সার্ভিস/
+  // অর্ডার/গ্রাহক/সেটিংস) ঠিকভাবে দেখাতে থাকে।
+  const sections = [
+    ['dashboard', renderDashboard],
+    ['products',  ()=>renderProductsTable(document.getElementById('globalSearch').value)],
+    ['categories',renderCategoriesTable],
+    ['services',  renderServicesGrid],
+    ['orders',    renderOrders],
+    ['customers', renderCustomers],
+    ['settings',  renderSettings],
+    ['aside',     renderAside]
+  ];
+  sections.forEach(([name, fn])=>{
+    try { fn(); }
+    catch(e){ console.error('renderAll: "'+name+'" section failed to render:', e); }
+  });
 }
 
 /* একই ব্রাউজারে index.html থেকে অর্ডার/গ্রাহক যোগ হলে (অন্য ট্যাবে) লাইভ আপডেট */
