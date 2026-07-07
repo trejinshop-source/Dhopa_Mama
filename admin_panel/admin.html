@@ -346,38 +346,41 @@ select.status-select{
 .toast-notif .t-sub{font-size:12px;color:var(--muted);}
 .toast-notif .t-close{color:#C9C8DA;font-size:16px;line-height:1;flex-shrink:0;}
 
-/* ===== TOP CATEGORY DONUT CHART (হুবহু রেফারেন্স ডিজাইন অনুযায়ী) ===== */
-.donut-card{padding:24px 26px 26px;border-radius:22px;background:#fff;border:1px solid var(--border);}
-.donut-card-head{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:20px;}
-.donut-card-head h3{font-size:15px;font-weight:700;color:var(--text);letter-spacing:.1px;}
-.donut-refresh-btn{width:36px;height:36px;border-radius:50%;background:var(--ok);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;box-shadow:0 6px 14px -6px rgba(46,217,166,.55);transition:transform .15s ease,opacity .15s ease;}
-.donut-refresh-btn:hover{opacity:.88;transform:translateX(1px);}
-.donut-refresh-btn svg{width:16px;height:16px;}
-.donut-stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px;}
-.donut-stat{padding:0;}
-.donut-stat-label{font-size:12px;color:var(--muted);font-weight:500;margin-bottom:6px;}
-.donut-stat-value{font-size:19px;font-weight:800;color:var(--text);}
-.donut-period-row{margin-bottom:22px;}
-.donut-period{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--muted);cursor:pointer;user-select:none;}
-.donut-period svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;}
-.donut-card-body{display:flex;align-items:center;gap:30px;flex-wrap:wrap;}
-.donut-wrap{position:relative;width:196px;height:196px;flex-shrink:0;margin:0 auto;}
-.donut-svg{width:100%;height:100%;overflow:visible;}
-.donut-seg{transition:opacity .2s ease;cursor:pointer;}
-.donut-seg:hover{opacity:.85;}
-.donut-halo{opacity:.16;}
-.donut-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 26px;pointer-events:none;}
-.donut-center-label{font-size:12.5px;font-weight:700;margin-bottom:5px;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.donut-center-value{font-size:21px;font-weight:800;color:var(--text);}
-.donut-legend{flex:1;min-width:160px;display:flex;flex-direction:column;gap:14px;}
-.donut-legend-item{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--muted);font-weight:500;cursor:default;}
-.donut-legend-item .sw{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
-.donut-legend-item.is-top{color:var(--text);font-weight:700;}
-.donut-empty{width:100%;text-align:center;color:var(--muted);font-size:13px;padding:30px 0;}
+/* ===== TOP CATEGORY — RANKED SALES CARD (নতুন ডিজাইন) ===== */
+.rank-card{padding:26px 26px 22px;border-radius:24px;background:linear-gradient(180deg,#fff, #fff);border:1px solid var(--border);box-shadow:0 20px 44px -30px rgba(43,41,66,.18);}
+.rank-card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap;margin-bottom:22px;}
+.rank-card-head h3{font-size:16px;font-weight:800;color:var(--text);letter-spacing:.1px;margin-bottom:5px;}
+.rank-card-sub{font-size:12.5px;color:var(--muted);}
+.rank-card-sub b{color:var(--text);font-weight:800;}
+.rank-period-pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--brand-dark);background:var(--brand-light);border-radius:20px;padding:7px 14px;white-space:nowrap;}
+.rank-stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:24px;}
+.rank-stat{background:var(--bg);border-radius:14px;padding:12px 14px;}
+.rank-stat-label{font-size:11.5px;color:var(--muted);font-weight:600;margin-bottom:5px;}
+.rank-stat-value{font-size:17px;font-weight:800;color:var(--text);}
+.rank-list{display:flex;flex-direction:column;gap:14px;}
+.rank-row{display:flex;align-items:center;gap:13px;padding:11px 12px;border-radius:16px;transition:background .2s ease;}
+.rank-row.top{background:linear-gradient(90deg,var(--brand-light), transparent);}
+.rank-row:hover{background:var(--bg);}
+.rank-badge{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:800;color:#fff;flex-shrink:0;box-shadow:0 4px 10px -4px rgba(43,41,66,.35);}
+.rank-badge.r1{background:linear-gradient(135deg,#FFD36E,#F7A93B);color:#5A3B00;}
+.rank-badge.r2{background:linear-gradient(135deg,#D9D8E8,#B7B6CC);color:#3A3852;}
+.rank-badge.r3{background:linear-gradient(135deg,#E8B487,#C97D45);color:#4A2A0E;}
+.rank-badge.rN{background:var(--border);color:var(--muted);box-shadow:none;}
+.rank-info{flex:1;min-width:0;}
+.rank-info-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:6px;}
+.rank-name{font-size:13.5px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.rank-pct{font-size:12.5px;font-weight:800;color:var(--muted);flex-shrink:0;}
+.rank-row.top .rank-pct{color:var(--brand-dark);}
+.rank-bar-track{height:7px;border-radius:20px;background:var(--border);overflow:hidden;}
+.rank-bar-fill{height:100%;border-radius:20px;transition:width .5s cubic-bezier(.4,0,.2,1);}
+.rank-count{font-size:12.5px;font-weight:700;color:var(--muted);flex-shrink:0;min-width:56px;text-align:right;}
+.rank-row.top .rank-count{color:var(--text);}
+.rank-empty{width:100%;text-align:center;color:var(--muted);font-size:13px;padding:34px 0;}
 @media(max-width:520px){
-  .donut-card-body{justify-content:center;}
-  .donut-stats-row{grid-template-columns:1fr 1fr 1fr;gap:8px;}
-  .donut-stat-value{font-size:16px;}
+  .rank-stats-row{grid-template-columns:1fr 1fr 1fr;gap:8px;}
+  .rank-stat{padding:10px 10px;}
+  .rank-stat-value{font-size:15px;}
+  .rank-count{min-width:44px;}
 }
 
 /* new order row highlight in tables */
@@ -815,43 +818,29 @@ window.API_BASE = window.API_BASE || 'https://dhopa-mama0.onrender.com'; // ← 
         </table>
       </div>
 
-      <div class="donut-card" id="dashCatBreakdown">
-        <div class="donut-card-head">
-          <h3>সবচেয়ে বেশি বিক্রিত প্রোডাক্ট ক্যাটাগরি</h3>
-          <div class="donut-refresh-btn" onclick="renderCategoryDonut()" title="রিফ্রেশ করুন">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg>
+      <div class="rank-card" id="dashCatBreakdown">
+        <div class="rank-card-head">
+          <div>
+            <h3>সবচেয়ে বেশি বিক্রিত প্রোডাক্ট ক্যাটাগরি</h3>
+            <div class="rank-card-sub">সর্বমোট বিক্রি: <b id="rankTotalPieces">0</b> পিস</div>
+          </div>
+          <div class="rank-period-pill" id="catChartSub">সর্বমোট সময়কাল</div>
+        </div>
+        <div class="rank-stats-row">
+          <div class="rank-stat">
+            <div class="rank-stat-label">দৈনিক</div>
+            <div class="rank-stat-value" id="catStatDaily">0 পিস</div>
+          </div>
+          <div class="rank-stat">
+            <div class="rank-stat-label">সাপ্তাহিক</div>
+            <div class="rank-stat-value" id="catStatWeekly">0 পিস</div>
+          </div>
+          <div class="rank-stat">
+            <div class="rank-stat-label">মাসিক</div>
+            <div class="rank-stat-value" id="catStatMonthly">0 পিস</div>
           </div>
         </div>
-        <div class="donut-stats-row">
-          <div class="donut-stat">
-            <div class="donut-stat-label">দৈনিক</div>
-            <div class="donut-stat-value" id="catStatDaily">0 পিস</div>
-          </div>
-          <div class="donut-stat">
-            <div class="donut-stat-label">সাপ্তাহিক</div>
-            <div class="donut-stat-value" id="catStatWeekly">0 পিস</div>
-          </div>
-          <div class="donut-stat">
-            <div class="donut-stat-label">মাসিক</div>
-            <div class="donut-stat-value" id="catStatMonthly">0 পিস</div>
-          </div>
-        </div>
-        <div class="donut-period-row">
-          <div class="donut-period">
-            <span id="catChartSub">সর্বমোট</span>
-            <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
-          </div>
-        </div>
-        <div class="donut-card-body" id="catDonutBody">
-          <div class="donut-wrap">
-            <svg viewBox="0 0 200 200" class="donut-svg" id="catDonutSvg"></svg>
-            <div class="donut-center">
-              <div class="donut-center-label" id="catDonutTopLabel">—</div>
-              <div class="donut-center-value" id="catDonutTopValue">0 পিস</div>
-            </div>
-          </div>
-          <div class="donut-legend" id="catDonutLegend"></div>
-        </div>
+        <div class="rank-list" id="catRankList"></div>
       </div>
     </div>
 
