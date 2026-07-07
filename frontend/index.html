@@ -1438,7 +1438,7 @@ window.API_BASE = window.API_BASE || 'https://dhopa-mama0.onrender.com'; // ← 
 <div class="modal-overlay checkout-overlay" id="checkoutModalOverlay">
   <div class="checkout-sheet" id="checkoutSheet">
     <div class="checkout-header">
-      <button class="cart-popup-back" onclick="goBackFromCheckout()" aria-label="Back to cart" title="Back to cart"><i class="fas fa-shopping-bag"></i></button>
+      <button class="cart-popup-back" onclick="goBackFromCheckout()" aria-label="Back to cart" title="Back to cart"><i class="fas fa-chevron-left"></i></button>
       <div class="cart-popup-title">ডেলিভারি ঠিকানা ও পেমেন্ট</div>
       <button class="cart-popup-more" onclick="cancelCheckout()" aria-label="Close" title="Close"><i class="fas fa-times"></i></button>
     </div>
@@ -2018,13 +2018,10 @@ function goBackFromCartPopup() {
     if (overlay) overlay.classList.remove('open');
     document.body.style.overflow = '';
     openProductModal(idx);
-  } else if (cart.length > 0) {
-    /* কোনো আগের প্রোডাক্ট মডাল নেই (যেমন হেডার/ব্যাগ আইকন দিয়ে সরাসরি কার্ট খোলা হয়েছিল),
-       কিন্তু কার্টে আইটেম আছে — তাই ব্যাক বাটনে ক্লিক করলে cart-popup সবসময় ঠিকভাবে দেখাতেই থাকবে */
-    renderCart();
-    openCartPopup();
   } else {
-    /* কার্ট খালি হলে পপ-আপ বন্ধ করে দেবে */
+    /* কোনো আগের প্রোডাক্ট মডাল নেই (যেমন হেডার/ব্যাগ আইকন দিয়ে সরাসরি কার্ট খোলা হয়েছিল,
+       বা কার্ট একবার বন্ধ করে আবার দ্বিতীয়বার খোলা হয়েছিল) — তখন ব্যাক বাটন সবসময়
+       ঠিকভাবে পপ-আপ বন্ধ করে দেবে, যাতে ক্লিক করলে কিছু না ঘটার সমস্যা আর না হয় */
     closeCartPopupDirect();
   }
 }
