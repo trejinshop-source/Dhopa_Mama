@@ -346,33 +346,35 @@ select.status-select{
 .toast-notif .t-sub{font-size:12px;color:var(--muted);}
 .toast-notif .t-close{color:#C9C8DA;font-size:16px;line-height:1;flex-shrink:0;}
 
-/* ===== TOP CATEGORY BAR CHART ===== */
-.cat-chart-card{padding:22px 22px 18px;border-radius:22px;background:#fff;border:1px solid var(--border);}
-.cat-chart-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:6px;}
-.cat-chart-title{font-size:13px;font-weight:600;color:var(--text);letter-spacing:.2px;}
-.cat-chart-total{font-size:34px;font-weight:800;color:var(--text);line-height:1.05;margin-top:8px;}
-.cat-chart-sub{font-size:13px;color:var(--muted);margin-top:2px;}
-.cat-chart-legend{display:inline-flex;align-items:center;gap:8px;margin-top:14px;font-size:12.5px;color:var(--muted);}
-.cat-chart-legend .sw{width:14px;height:14px;border-radius:4px;background:var(--brand-light);border:1px solid var(--brand);}
-.cat-chart-legend b{color:var(--text);font-weight:700;}
-.cat-chart-legend .up{color:var(--ok);font-weight:700;}
-.cat-chart-tabs{display:flex;gap:14px;font-size:12.5px;color:var(--muted);font-weight:600;}
-.cat-chart-tabs span{cursor:pointer;padding:2px 2px;}
-.cat-chart-tabs span.on{color:var(--brand);}
-.cat-chart-body{display:flex;gap:14px;margin-top:22px;align-items:flex-end;height:180px;}
-.cat-chart-yaxis{display:flex;flex-direction:column;justify-content:space-between;font-size:11px;color:#c9c8da;padding-bottom:26px;text-align:right;min-width:22px;}
-.cat-chart-bars{flex:1;display:flex;justify-content:space-around;align-items:flex-end;gap:10px;position:relative;border-bottom:1px dashed transparent;}
-.cat-chart-bars::before,.cat-chart-bars::after{content:"";position:absolute;left:0;right:0;height:1px;background:#f4ece0;}
-.cat-chart-bars::before{top:0;}
-.cat-chart-bars::after{top:50%;}
-.cat-bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;position:relative;height:100%;justify-content:flex-end;max-width:44px;}
-.cat-bar{width:100%;background:var(--brand-light);border-radius:10px 10px 4px 4px;min-height:6px;transition:height .35s ease;}
-.cat-bar.top{background:var(--brand);box-shadow:0 6px 16px -6px color-mix(in oklab, var(--brand) 55%, transparent);}
-.cat-bar-label{font-size:11.5px;color:var(--muted);font-weight:600;}
-.cat-bar-col.top .cat-bar-label{color:var(--brand-dark);}
+/* ===== TOP CATEGORY DONUT CHART ===== */
+.donut-card{padding:22px 24px 24px;border-radius:22px;background:#fff;border:1px solid var(--border);}
+.donut-card-head{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:18px;}
+.donut-card-head h3{font-size:15px;font-weight:700;color:var(--text);}
+.donut-period{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--muted);background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:6px 12px;cursor:pointer;user-select:none;}
+.donut-period svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;}
+.donut-stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px;}
+.donut-stat{padding:0 14px;}
+.donut-stat+.donut-stat{border-left:1px solid var(--border);}
+.donut-stat-label{font-size:12px;color:var(--muted);font-weight:600;margin-bottom:6px;}
+.donut-stat-value{font-size:20px;font-weight:800;color:var(--text);}
+.donut-card-body{display:flex;align-items:center;gap:28px;flex-wrap:wrap;}
+.donut-wrap{position:relative;width:190px;height:190px;flex-shrink:0;margin:0 auto;}
+.donut-ring{width:100%;height:100%;border-radius:50%;position:relative;transition:background 0.4s ease;}
+.donut-ring::before{content:"";position:absolute;inset:22%;border-radius:50%;background:#fff;box-shadow:0 4px 18px -6px rgba(43,41,66,.10);}
+.donut-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 20px;}
+.donut-center-label{font-size:13px;font-weight:700;color:var(--brand-dark);margin-bottom:4px;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.donut-center-value{font-size:19px;font-weight:800;color:var(--text);}
+.donut-legend{flex:1;min-width:180px;display:flex;flex-direction:column;gap:13px;}
+.donut-legend-item{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text);font-weight:600;}
+.donut-legend-item .sw{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.donut-legend-item .lg-name{flex:1;color:var(--muted);font-weight:500;}
+.donut-legend-item .lg-val{color:var(--text);font-weight:700;}
+.donut-empty{width:100%;text-align:center;color:var(--muted);font-size:13px;padding:30px 0;}
 @media(max-width:520px){
-  .cat-chart-total{font-size:28px;}
-  .cat-chart-body{height:150px;}
+  .donut-card-body{justify-content:center;}
+  .donut-stats-row{grid-template-columns:1fr 1fr 1fr;gap:8px;}
+  .donut-stat{padding:0 6px;}
+  .donut-stat-value{font-size:17px;}
 }
 
 /* new order row highlight in tables */
@@ -811,24 +813,37 @@ window.API_BASE = window.API_BASE || 'https://dhopa-mama0.onrender.com'; // ← 
       </div>
 
       <div class="section-head"><h2>সবচেয়ে বেশি বিক্রিত প্রোডাক্ট ক্যাটাগরি</h2></div>
-      <div class="cat-chart-card" id="dashCatBreakdown">
-        <div class="cat-chart-head">
-          <div>
-            <div class="cat-chart-title">মোট বিক্রিত পিস</div>
-            <div class="cat-chart-total" id="catChartTotal">0</div>
-            <div class="cat-chart-sub" id="catChartSub">0 অর্ডার</div>
-          </div>
-          <div class="cat-chart-tabs">
-            <span>দিন</span><span class="on">সপ্তাহ</span><span>মাস</span>
+      <div class="donut-card" id="dashCatBreakdown">
+        <div class="donut-card-head">
+          <h3>বিক্রির পরিমাণ</h3>
+          <div class="donut-period">
+            <span id="catChartSub">সর্বমোট</span>
+            <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
           </div>
         </div>
-        <div class="cat-chart-legend">
-          <span class="sw"></span>
-          <span><b id="catChartTopLabel">—</b> সর্বাধিক বিক্রিত <span class="up" id="catChartUp">+0%</span></span>
+        <div class="donut-stats-row">
+          <div class="donut-stat">
+            <div class="donut-stat-label">দৈনিক (আজ)</div>
+            <div class="donut-stat-value" id="catStatDaily">0 পিস</div>
+          </div>
+          <div class="donut-stat">
+            <div class="donut-stat-label">সাপ্তাহিক</div>
+            <div class="donut-stat-value" id="catStatWeekly">0 পিস</div>
+          </div>
+          <div class="donut-stat">
+            <div class="donut-stat-label">মাসিক</div>
+            <div class="donut-stat-value" id="catStatMonthly">0 পিস</div>
+          </div>
         </div>
-        <div class="cat-chart-body">
-          <div class="cat-chart-yaxis" id="catChartYAxis"><span>0</span><span>0</span><span>0</span><span>0</span></div>
-          <div class="cat-chart-bars" id="catChartBars"></div>
+        <div class="donut-card-body" id="catDonutBody">
+          <div class="donut-wrap">
+            <div class="donut-ring" id="catDonutRing"></div>
+            <div class="donut-center">
+              <div class="donut-center-label" id="catDonutTopLabel">—</div>
+              <div class="donut-center-value" id="catDonutTopValue">0 পিস</div>
+            </div>
+          </div>
+          <div class="donut-legend" id="catDonutLegend"></div>
         </div>
       </div>
     </div>
@@ -916,6 +931,63 @@ window.API_BASE = window.API_BASE || 'https://dhopa-mama0.onrender.com'; // ← 
         </div>
         <button class="btn btn-brand" onclick="saveSettings()"><i class="fas fa-save"></i> সংরক্ষণ করুন</button>
         <span id="settingsSavedMsg" style="display:none;color:var(--ok);font-size:13px;margin-left:10px;font-weight:600">✓ সংরক্ষিত হয়েছে</span>
+      </div>
+
+      <div class="section-head"><h2>ওয়েবসাইট হিরো ইমেজ (হোমপেজ ব্যানার)</h2></div>
+      <div class="card" style="padding:22px;max-width:760px;margin-bottom:22px">
+        <p class="hint" style="margin-bottom:16px;font-size:13px">এখানে যে ছবিগুলো আপলোড করবেন সেগুলোই <b>index.html</b> হোমপেজের উপরের বড় ব্যানার (hero) সেকশনে দেখাবে — মোবাইল স্লাইডারেও একই ছবি ব্যবহৃত হবে।</p>
+        <div class="field-row2">
+          <div class="field">
+            <label>প্রধান ব্যানার ছবি (বড়, বাম পাশে)</label>
+            <div class="upload-zone" id="heroMainImgDropzone">
+              <div class="upload-preview-wrap" id="heroMainImgPreviewWrap" style="display:none">
+                <img id="heroMainImgPreview" src="" alt="preview">
+                <div class="upload-remove" onclick="event.stopPropagation(); clearImageUpload('heroMain')">&times;</div>
+              </div>
+              <div class="upload-placeholder" id="heroMainImgPlaceholder">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                <span>ছবি টেনে এনে ছাড়ুন অথবা ক্লিক করে বেছে নিন</span>
+                <span class="hint">PNG, JPG — সর্বোচ্চ ৮MB</span>
+              </div>
+            </div>
+            <input type="file" id="heroMainImgFile" accept="image/*" style="display:none">
+            <input type="hidden" id="heroMainImg" value="">
+          </div>
+          <div class="field">
+            <label>সাইড ছবি ১ (উপরে ডান পাশে)</label>
+            <div class="upload-zone" id="heroSide1ImgDropzone">
+              <div class="upload-preview-wrap" id="heroSide1ImgPreviewWrap" style="display:none">
+                <img id="heroSide1ImgPreview" src="" alt="preview">
+                <div class="upload-remove" onclick="event.stopPropagation(); clearImageUpload('heroSide1')">&times;</div>
+              </div>
+              <div class="upload-placeholder" id="heroSide1ImgPlaceholder">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                <span>ছবি টেনে এনে ছাড়ুন অথবা ক্লিক করে বেছে নিন</span>
+                <span class="hint">PNG, JPG — সর্বোচ্চ ৮MB</span>
+              </div>
+            </div>
+            <input type="file" id="heroSide1ImgFile" accept="image/*" style="display:none">
+            <input type="hidden" id="heroSide1Img" value="">
+          </div>
+        </div>
+        <div class="field" style="max-width:340px">
+          <label>সাইড ছবি ২ (নিচে ডান পাশে)</label>
+          <div class="upload-zone" id="heroSide2ImgDropzone">
+            <div class="upload-preview-wrap" id="heroSide2ImgPreviewWrap" style="display:none">
+              <img id="heroSide2ImgPreview" src="" alt="preview">
+              <div class="upload-remove" onclick="event.stopPropagation(); clearImageUpload('heroSide2')">&times;</div>
+            </div>
+            <div class="upload-placeholder" id="heroSide2ImgPlaceholder">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              <span>ছবি টেনে এনে ছাড়ুন অথবা ক্লিক করে বেছে নিন</span>
+              <span class="hint">PNG, JPG — সর্বোচ্চ ৮MB</span>
+            </div>
+          </div>
+          <input type="file" id="heroSide2ImgFile" accept="image/*" style="display:none">
+          <input type="hidden" id="heroSide2Img" value="">
+        </div>
+        <button class="btn btn-brand" onclick="saveSettings()" style="margin-top:6px"><i class="fas fa-save"></i> সংরক্ষণ করুন</button>
+        <span id="heroSettingsSavedMsg" style="display:none;color:var(--ok);font-size:13px;margin-left:10px;font-weight:600">✓ সংরক্ষিত হয়েছে</span>
       </div>
 
       <div class="section-head"><h2>ডেটা ম্যানেজমেন্ট</h2></div>
@@ -1437,6 +1509,33 @@ function renderDashboard(){
       </tr>`).join('');
   }
 
+  renderCategoryDonut();
+}
+
+// ডোনাট চার্টের রং প্যালেট (ক্রমান্বয়ে ব্যবহৃত হয়)
+const DONUT_COLORS = ['#FF9F43','#8D7BF0','#4AA3F7','#2ED9A6','#F16A63','#2B2942','#F7C948'];
+
+// একটি নির্দিষ্ট সময়সীমার (দিন সংখ্যা) মধ্যে বিক্রিত মোট পিস গণনা করে
+function soldPiecesSince(daysBack){
+  const cutoff = daysBack === null ? null : (Date.now() - daysBack*24*60*60*1000);
+  let total = 0;
+  orders.forEach(o=>{
+    if (cutoff !== null){
+      const t = o.createdAt ? new Date(o.createdAt).getTime() : null;
+      if (!t || t < cutoff) return;
+    }
+    (o.items||[]).forEach(it=>{ total += Number(it.qty||it.quantity||1); });
+  });
+  return total;
+}
+
+// "সবচেয়ে বেশি বিক্রিত প্রোডাক্ট ক্যাটাগরি" — ডোনাট চার্ট রেন্ডার করে
+function renderCategoryDonut(){
+  // দৈনিক / সাপ্তাহিক / মাসিক বিক্রির সারসংক্ষেপ
+  document.getElementById('catStatDaily').textContent = soldPiecesSince(1) + ' পিস';
+  document.getElementById('catStatWeekly').textContent = soldPiecesSince(7) + ' পিস';
+  document.getElementById('catStatMonthly').textContent = soldPiecesSince(30) + ' পিস';
+
   // অর্ডার আইটেম থেকে category-ভিত্তিক বিক্রি গণনা
   const catSold = {};
   const prodByTitle = {};
@@ -1455,43 +1554,54 @@ function renderDashboard(){
     products.forEach(p=>{ catCounts[p.cat] = (catCounts[p.cat]||0)+1; });
     entries = Object.entries(catCounts);
   }
-  // সর্বোচ্চ ৭টি দেখাও, বিক্রি অনুসারে descending
+  // সর্বোচ্চ ৬টি ক্যাটাগরি + বাকিগুলো "অন্যান্য" এ যোগ, বিক্রি অনুসারে descending
   entries.sort((a,b)=>b[1]-a[1]);
-  entries = entries.slice(0,7);
-  const totalSold = entries.reduce((s,e)=>s+e[1],0);
-  const maxCount = Math.max(1, ...entries.map(e=>e[1]));
-  const barsEl = document.getElementById('catChartBars');
-  const yEl = document.getElementById('catChartYAxis');
-  document.getElementById('catChartTotal').textContent = totalSold + ' পিস';
-  document.getElementById('catChartSub').textContent = orders.length + ' অর্ডার';
-  if (!entries.length){
-    barsEl.innerHTML = '<div style="width:100%;text-align:center;color:var(--muted);font-size:13px;padding:30px 0">এখনো কোনো ডেটা নেই।</div>';
-    document.getElementById('catChartTopLabel').textContent = '—';
+  let shown = entries.slice(0,6);
+  const rest = entries.slice(6);
+  if (rest.length){
+    const restTotal = rest.reduce((s,e)=>s+e[1],0);
+    shown.push(['other-misc', restTotal]);
+  }
+  const totalSold = shown.reduce((s,e)=>s+e[1],0);
+
+  const ring = document.getElementById('catDonutRing');
+  const legendEl = document.getElementById('catDonutLegend');
+  const body = document.getElementById('catDonutBody');
+
+  if (!shown.length || !totalSold){
+    ring.style.background = 'var(--border)';
+    legendEl.innerHTML = '<div class="donut-empty">এখনো কোনো বিক্রির ডেটা নেই।</div>';
+    document.getElementById('catDonutTopLabel').textContent = '—';
+    document.getElementById('catDonutTopValue').textContent = '0 পিস';
     return;
   }
-  // Y-axis labels — max, 2/3, 1/3, 0
-  const yMax = Math.ceil(maxCount / 10) * 10 || 10;
-  yEl.innerHTML = ['<span>'+yMax+'</span>','<span>'+Math.round(yMax*2/3)+'</span>','<span>'+Math.round(yMax/3)+'</span>','<span>0</span>'].join('');
-  // Bars
-  const topIdx = 0; // sorted desc; first is top
-  barsEl.innerHTML = entries.map(([key,count],i)=>{
-    const h = Math.max(6, (count/yMax)*100);
-    const isTop = (i===topIdx);
-    return '<div class="cat-bar-col'+(isTop?' top':'')+'">'
-      + '<div class="cat-bar'+(isTop?' top':'')+'" style="height:'+h+'%"></div>'
-      + '<div class="cat-bar-label">'+shortCatLabel(key)+'</div>'
+
+  // conic-gradient দিয়ে ডোনাট রিং তৈরি
+  let pct = 0;
+  const stops = shown.map(([key,count],i)=>{
+    const start = pct;
+    pct += (count/totalSold)*100;
+    const color = key==='other-misc' ? '#C9C8DA' : DONUT_COLORS[i % DONUT_COLORS.length];
+    return color + ' ' + start.toFixed(2) + '% ' + pct.toFixed(2) + '%';
+  });
+  ring.style.background = 'conic-gradient(' + stops.join(',') + ')';
+
+  // কেন্দ্রে সর্বাধিক বিক্রিত ক্যাটাগরি
+  const topKey = shown[0][0];
+  const topLabel = topKey==='other-misc' ? 'অন্যান্য' : catLabel(topKey);
+  document.getElementById('catDonutTopLabel').textContent = topLabel;
+  document.getElementById('catDonutTopValue').textContent = shown[0][1] + ' পিস';
+
+  // legend তালিকা
+  legendEl.innerHTML = shown.map(([key,count],i)=>{
+    const color = key==='other-misc' ? '#C9C8DA' : DONUT_COLORS[i % DONUT_COLORS.length];
+    const label = key==='other-misc' ? 'অন্যান্য' : catLabel(key);
+    return '<div class="donut-legend-item">'
+      + '<span class="sw" style="background:'+color+'"></span>'
+      + '<span class="lg-name">'+label+'</span>'
+      + '<span class="lg-val">'+count+' পিস</span>'
       + '</div>';
   }).join('');
-  const topLabel = catLabel(entries[topIdx][0]);
-  document.getElementById('catChartTopLabel').textContent = topLabel + ' — ' + entries[topIdx][1] + ' পিস';
-  const share = totalSold ? Math.round(entries[topIdx][1]/totalSold*100) : 0;
-  document.getElementById('catChartUp').textContent = '+' + share + '%';
-}
-
-// ছোট bar-label এর জন্য সংক্ষিপ্ত নাম
-function shortCatLabel(key){
-  const full = catLabel(key) || key || '—';
-  return full.length > 6 ? full.slice(0,6) : full;
 }
 
 /* ================= PRODUCTS ================= */
@@ -1615,6 +1725,9 @@ function setupImageUpload(prefix){
 }
 setupImageUpload('prod');
 setupImageUpload('cat');
+setupImageUpload('heroMain');
+setupImageUpload('heroSide1');
+setupImageUpload('heroSide2');
 
 function openProductModal(idx){
   populateCatOptions();
@@ -1892,14 +2005,25 @@ function renderCustomers(){
 function renderSettings(){
   document.getElementById('setBkash').value = settings.bkash || '';
   document.getElementById('setNagad').value = settings.nagad || '';
+  const hero = settings.heroImages || {};
+  setImagePreview('heroMain',  hero.main  || '');
+  setImagePreview('heroSide1', hero.side1 || '');
+  setImagePreview('heroSide2', hero.side2 || '');
 }
 function saveSettings(){
   settings.bkash = document.getElementById('setBkash').value.trim();
   settings.nagad = document.getElementById('setNagad').value.trim();
+  settings.heroImages = {
+    main:  document.getElementById('heroMainImg').value.trim()  || null,
+    side1: document.getElementById('heroSide1Img').value.trim() || null,
+    side2: document.getElementById('heroSide2Img').value.trim() || null
+  };
   saveData(LS.settings, settings);
   const msg = document.getElementById('settingsSavedMsg');
   msg.style.display = 'inline';
   setTimeout(()=>msg.style.display='none', 2000);
+  const heroMsg = document.getElementById('heroSettingsSavedMsg');
+  if (heroMsg){ heroMsg.style.display = 'inline'; setTimeout(()=>heroMsg.style.display='none', 2000); }
 }
 function resetToDefaults(){
   if (!confirm('প্রোডাক্ট, ক্যাটাগরি ও সার্ভিস ডিফল্ট অবস্থায় ফিরিয়ে আনতে চান?')) return;
