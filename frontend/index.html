@@ -64,6 +64,7 @@ button{font-family:inherit;cursor:pointer}
    spacer works identically on every browser/device, old or new, so this fixes it everywhere. */
 .hero-main::before{content:"";display:block;width:100%;padding-top:50%}/* 16:8 */
 .hero-main img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;display:block}
+.hero-main img[data-mobile-only]{display:none}/* only the desktop-only main image shows unless the mobile slider media query below re-enables these */
 .hero-arrows{position:absolute;inset:0;display:flex;justify-content:space-between;align-items:center;padding:0 14px;pointer-events:none}
 .hero-arrow{width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.85);border:none;color:#333;font-size:14px;pointer-events:auto;box-shadow:0 2px 8px rgba(0,0,0,.1)}
 .hero-dots{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);display:flex;gap:6px}
@@ -430,7 +431,7 @@ button{font-family:inherit;cursor:pointer}
   .hero-grid{grid-template-columns:1fr}
   .hero-side{display:none !important}
   .hero-main{position:relative}
-  .hero-main .hero-slide{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .6s ease}
+  .hero-main .hero-slide{display:block;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .6s ease}
   .hero-main .hero-slide.active{opacity:1}
   .hero-main > img:not(.hero-slide){opacity:0}
   .hero-slide-dots{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:6px;z-index:3}
