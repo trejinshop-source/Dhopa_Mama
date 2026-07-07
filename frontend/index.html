@@ -251,7 +251,7 @@ button{font-family:inherit;cursor:pointer}
 .cart-popup-back{width:36px;height:36px;border-radius:50%;background:#fff;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 1px 6px rgba(0,0,0,.1);color:#333;font-size:14px}
 .cart-popup-back:hover{background:#eee}
 .cart-popup-title{font-size:18px;font-weight:700;color:#1a1a1a;text-align:center;flex:1}
-.cart-popup-more{width:auto;height:36px;border-radius:18px;background:#fff;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 1px 6px rgba(0,0,0,.1);color:#e53935;font-size:13px;font-weight:700;padding:0 16px}
+.cart-popup-more{width:36px;height:36px;border-radius:50%;background:#fff;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 1px 6px rgba(0,0,0,.1);color:#e53935;font-size:14px;font-weight:700;padding:0}
 .cart-popup-more:hover{background:#eee}
 .cart-items-list{overflow-y:auto;padding:0 16px 8px;flex:1;display:flex;flex-direction:column;gap:12px}
 .cart-item{display:flex;align-items:center;gap:14px;padding:14px;background:#fff;border-radius:16px}
@@ -942,9 +942,9 @@ window.API_BASE = window.API_BASE || 'https://dhopa-mama0.onrender.com'; // ← 
 <div class="cart-popup-overlay" id="cartPopupOverlay" onclick="closeCartPopup(event)">
   <div class="cart-popup" id="cartPopup">
     <div class="cart-popup-header">
-      <button class="cart-popup-back" onclick="closeCartPopupDirect()"><i class="fas fa-chevron-left"></i></button>
+      <button class="cart-popup-back" onclick="goBackFromCartPopup()"><i class="fas fa-chevron-left"></i></button>
       <div class="cart-popup-title">Cart</div>
-      <button class="cart-popup-more" onclick="cancelCart()">Cancel</button>
+      <button class="cart-popup-more" onclick="cancelCart()" aria-label="Close" title="Close"><i class="fas fa-times"></i></button>
     </div>
     <div class="cart-items-list" id="cartItemsList">
       <div class="cart-empty-state">
@@ -1438,9 +1438,9 @@ window.API_BASE = window.API_BASE || 'https://dhopa-mama0.onrender.com'; // ← 
 <div class="modal-overlay checkout-overlay" id="checkoutModalOverlay">
   <div class="checkout-sheet" id="checkoutSheet">
     <div class="checkout-header">
-      <button class="cart-popup-back" onclick="closeCheckoutModal()"><i class="fas fa-chevron-left"></i></button>
+      <button class="cart-popup-back" onclick="goBackFromCheckout()" aria-label="Back to cart" title="Back to cart"><i class="fas fa-shopping-bag"></i></button>
       <div class="cart-popup-title">ডেলিভারি ঠিকানা ও পেমেন্ট</div>
-      <span style="width:36px"></span>
+      <button class="cart-popup-more" onclick="cancelCheckout()" aria-label="Close" title="Close"><i class="fas fa-times"></i></button>
     </div>
 
     <div class="checkout-body">
@@ -1998,18 +1998,40 @@ function closeCartPopupDirect() {
   var overlay = document.getElementById('cartPopupOverlay');
   if (overlay) overlay.classList.remove('open');
   document.body.style.overflow = '';
+  window.__prevProductModalIdx = null;
 }
 
+/* Cancel বাটন (আইকন) — শুধু পপ-আপ বন্ধ করবে, কার্টে যোগ করা আইটেম কখনো মুছে ফেলবে না */
 function cancelCart() {
-  cart = [];
-  renderCart();
-  var cc = document.querySelector('.cart-count');
-  if (cc) cc.textContent = 0;
   closeCartPopupDirect();
 }
 
+/* cart-popup-back — এটি কার্ট পপ-আপ খোলার আগে যে প্রোডাক্ট মডাল (modal-box) খোলা ছিল, সবসময় সেই আগের পপ-আপেই ফিরিয়ে নিয়ে যাবে।
+   প্রোডাক্ট মডাল থেকে "Add to Cart" না করে কার্ট পপ-আপ ওপেন হলে (যেমন হেডার/ব্যাগ আইকন দিয়ে) আগের কোনো মডাল থাকে না,
+   তখন এটি সাধারণভাবে শুধু পপ-আপ বন্ধ করে দেবে। */
+function goBackFromCartPopup() {
+  if (window.__prevProductModalIdx !== null && window.__prevProductModalIdx !== undefined) {
+    /* আগে একটি প্রোডাক্ট মডাল খোলা ছিল — সেই মডালেই ফিরিয়ে নিয়ে যাবে */
+    var idx = window.__prevProductModalIdx;
+    window.__prevProductModalIdx = null;
+    var overlay = document.getElementById('cartPopupOverlay');
+    if (overlay) overlay.classList.remove('open');
+    document.body.style.overflow = '';
+    openProductModal(idx);
+  } else if (cart.length > 0) {
+    /* কোনো আগের প্রোডাক্ট মডাল নেই (যেমন হেডার/ব্যাগ আইকন দিয়ে সরাসরি কার্ট খোলা হয়েছিল),
+       কিন্তু কার্টে আইটেম আছে — তাই ব্যাক বাটনে ক্লিক করলে cart-popup সবসময় ঠিকভাবে দেখাতেই থাকবে */
+    renderCart();
+    openCartPopup();
+  } else {
+    /* কার্ট খালি হলে পপ-আপ বন্ধ করে দেবে */
+    closeCartPopupDirect();
+  }
+}
+
 function openCartIfNotEmpty() {
-  if (cart.length === 0) return;
+  if (cart.length === 0) return; /* কার্ট খালি থাকলে ব্যাগ/কার্ট বাটন কিছুই করবে না */
+  window.__prevProductModalIdx = null; /* সরাসরি ব্যাগ আইকন থেকে খোলা হলে কোনো আগের প্রোডাক্ট মডাল নেই */
   renderCart();
   openCartPopup();
 }
@@ -2150,6 +2172,8 @@ function closeProductModal(){
 function addProductToCart(){
   if (!currentModalProduct) return;
   var p = products[currentModalProduct.idx];
+  /* কার্ট পপ-আপের "ব্যাক" বাটনে ক্লিক করলে এই একই প্রোডাক্ট মডালে (modal-box) ফিরে যাওয়ার জন্য মনে রাখা হলো */
+  window.__prevProductModalIdx = currentModalProduct.idx;
   /* প্রতিটি সিলেক্ট করা সার্ভিস আলাদা কার্ট আইটেম হিসেবে যোগ হবে, সাথে সেই সার্ভিসের ছবিও */
   currentModalProduct.optionKeys.forEach(function(key){
     var unit = getOptionPrice(p.services, key);
@@ -2177,6 +2201,23 @@ function openCheckoutModal(){
 }
 function closeCheckoutModal(){
   document.getElementById('checkoutModalOverlay').classList.remove('open');
+}
+
+/* checkout-sheet এর ব্যাগ বাটন — চেকআউট বন্ধ করে সবসময় আগের cart-popup এ ফিরিয়ে নিয়ে যাবে,
+   যতক্ষণ কার্টে আইটেম আছে। কার্ট খালি হয়ে গেলে (যেমন সাবমিট হওয়ার পর) শুধু চেকআউট বন্ধ হবে। */
+function goBackFromCheckout(){
+  document.getElementById('checkoutModalOverlay').classList.remove('open');
+  if (cart.length > 0){
+    window.__prevProductModalIdx = null;
+    renderCart();
+    openCartPopup();
+  }
+}
+
+/* checkout-sheet এর কেনসেল (X) বাটন — শুধু চেকআউট বন্ধ করবে, কার্ট বা তার আইটেম কখনো মুছবে না,
+   এবং কার্ট পপ-আপে ফিরিয়েও নেবে না */
+function cancelCheckout(){
+  closeCheckoutModal();
 }
 
 /* পেমেন্ট মাধ্যম বদলানোর সময় প্রতিবার ডিফল্টে COD সিলেক্ট থাকবে */
