@@ -751,6 +751,10 @@ window.API_BASE = window.API_BASE || 'https://dhopa-mama-j75g.onrender.com'; // 
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
         <span class="nav-label-text">গ্রাহক</span>
       </div>
+      <div class="icon" data-view="analytics">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        <span class="nav-label-text">অ্যানালিটিক্স</span>
+      </div>
       <div class="icon" data-view="settings">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009.6 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9.6a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
         <span class="nav-label-text">সেটিংস</span>
@@ -915,6 +919,58 @@ window.API_BASE = window.API_BASE || 'https://dhopa-mama-j75g.onrender.com'; // 
           <thead><tr><th>নাম</th><th>মোবাইল/ইমেইল</th><th>মোট অর্ডার</th><th>যোগদানের তারিখ</th></tr></thead>
           <tbody id="customersBody"></tbody>
         </table>
+      </div>
+    </div>
+
+    <!-- ================= ANALYTICS ================= -->
+    <div class="view" id="view-analytics">
+      <div class="stat-grid">
+        <div class="stat-card c3">
+          <div class="label"><span class="icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z"/></svg></span> আজকের ভিজিট</div>
+          <div class="value" id="anaVisitsToday">0</div>
+          <div class="sub-label">আজ সাইটে মোট ভিজিট</div>
+        </div>
+        <div class="stat-card c2">
+          <div class="label"><span class="icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span> এই সপ্তাহের ভিজিট</div>
+          <div class="value" id="anaVisitsWeek">0</div>
+          <div class="sub-label">গত ৭ দিনের মোট ভিজিট</div>
+        </div>
+        <div class="stat-card c1">
+          <div class="label"><span class="icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20.4 7.5l-8-4-8 4 8 4 8-4z"/><path d="M4.4 7.5v9l8 4 8-4v-9"/></svg></span> সর্বমোট ভিজিট</div>
+          <div class="value" id="anaVisitsAll">0</div>
+          <div class="sub-label">শুরু থেকে সর্বমোট ভিজিট</div>
+        </div>
+        <div class="stat-card c4">
+          <div class="label"><span class="icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg></span> সর্বাধিক ক্লিক হওয়া পণ্য</div>
+          <div class="value" id="anaTopProductName" style="font-size:16px;line-height:1.3">—</div>
+          <div class="sub-label" id="anaTopProductClicks">এখনো কোনো ক্লিক ডেটা নেই</div>
+        </div>
+      </div>
+
+      <div class="rank-card">
+        <div class="rank-card-head">
+          <div>
+            <h3>প্রোডাক্ট অনুযায়ী ক্লিক র‍্যাংকিং</h3>
+            <div class="rank-card-sub">প্রোডাক্ট মডাল ওপেন + কার্টে যোগ করার মোট ক্লিক</div>
+          </div>
+          <div style="display:flex;gap:6px">
+            <button type="button" class="btn btn-outline ana-period-btn active" data-period="today" style="padding:6px 14px;font-size:12.5px" onclick="setAnalyticsPeriod('today')">আজকে</button>
+            <button type="button" class="btn btn-outline ana-period-btn" data-period="week" style="padding:6px 14px;font-size:12.5px" onclick="setAnalyticsPeriod('week')">এই সপ্তাহে</button>
+            <button type="button" class="btn btn-outline ana-period-btn" data-period="all" style="padding:6px 14px;font-size:12.5px" onclick="setAnalyticsPeriod('all')">সর্বমোট</button>
+          </div>
+        </div>
+        <div class="rank-list" id="anaTopProductsList">
+          <div class="empty-state"><i class="fas fa-chart-bar"></i>এখনো কোনো ক্লিক ডেটা নেই — সাইটে ভিজিটর আসলে এখানে দেখা যাবে।</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:22px;padding:20px 24px">
+        <h3 style="font-size:15px;font-weight:800;margin-bottom:8px">Google Analytics (GA4)</h3>
+        <p style="color:var(--muted);font-size:13.5px;line-height:1.7">
+          উপরের পরিসংখ্যান সরাসরি আমাদের নিজস্ব ডাটাবেস থেকে আসছে, তাই কোনো Google login ছাড়াই এখানে রিয়েল-টাইমে দেখা যায়।
+          এর পাশাপাশি ওয়েবসাইটে Google Analytics (GA4) ট্যাগ (<code>G-1PEJ403GT4</code>) যুক্ত আছে — সম্পূর্ণ ডেমোগ্রাফিক্স, ট্রাফিক সোর্স ও আরও বিস্তারিত রিপোর্টের জন্য
+          <a href="https://analytics.google.com" target="_blank" rel="noopener" style="color:var(--brand);font-weight:700">analytics.google.com</a> এ লগইন করে দেখতে পারবেন।
+        </p>
       </div>
     </div>
 
@@ -1448,6 +1504,7 @@ const VIEW_TITLES = {
   services:['সার্ভিস প্যাকেজ','ওয়াশ, ড্রাই ক্লিন ও আয়রন সার্ভিসের বিস্তারিত পরিচালনা করুন'],
   orders:['অর্ডার ম্যানেজমেন্ট','গ্রাহকের অর্ডার দেখুন ও স্ট্যাটাস আপডেট করুন'],
   customers:['গ্রাহক তালিকা','সাইন-আপ করা গ্রাহকদের তথ্য দেখুন'],
+  analytics:['অ্যানালিটিক্স','ওয়েবসাইট ভিজিট ও প্রোডাক্ট ক্লিক পরিসংখ্যান (Google Analytics সহ)'],
   settings:['সেটিংস','পেমেন্ট নাম্বার ও ডেটা পরিচালনা']
 };
 
@@ -2159,6 +2216,58 @@ function reloadAllFromStorage(){
   users      = loadData(LS.users, []);
   settings   = loadData(LS.settings, { bkash:'01700-000000', nagad:'01800-000000' });
 }
+/* ================= ANALYTICS ================= */
+var __anaData = null;
+var __anaPeriod = 'today';
+function setAnalyticsPeriod(period){
+  __anaPeriod = period;
+  document.querySelectorAll('.ana-period-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.period===period); });
+  renderAnalyticsList();
+}
+function renderAnalyticsList(){
+  var list = document.getElementById('anaTopProductsList');
+  if (!list || !__anaData) return;
+  var key = __anaPeriod === 'today' ? 'topToday' : (__anaPeriod === 'week' ? 'topWeek' : 'topAll');
+  var items = __anaData[key] || [];
+  if (!items.length){
+    list.innerHTML = '<div class="empty-state"><i class="fas fa-chart-bar"></i>এই সময়সীমায় এখনো কোনো ক্লিক ডেটা নেই।</div>';
+    return;
+  }
+  var max = items[0].clicks || 1;
+  list.innerHTML = items.map(function(it){
+    var pct = Math.max(6, Math.round((it.clicks/max)*100));
+    return '<div class="rank-item" style="display:flex;flex-direction:column;gap:6px">'
+      + '<div style="display:flex;justify-content:space-between;font-size:13.5px;font-weight:600"><span>'+it.name+'</span><span>'+it.clicks+' ক্লিক</span></div>'
+      + '<div class="rank-bar-track"><div class="rank-bar-fill" style="width:'+pct+'%;background:var(--brand)"></div></div>'
+      + '</div>';
+  }).join('');
+}
+// এডমিন প্যানেলের Analytics ট্যাব থেকে সার্ভারের /api/analytics/summary কল করে
+// আজকে/সপ্তাহ/সর্বমোট ভিজিট ও প্রোডাক্ট-ক্লিক র‍্যাংকিং লোড করে।
+function loadAnalytics(){
+  var token = (typeof window.getAdminToken === 'function') ? window.getAdminToken() : '';
+  if (!token) return;
+  fetch(window.API_BASE + '/api/analytics/summary', { headers: { 'Authorization': 'Bearer ' + token }, cache: 'no-store' })
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      __anaData = data;
+      document.getElementById('anaVisitsToday').textContent = data.visitsToday || 0;
+      document.getElementById('anaVisitsWeek').textContent = data.visitsWeek || 0;
+      document.getElementById('anaVisitsAll').textContent = data.visitsAll || 0;
+      var top = (data.topAll && data.topAll[0]) || null;
+      document.getElementById('anaTopProductName').textContent = top ? top.name : '—';
+      document.getElementById('anaTopProductClicks').textContent = top ? (top.clicks + ' বার ক্লিক হয়েছে (সর্বমোট)') : 'এখনো কোনো ক্লিক ডেটা নেই';
+      renderAnalyticsList();
+    })
+    .catch(function(){});
+}
+function renderAnalyticsSection(){
+  var view = document.getElementById('view-analytics');
+  if (view && view.classList.contains('active')) loadAnalytics();
+}
+/* Analytics ট্যাব খোলা থাকলে প্রতি ৩০ সেকেন্ডে অটো-রিফ্রেশ */
+setInterval(renderAnalyticsSection, 30000);
+
 function renderAll(){
   // প্রতিটি সেকশন আলাদাভাবে try/catch এ চালানো হয় — যাতে কোনো একটি সেকশনের
   // ডেটাতে সমস্যা (যেমন কোনো প্রোডাক্ট/অর্ডারে missing field) থাকলে সেটি শুধু
@@ -2171,6 +2280,7 @@ function renderAll(){
     ['services',  renderServicesGrid],
     ['orders',    renderOrders],
     ['customers', renderCustomers],
+    ['analytics', renderAnalyticsSection],
     ['settings',  renderSettings],
     ['aside',     renderAside]
   ];

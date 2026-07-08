@@ -99,6 +99,29 @@ const UserSchema = new mongoose.Schema({
 }, { timestamps: true });
 const User = mongoose.model('User', UserSchema, 'users');
 
+/* ---------------- Analytics: site visits + product clicks ----------------
+ * এডমিন প্যানেলের "Analytics" ট্যাবে দেখানোর জন্য — কোন প্রোডাক্টে কতজন
+ * ক্লিক করলো, আজকে/এই সপ্তাহে/সর্বমোট কতজন সাইট ভিজিট করলো ইত্যাদি।
+ * এটি Google Analytics (GA4, gtag) এর পাশাপাশি কাজ করে — ইনডেক্স পেজে GA4
+ * ইভেন্টও পাঠানো হয় (real GA4 ড্যাশবোর্ডে দেখার জন্য), আর এখানে নিজস্ব
+ * MongoDB-ভিত্তিক দ্রুত সারাংশ রাখা হয় যাতে এডমিন প্যানেলে সরাসরি লাইভ
+ * পরিসংখ্যান দেখানো যায় (কোনো Google service-account credential ছাড়াই)।
+ */
+const VisitEventSchema = new mongoose.Schema({
+  ts:   { type: Date, default: Date.now, index: true },
+  page: String,
+  ref:  String
+});
+const VisitEvent = mongoose.model('VisitEvent', VisitEventSchema, 'visit_events');
+
+const ClickEventSchema = new mongoose.Schema({
+  ts:          { type: Date, default: Date.now, index: true },
+  type:        { type: String, default: 'product_view' }, // product_view | add_to_cart
+  productId:   String,
+  productName: String
+});
+const ClickEvent = mongoose.model('ClickEvent', ClickEventSchema, 'click_events');
+
 /* ---------------- Helpers ---------------- */
 async function getBucket(Model) {
   let doc = await Model.findOne({ key: 'main' });
@@ -204,6 +227,55 @@ bucketRoutes('products',   Products);
 bucketRoutes('categories', Categories);
 bucketRoutes('services',   Services);
 bucketRoutes('settings',   Settings);
+
+/* ---------------- Analytics routes ---------------- */
+// Public (called from index.html): এক পেজ ভিজিট রেকর্ড করে
+app.post('/api/track/visit', async (req, res) => {
+  try {
+    const { page, ref } = req.body || {};
+    await VisitEvent.create({ page: page || '/', ref: ref || '' });
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+// Public (called from index.html): প্রোডাক্ট ক্লিক / অ্যাড-টু-কার্ট রেকর্ড করে
+app.post('/api/track/click', async (req, res) => {
+  try {
+    const { type, productId, productName } = req.body || {};
+    if (!productName) return res.status(400).json({ error: 'productName required' });
+    await ClickEvent.create({ type: type || 'product_view', productId: productId || '', productName });
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+// Admin only: এডমিন প্যানেলের Analytics ট্যাবের জন্য সারাংশ — আজকে/সপ্তাহ/সর্বমোট
+// ভিজিট সংখ্যা এবং সবচেয়ে বেশি ক্লিক পড়া প্রোডাক্টের তালিকা।
+app.get('/api/analytics/summary', requireAdmin, async (req, res) => {
+  try {
+    const now = new Date();
+    const startToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const startWeek = new Date(startToday); startWeek.setDate(startWeek.getDate() - 6);
+    const startAllTime = new Date(0);
+
+    const visitCount = (since) => VisitEvent.countDocuments({ ts: { $gte: since } });
+    const topProducts = (since, limit = 8) => ClickEvent.aggregate([
+      { $match: { ts: { $gte: since } } },
+      { $group: { _id: '$productName', clicks: { $sum: 1 } } },
+      { $sort: { clicks: -1 } },
+      { $limit: limit }
+    ]);
+
+    const [visitsToday, visitsWeek, visitsAll, topToday, topWeek, topAll] = await Promise.all([
+      visitCount(startToday), visitCount(startWeek), visitCount(startAllTime),
+      topProducts(startToday), topProducts(startWeek), topProducts(startAllTime)
+    ]);
+
+    res.json({
+      visitsToday, visitsWeek, visitsAll,
+      topToday: topToday.map(x => ({ name: x._id || 'অজানা', clicks: x.clicks })),
+      topWeek:  topWeek.map(x  => ({ name: x._id || 'অজানা', clicks: x.clicks })),
+      topAll:   topAll.map(x   => ({ name: x._id || 'অজানা', clicks: x.clicks }))
+    });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
 
 /* ---------------- Orders ---------------- */
 // Public: list (admin panel reads this)
