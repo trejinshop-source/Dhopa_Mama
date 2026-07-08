@@ -506,6 +506,47 @@ button{font-family:inherit;cursor:pointer}
 .sidebar-user-sign{--btn-bg:rgba(255,255,255,.15);--btn-fg:#fff;--btn-border:rgba(255,255,255,.45);width:auto;padding:8px 14px!important;font-size:11px!important;letter-spacing:1px!important}
 .sidebar-user-sign::after{content:"\2192";margin-left:8px}
 
+/* ===== Permanent button highlight (mobile/touch has no hover, so key action
+   buttons — login, checkout, add-to-cart — must always look clickable) ===== */
+.btn-primary,.btn-checkout,
+.contact-form button,.pv-form button{
+  --btn-bg:var(--green)!important;
+  --btn-fg:#fff!important;
+  --btn-border:var(--green)!important;
+  box-shadow:0 6px 16px rgba(196,122,30,.35)!important;
+}
+.btn-primary:hover,.contact-form button:hover,.pv-form button:hover{
+  background:var(--green-dark)!important;border-color:var(--green-dark)!important;
+  box-shadow:0 6px 18px rgba(163,99,15,.45)!important;
+}
+.btn-checkout{
+  --btn-bg:var(--badge)!important;--btn-border:var(--badge)!important;
+  box-shadow:0 6px 16px rgba(214,78,0,.4)!important;
+}
+.btn-checkout:hover{background:#b53f00!important;border-color:#b53f00!important;box-shadow:0 6px 18px rgba(181,63,0,.5)!important}
+
+.sidebar-user-sign{
+  background:#fff!important;color:var(--green)!important;
+  border:1px solid #fff!important;font-weight:800!important;
+  box-shadow:0 3px 10px rgba(0,0,0,.2)!important;
+}
+.sidebar-user-sign:hover{background:#fff6ea!important}
+
+/* Header cart + login icons — permanent pill background so they read as buttons */
+.icon-btn{background:#fbf1e4!important;border-radius:12px!important;margin:0 3px}
+.icon-btn:not(:last-child){border-right:none!important}
+.icon-btn:hover{background:var(--green)!important;color:#fff!important}
+.icon-btn#headerSignInBtn{background:var(--green)!important;color:#fff!important;box-shadow:0 3px 10px rgba(196,122,30,.4)!important}
+.icon-btn#headerSignInBtn:hover{background:var(--green-dark)!important}
+
+/* Product-card add-to-cart — permanent glow so it stands out on white cards */
+.btn-cart{
+  border:1px solid #e6ac00!important;
+  box-shadow:0 5px 14px rgba(255,199,56,.55)!important;
+}
+.btn-cart:hover{box-shadow:0 7px 18px rgba(245,183,0,.65)!important}
+
+
 .svc-gallery-title{font-size:22px;line-height:1.4}.svc-gallery-title .svc-sub{font-weight:600;color:var(--green-dark)}@media(max-width:560px){.svc-gallery-title{font-size:17px;line-height:1.5;text-align:center}.svc-gallery-title .svc-sep{display:none}.svc-gallery-title .svc-sub{display:block;font-size:13.5px;color:#666;margin-top:4px;font-weight:500}}
 
 /* Mobile hero slider: show only hero-main, auto-slide 3 images */
