@@ -51,6 +51,27 @@ app.use(cors({
   credentials: true
 }));
 
+
+/* ---------------- Google Apps Script order email ----------------
+ * প্রতিটি নতুন অর্ডার Apps Script webhook-এ পাঠানো হয়, যা
+ * trejin.shop@gmail.com এ ইমেইল পাঠায় (Code.gs দেখুন)।
+ * Render → Environment এ APPS_SCRIPT_URL সেট করুন (Web App deploy URL)।
+ */
+async function notifyOrderByEmail(order) {
+  const url = process.env.APPS_SCRIPT_URL;
+  if (!url) return;
+  try {
+    await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(order)
+    });
+    console.log('Order email webhook sent:', order.id);
+  } catch (e) {
+    console.error('Order email webhook failed:', e.message);
+  }
+}
+
 /* ---------------- MongoDB ---------------- */
 mongoose.set('strictQuery', true);
 mongoose.connect(process.env.MONGODB_URI, { serverSelectionTimeoutMS: 15000 })
@@ -305,6 +326,8 @@ app.post('/api/orders', optionalUser, async (req, res) => {
     const doc = await Order.findOneAndUpdate(
       { id: body.id }, { $set: body }, { upsert: true, new: true }
     );
+    // নতুন অর্ডার এলেই Apps Script-এর মাধ্যমে জিমেইলে পাঠানো (fire-and-forget)
+    notifyOrderByEmail(doc.toObject ? doc.toObject() : doc);
     res.json(doc);
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
