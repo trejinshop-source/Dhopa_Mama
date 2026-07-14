@@ -1,5 +1,5 @@
 /**
- * Dhopa Mama / Falaq Laundry — Backend API
+ * Dhopa Mama / Dhopa Mama — Backend API
  * Stack: Express + MongoDB (Mongoose) + Cloudinary
  * Deploy: Render.com (Web Service, Node)
  *
@@ -402,6 +402,94 @@ app.put('/api/users', requireAdmin, async (req, res) => {
     res.json(list);
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
+
+
+/* ---------------- Forgot Password (Gmail OTP via Apps Script) ---------------- */
+// এই সিস্টেম বর্তমান APPS_SCRIPT_URL ব্যবহার করে OTP ইমেইল পাঠায়।
+// Apps Script-এ পাঠানো পেলোডে { type: 'otp', to, otp } থাকে —
+// Code.gs-এ doPost অংশটি এই টাইপ হ্যান্ডেল করার জন্য আপডেট করতে হবে (নিচে নমুনা দেওয়া হয়েছে)।
+const OTP_STORE = new Map(); // email -> { otp, expiresAt }
+
+function generateOtp(){
+  return String(Math.floor(100000 + Math.random() * 900000));
+}
+
+async function sendOtpEmail(to, otp){
+  const url = process.env.APPS_SCRIPT_URL;
+  if (!url) throw new Error('APPS_SCRIPT_URL not set');
+  try {
+    await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'otp', to, otp })
+    });
+  } catch(e) {
+    console.error('sendOtpEmail failed:', e.message);
+    throw e;
+  }
+}
+
+app.post('/api/auth/forgot-password', async (req, res) => {
+  try {
+    const { email } = req.body || {};
+    if (!email) return res.status(400).json({ error: 'email required' });
+    // ইউজার আছে কিনা যাচাই — না থাকলেও same response (email enumeration prevent)
+    const u = await User.findOne({ contact: email });
+    const otp = generateOtp();
+    OTP_STORE.set(email, { otp, expiresAt: Date.now() + 15 * 60 * 1000 }); // 15 মিনিট
+    if (u) {
+      try { await sendOtpEmail(email, otp); } catch(e){ /* still respond ok */ }
+    }
+    res.json({ ok: true, message: 'যদি এই ইমেইলে অ্যাকাউন্ট থাকে, OTP পাঠানো হয়েছে।' });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post('/api/auth/reset-password', async (req, res) => {
+  try {
+    const { email, otp, newPassword } = req.body || {};
+    if (!email || !otp || !newPassword) return res.status(400).json({ error: 'সব ফিল্ড পূরণ করুন' });
+    const rec = OTP_STORE.get(email);
+    if (!rec || rec.otp !== String(otp) || rec.expiresAt < Date.now()){
+      return res.status(400).json({ error: 'OTP ভুল অথবা মেয়াদ শেষ' });
+    }
+    const u = await User.findOne({ contact: email });
+    if (!u) return res.status(404).json({ error: 'ইউজার নেই' });
+    u.password = await bcrypt.hash(newPassword, 10);
+    await u.save();
+    OTP_STORE.delete(email);
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+/* ---------------- Top Friend: মাসিক অর্ডার কাউন্ট ও ডিসকাউন্ট ----------------
+ * নিয়ম: চলতি মাসে ২০+ অর্ডার = ৫%, ৩০+ = ১০%, ৫০+ = ৫০% (সবকটি পরের অর্ডারে)
+ * মাস শেষ হলে অটো রিসেট। */
+function tierPercent(count){
+  if (count >= 50) return 50;
+  if (count >= 30) return 10;
+  if (count >= 20) return 5;
+  return 0;
+}
+
+app.get('/api/top-friend/status', requireUser, async (req, res) => {
+  try {
+    const now = new Date();
+    const start = new Date(now.getFullYear(), now.getMonth(), 1);
+    const or = [{ userId: req.user.id }];
+    if (req.user.contact) or.push({ userContact: req.user.contact });
+    const count = await Order.countDocuments({
+      $or: or,
+      createdAt: { $gte: start }
+    });
+    res.json({
+      monthlyOrderCount: count,
+      discountPercent: tierPercent(count),
+      isTopFriend: count >= 20,
+      month: (now.getMonth()+1) + '/' + now.getFullYear()
+    });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 
 /* ---------------- Start ---------------- */
 const PORT = process.env.PORT || 5000;
