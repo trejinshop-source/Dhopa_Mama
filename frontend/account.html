@@ -1,0 +1,2148 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Login | Dhopa Mama</title>
+<meta name="description" content="ধোপা মামা অ্যাকাউন্টে Login করুন অথবা Sign Up করুন — ঘরে বসে লন্ড্রি সার্ভিস অর্ডার করতে।" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700;800&family=Baloo+Da+2:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root{
+  --violet-900:#55451E;
+  --violet-800:#77612A;
+  --violet-700:#997D36;
+  --violet-600:#CA9100;
+  --violet-500:#E6BB50;
+  --violet-100:#FFF3D6;
+  --ink:#55451E;
+  --muted:#997D36;
+  --line:#E6BB50;
+  --paper:#FFFCEF;
+  --gold:#E6BB50;
+  font-family:'Hind Siliguri','Baloo Da 2',system-ui,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  font-family:'Hind Siliguri',system-ui,sans-serif;
+  color:var(--ink);
+  background:var(--paper);
+  height:100vh;
+  height:100dvh;
+  overflow:hidden;
+}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer}
+
+/* ============ Page shell — ONLY navbar + auth-shell live in here, so footer/other
+   elements after it can never steal height from auth-shell via flex-shrink math ============ */
+.page-shell{
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+
+/* ============ Layout shell (fills remaining space below navbar — no page scroll) ============ */
+.auth-shell{
+  display:grid;
+  grid-template-columns:1.05fr 1fr;
+  flex:1 1 auto;
+  min-height:0;
+  overflow:hidden;
+}
+@media (max-width:960px){
+  .auth-shell{grid-template-columns:1fr}
+}
+
+/* ============ Left: brand / hero panel ============ */
+.auth-hero{
+  position:relative;
+  overflow-y:auto;
+  min-height:0;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  padding:52px 56px;
+  background:
+    radial-gradient(620px 480px at 92% 8%, rgba(255,182,72,.20), transparent 60%),
+    radial-gradient(520px 420px at 6% 96%, rgba(122,107,240,.35), transparent 60%),
+    linear-gradient(155deg, var(--violet-900) 0%, var(--violet-700) 55%, var(--violet-600) 100%);
+  color:#fff;
+}
+@media (max-width:960px){
+  .auth-hero{padding:34px 26px 46px;min-height:auto}
+}
+@media (max-width:720px){
+  .auth-hero{display:none}
+}
+
+/* ============ Site navbar (হুবহু / exact copy of index.html) ============ */
+:root{
+  --green:#CA9100;
+  --green-dark:#997D36;
+  --border:#E6BB50;
+}
+.container{max-width:1240px;margin:0 auto;padding:0 16px}
+
+/* -- Desktop header -- */
+.header{background:#ffffff;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;flex-shrink:0}
+.header-top{display:flex;align-items:center;gap:30px;padding:5px 0}
+.logo img{height:52px;width:auto;max-width:220px;object-fit:contain}
+.logo{margin-left:32px}
+@media(max-width:720px){.logo{margin-left:0}}
+.main-nav{display:flex;align-items:center;gap:6px}
+.main-nav a{padding:8px 14px;font-weight:700;color:var(--text);font-size:15px;border-radius:6px;position:relative;font-family:'Poppins','Hind Siliguri','Noto Sans',system-ui,sans-serif;letter-spacing:.2px}
+.main-nav a.active,.main-nav a:hover{color:var(--green)}
+.new-badge{background:#e53935;color:#fff;font-size:10px;padding:2px 6px;border-radius:3px;margin-left:5px;font-weight:600;vertical-align:middle}
+.offers-icon{color:var(--green);margin-right:4px}
+
+/* Search bar */
+.search-box{flex:1;max-width:480px;margin-left:auto;position:relative;height:46px;display:flex;align-items:center;background:#fff;border:1px solid #dde3f0;padding:0 14px;gap:10px}
+.search-box .s-icon{color:#999;font-size:15px;flex-shrink:0}
+.search-box .s-divider{width:1px;height:18px;background:#ddd;flex-shrink:0}
+.search-box input{flex:1;border:none;background:transparent;outline:none;font-size:14px;font-family:inherit;color:#333}
+.search-box input::placeholder{color:#aaa}
+.search-box .s-dots{color:#aaa;font-size:18px;cursor:pointer;flex-shrink:0;padding:4px}
+.search-box .s-dots:hover{color:#666}
+.header-icons{display:flex;align-items:center;background:#f3f8f3;border:1px solid #e4efe4}
+.icon-btn{display:flex;align-items:center;justify-content:center;width:42px;height:42px;background:transparent;color:var(--green);cursor:pointer;position:relative;text-align:center;transition:.2s;border-radius:0}
+.icon-btn:not(:last-child){border-right:1px solid #e4efe4}
+.icon-btn:hover{background:var(--green);color:#fff}
+.icon-btn i{font-size:17px}
+.icon-btn span:not(.cart-count){display:none}
+.cart-count{position:absolute;top:-4px;right:-4px;background:#ff5252;color:#fff;font-size:10px;min-width:17px;height:17px;padding:0 4px;display:flex;align-items:center;justify-content:center;font-weight:700;border:2px solid #fff;line-height:1}
+#headerSignInBtn{background:var(--green)!important;color:#fff!important}
+
+/* Category nav (mobile pill row) */
+.cat-nav{border-bottom:1px solid var(--border)}
+.cat-nav .container{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:10px 16px;justify-content:center}
+.cat-nav a{padding:8px 18px;font-size:14px;color:#333;border-radius:20px;font-weight:500}
+.cat-nav a:hover{color:var(--green)}
+.cat-nav a.active{color:#fff;background:var(--green);font-weight:600}
+@media(min-width:721px){.cat-nav{display:none}}
+
+/* Mobile header */
+.mobile-header{display:none;align-items:center;justify-content:space-between;padding:12px 16px;background:#fff;border-bottom:1px solid #eee;position:sticky;top:0;z-index:60;flex-shrink:0}
+.mobile-header .logo-center{position:absolute;left:50%;transform:translateX(-50%)}
+.mobile-header .logo-center img{height:56px;width:auto;max-width:220px;object-fit:contain}
+.hamburger-btn{background:none;border:none;font-size:22px;color:#333;padding:4px;cursor:pointer;border-radius:0}
+.mobile-search-bar{display:none;padding:8px 14px;background:#c8d4e8;border-bottom:none;position:relative;z-index:59;overflow:visible;max-height:80px;opacity:1;transition:max-height .28s ease,opacity .22s ease,padding .28s ease;flex-shrink:0}
+.mobile-search-bar.search-hidden{max-height:0;opacity:0;padding-top:0;padding-bottom:0;overflow:hidden}
+.mobile-search-wrap{position:relative;height:42px;display:flex;align-items:center;background:#fff;padding:0 14px;gap:10px}
+.mobile-search-wrap .s-icon{color:#999;font-size:14px;flex-shrink:0}
+.mobile-search-wrap .s-divider{width:1px;height:16px;background:#ddd;flex-shrink:0}
+.mobile-search-wrap input{flex:1;border:none;background:transparent;outline:none;font-size:14px;font-family:inherit;color:#333}
+.mobile-search-wrap input::placeholder{color:#aaa}
+.mobile-search-wrap .s-dots{color:#aaa;font-size:16px;cursor:pointer;flex-shrink:0}
+
+/* Search suggest dropdown */
+.search-suggest{display:none;position:absolute;left:0;right:0;top:100%;background:#fff;
+  border:1px solid #dde3f0;border-top:none;max-height:380px;overflow-y:auto;z-index:120;
+  box-shadow:0 10px 24px rgba(0,0,0,.12);border-radius:0;padding:6px}
+.search-suggest.open{display:block}
+.search-suggest .ss-empty{padding:16px;text-align:center;color:#aaa;font-size:13px}
+
+/* Sidebar / Drawer */
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:70}
+.sidebar-overlay.open{display:block}
+.sidebar{position:fixed;top:0;left:0;width:300px;height:100%;background:#fff;z-index:80;transform:translateX(-100%);transition:transform .3s ease;overflow-y:auto;display:flex;flex-direction:column}
+.sidebar.open{transform:translateX(0)}
+.sidebar-header{position:relative}
+.sidebar-close-btn{position:absolute;top:14px;right:14px;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.22);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;font-size:15px;z-index:5}
+.sidebar-close-btn:hover{background:rgba(255,255,255,.4)}
+.sidebar-user{background:#CA9100;color:#fff;padding:18px 54px 18px 16px;display:flex;align-items:center;gap:12px}
+.sidebar-user .avatar{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:20px}
+.sidebar-user .user-text{font-size:15px;font-weight:600}
+.sidebar-user .user-sub{font-size:12px;opacity:.85;margin-top:2px}
+.sidebar-user-sign{background:rgba(255,255,255,.15);border:none;color:#fff;font-size:13px;padding:4px 12px;border-radius:0;cursor:pointer;font-family:inherit;margin-left:auto}
+.sidebar-menu{padding:8px 0;flex:1}
+.sidebar-menu-item{display:flex;align-items:center;gap:14px;padding:14px 20px;font-size:15px;color:#222;text-decoration:none;border-bottom:1px solid #f2f2f2;cursor:pointer;font-family:'Hind Siliguri','Noto Sans',system-ui,sans-serif}
+.sidebar-menu-item:hover{background:#f9f9f9;color:#CA9100}
+.sidebar-menu-item i:first-child{width:20px;text-align:center;color:#666;font-size:17px;flex-shrink:0}
+.sidebar-menu-item.sidebar-cat-toggle{justify-content:space-between}
+.sidebar-menu-item.sidebar-cat-toggle .toggle-left{display:flex;align-items:center;gap:14px}
+.sidebar-menu-item .chevron{transition:transform .25s ease;color:#999;font-size:13px}
+.sidebar-menu-item .chevron.open{transform:rotate(180deg)}
+.sidebar-subcats{max-height:0;overflow:hidden;transition:max-height .3s ease;background:#fafafa}
+.sidebar-subcats.open{max-height:400px}
+.sidebar-subcats a{display:block;padding:12px 20px 12px 54px;font-size:14px;color:#444;text-decoration:none;border-bottom:1px solid #f2f2f2}
+.sidebar-subcats a:hover,.sidebar-subcats a.active{color:#CA9100;background:#f3f8f3;font-weight:600}
+.sidebar,.sidebar *{font-family:'Poppins','Hind Siliguri','Noto Sans',system-ui,sans-serif}
+@media(max-width:768px){
+  #sidebar{width:100vw!important;max-width:100vw!important;padding:0!important;box-shadow:0 0 46px rgba(0,0,0,.18);border-radius:0!important;overflow:hidden}
+  #sidebar .sidebar-user{display:none!important}
+  #sidebar .sidebar-header{background:linear-gradient(135deg,#CA9100 0%,#1b5e20 100%);padding:22px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  #sidebar .sidebar-header::before{content:"মেনু";color:#fff;font-size:18px;font-weight:700;font-family:'Hind Siliguri','Noto Sans',system-ui,sans-serif;letter-spacing:.3px}
+  #sidebar .sidebar-close-btn{position:static;width:32px;height:32px;background:rgba(255,255,255,.2)}
+  #sidebar .sidebar-close-btn:hover{background:rgba(255,255,255,.35)}
+  #sidebar .sidebar-menu{padding:14px 10px 24px}
+  #sidebar .sidebar-menu-item{border-bottom:none!important;border-radius:12px;margin-bottom:3px;padding:14px 14px!important;font-size:15.5px!important;transition:background .18s ease,color .18s ease,transform .15s ease}
+  #sidebar .sidebar-menu-item:hover,#sidebar .sidebar-menu-item:active{background:#f0f7f0;color:#1b5e20;transform:translateX(2px)}
+  #sidebar .sidebar-menu-item i:first-child{width:36px;height:36px;border-radius:50%;background:#eaf5ea;color:#CA9100;font-size:15px;display:flex;align-items:center;justify-content:center;transition:background .18s ease,color .18s ease}
+  #sidebar .sidebar-menu-item:hover i:first-child,#sidebar .sidebar-menu-item:active i:first-child{background:#CA9100;color:#fff}
+  #sidebar .sidebar-menu-item.sidebar-cat-toggle{padding:14px 14px!important}
+  #sidebar .sidebar-menu-item .chevron{color:#bbb}
+  #sidebar .sidebar-subcats{background:#fafcf9;border-radius:12px;overflow:hidden;margin:2px 0 6px 44px;width:calc(100% - 44px)}
+  #sidebar .sidebar-subcats.open{max-height:400px}
+  #sidebar .sidebar-subcats a{padding:12px 16px!important;font-size:14.5px!important;border-bottom:1px solid #eef2ee!important}
+  #sidebar .sidebar-subcats a:last-child{border-bottom:none!important}
+  #sidebar .sidebar-subcats a:hover,#sidebar .sidebar-subcats a.active{background:#eef6ee!important}
+}
+
+/* Mobile bottom nav */
+.mobile-bottom-nav{display:none;position:fixed;left:16px;right:16px;bottom:16px;background:#fff;border-radius:26px;box-shadow:0 12px 30px rgba(0,0,0,.14);z-index:60;padding:12px 6px}
+.mobile-bottom-nav .nav-items{display:flex;justify-content:space-around;align-items:center}
+.mobile-bottom-nav .nav-item{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:#9a9a9a;font-weight:500;cursor:pointer;padding:2px 10px;text-decoration:none}
+.mobile-bottom-nav .nav-item i{font-size:19px;color:#9a9a9a}
+.mobile-bottom-nav .nav-item.active{color:#1a1a1a;font-weight:700}
+.mobile-bottom-nav .nav-item.active i{color:#1a1a1a}
+
+@media (max-width:720px){
+  .header{display:none}
+  .mobile-header{display:flex}
+  .mobile-search-bar{display:block}
+  .mobile-bottom-nav{display:block}
+  body{padding-bottom:88px}
+}
+
+/* -- Footer -- */
+.site-footer{background:#fff;color:#444;padding:50px 0 0;margin-top:30px;border-top:1px solid #eee}
+.site-footer-grid{display:grid;grid-template-columns:1.8fr 1fr 1fr 1.3fr;gap:36px}
+.site-footer h4{color:#1a1a1a;font-size:16px;margin-bottom:18px;font-weight:700;font-family:'Hind Siliguri',sans-serif}
+.site-footer ul{list-style:none}
+.site-footer ul li{margin-bottom:10px;font-size:14px;display:flex;align-items:flex-start;gap:8px;color:#555}
+.site-footer ul li::before{content:"›";color:var(--violet-600);font-weight:700;font-size:16px;line-height:1.2;flex-shrink:0}
+.site-footer ul li a{color:#555}
+.site-footer ul li a:hover{color:var(--violet-600)}
+.site-footer-about{font-size:14px;line-height:1.7;color:#666;margin-bottom:20px}
+.site-footer-logo{height:72px;margin-bottom:14px}
+.site-footer-social{display:flex;gap:14px;margin-top:8px}
+.site-footer-social a{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff}
+.site-footer-social .fb{background:#1877f2}
+.site-footer-social .ig{background:radial-gradient(circle at 30% 107%,#fdf497 0%,#fdf497 5%,#fd5949 45%,#d6249f 60%,#285AEB 90%)}
+.site-footer-social .ln{background:#0077b5}
+.site-footer-social .yt{background:#ff0000}
+.site-footer-contact-item{display:flex;align-items:flex-start;gap:10px;margin-bottom:12px;font-size:14px;color:#555}
+.site-footer-contact-icon{width:32px;height:32px;border-radius:50%;border:1.5px solid var(--violet-600);display:flex;align-items:center;justify-content:center;color:var(--violet-600);font-size:13px;flex-shrink:0}
+.site-footer-no-arrow li::before{display:none}
+.site-footer-wave{margin-top:40px;line-height:0}
+.site-footer-wave svg{width:100%;height:70px;display:block}
+.site-footer-bottom{background:#f5f5f5;text-align:center;font-size:13px;color:#888;padding:14px 0}
+@media (max-width:960px){
+  .site-footer-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:720px){
+  .site-footer{padding:34px 0 0}
+}
+
+.auth-hero-topline{
+  display:flex;align-items:center;gap:12px;
+  font-weight:700;font-size:15px;letter-spacing:.3px;position:relative;z-index:2;
+}
+.auth-hero-topline .mark{
+  width:38px;height:38px;border-radius:0;
+  background:rgba(255,255,255,.14);
+  display:flex;align-items:center;justify-content:center;
+  border:1px solid rgba(255,255,255,.22);
+}
+.auth-hero-topline .mark svg{width:19px;height:19px}
+
+.auth-hero-dots{
+  position:absolute;top:34px;left:36px;
+  display:grid;grid-template-columns:repeat(4,1fr);gap:9px;
+  opacity:.55;z-index:1;
+}
+.auth-hero-dots span{width:5px;height:5px;border-radius:0;background:#fff}
+
+.auth-hero-orb{
+  position:absolute;border-radius:0;
+  background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.22), rgba(255,255,255,0) 70%);
+}
+.orb-a{width:260px;height:260px;top:-90px;right:-60px}
+.orb-b{width:320px;height:320px;bottom:-120px;left:-90px;background:radial-gradient(circle at 60% 40%, rgba(255,182,72,.28), rgba(255,182,72,0) 70%)}
+.orb-c{width:130px;height:130px;bottom:70px;right:60px;background:radial-gradient(circle at 40% 40%, rgba(255,255,255,.16), transparent 70%)}
+
+.auth-hero-body{position:relative;z-index:2;margin-top:auto;margin-bottom:auto;max-width:460px}
+.auth-hero-tag{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);
+  padding:7px 14px;border-radius:0;font-size:12.5px;font-weight:600;
+  letter-spacing:.4px;margin-bottom:22px;
+}
+.auth-hero-tag svg{width:8px;height:8px;color:var(--gold);flex-shrink:0}
+.auth-hero-title{
+  font-family:'Baloo Da 2',sans-serif;
+  font-size:44px;font-weight:700;line-height:1.18;letter-spacing:-.5px;
+}
+.auth-hero-title em{
+  font-style:normal;color:var(--gold);
+}
+@media (max-width:960px){.auth-hero-title{font-size:32px}}
+.auth-hero-sub{
+  margin-top:16px;font-size:15.5px;line-height:1.75;color:rgba(255,255,255,.82);max-width:420px;
+}
+
+.auth-hero-stats{
+  position:relative;z-index:2;
+  display:flex;gap:14px;flex-wrap:wrap;margin-top:36px;
+}
+.auth-hero-stats .stat{
+  background:rgba(255,255,255,.10);
+  border:1px solid rgba(255,255,255,.2);
+  border-radius:0;padding:12px 16px;min-width:118px;
+  backdrop-filter:blur(2px);
+}
+.auth-hero-stats .stat b{display:block;font-size:20px;font-weight:800;font-family:'Baloo Da 2',sans-serif}
+.auth-hero-stats .stat span{display:block;font-size:11.5px;color:rgba(255,255,255,.78);margin-top:2px}
+
+.auth-hero-foot{position:relative;z-index:2;font-size:13px;color:rgba(255,255,255,.65);display:flex;align-items:center;gap:8px}
+
+/* ============ Right: form panel ============ */
+.auth-right{
+  display:flex;align-items:center;justify-content:center;
+  padding:48px 32px;background:var(--paper);
+  min-height:0;overflow-y:auto;
+}
+.auth-card{width:100%;max-width:400px}
+
+.auth-card-head{margin-bottom:30px}
+.auth-card-head h1{
+  font-size:29px;font-weight:800;letter-spacing:-.3px;color:var(--ink);
+  font-family:'Baloo Da 2',sans-serif;
+}
+.auth-card-head p{margin-top:8px;color:var(--muted);font-size:14.5px}
+
+.auth-tabs{
+  display:flex;background:var(--violet-100);border-radius:0;padding:4px;margin-bottom:26px;
+}
+.auth-tabs button{
+  flex:1;border:none;background:transparent;padding:10px 8px;border-radius:0;
+  font-size:13.5px;font-weight:700;color:var(--violet-700);opacity:.55;
+  transition:.2s;
+}
+.auth-tabs button.is-active{background:#fff;opacity:1;box-shadow:0 4px 14px rgba(76,57,196,.18)}
+
+.field{margin-bottom:16px}
+.field label{display:block;font-size:13px;font-weight:600;color:#4c4870;margin-bottom:7px}
+.field-box{
+  position:relative;display:flex;align-items:center;
+  border:1.5px solid var(--line);border-radius:0;background:#fff;
+  transition:border-color .18s,box-shadow .18s;
+}
+.field-box:focus-within{border-color:var(--violet-600);box-shadow:0 0 0 4px rgba(95,77,224,.12)}
+.field-box .ico{
+  width:44px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  color:var(--violet-600);
+}
+.field-box .ico svg{width:18px;height:18px}
+.field-box input{
+  flex:1;border:none;outline:none;background:transparent;
+  padding:13px 12px 13px 0;font-size:14.5px;color:var(--ink);font-family:inherit;
+}
+.field-box input::placeholder{color:#b3afc9}
+.eye-btn{
+  border:none;background:none;color:#a7a3c3;width:42px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+}
+.eye-btn svg{width:18px;height:18px}
+.eye-btn:hover{color:var(--violet-600)}
+
+.row-between{display:flex;align-items:center;justify-content:space-between;margin:2px 0 20px;font-size:13px}
+.remember{display:flex;align-items:center;gap:7px;color:#6c6890;cursor:pointer}
+.remember input{accent-color:var(--violet-600);width:15px;height:15px}
+.forgot-link{color:var(--violet-600);font-weight:600}
+.forgot-link:hover{text-decoration:underline}
+
+.auth-error{
+  display:none;background:#fef2f2;border:1px solid #fecaca;color:#c0392b;
+  font-size:13px;padding:9px 12px;border-radius:0;margin-bottom:14px;
+}
+
+.btn-submit{
+  width:100%;border:none;border-radius:0;padding:14px;
+  font-size:15px;font-weight:700;color:#fff;letter-spacing:.2px;
+  background:linear-gradient(135deg,var(--violet-600),var(--violet-800));
+  box-shadow:0 12px 26px -10px rgba(76,57,196,.65);
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:transform .15s ease, box-shadow .15s ease;
+}
+.btn-submit:hover{transform:translateY(-1px);box-shadow:0 16px 30px -10px rgba(76,57,196,.75)}
+.btn-submit:disabled{opacity:.7;cursor:default;transform:none}
+.btn-submit .spin{
+  width:15px;height:15px;border-radius:0;
+  border:2px solid rgba(255,255,255,.4);border-top-color:#fff;
+  animation:spin .7s linear infinite;display:none;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.switch-text{text-align:center;margin-top:24px;font-size:13.5px;color:#6c6890}
+.switch-text a{color:var(--violet-600);font-weight:700}
+.switch-text a:hover{text-decoration:underline}
+
+.name-field{display:none}
+.name-field.show{display:block}
+
+/* ============ Forgot-password modal ============ */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(29,26,52,.55);
+  display:none;align-items:center;justify-content:center;
+  padding:20px;z-index:500;overflow-y:auto;
+}
+.modal-overlay.open{display:flex}
+.modal-box{
+  width:100%;max-width:400px;background:#fff;
+  max-height:calc(100dvh - 40px);overflow-y:auto;
+  border:1px solid var(--line);border-radius:0;
+  padding:32px;position:relative;
+  box-shadow:0 30px 70px -20px rgba(29,26,52,.35);
+}
+.modal-close{
+  position:absolute;top:18px;right:18px;
+  width:30px;height:30px;border:1px solid var(--line);background:#fff;
+  display:flex;align-items:center;justify-content:center;color:#997D36;
+}
+.modal-close:hover{color:var(--violet-600);border-color:var(--violet-500)}
+.modal-close svg{width:14px;height:14px}
+
+.modal-icon{
+  width:48px;height:48px;background:var(--violet-100);color:var(--violet-600);
+  display:flex;align-items:center;justify-content:center;margin-bottom:18px;
+}
+.modal-icon svg{width:22px;height:22px}
+.modal-icon.success{background:#e8f7ee;color:#1f9d55}
+
+.modal-box h2{
+  font-size:20px;font-weight:800;color:var(--ink);letter-spacing:-.2px;
+  font-family:'Baloo Da 2',sans-serif;margin-bottom:8px;
+}
+.modal-box .modal-sub{color:var(--muted);font-size:13.5px;line-height:1.6;margin-bottom:22px}
+
+.modal-error{
+  display:none;background:#fef2f2;border:1px solid #fecaca;color:#c0392b;
+  font-size:13px;padding:9px 12px;border-radius:0;margin-bottom:14px;
+}
+.modal-success-text{color:#3c3861;font-size:14px;line-height:1.7;margin-bottom:22px}
+
+.btn-secondary{
+  width:100%;border:1.5px solid var(--line);background:#fff;border-radius:0;
+  padding:12px;font-size:13.5px;font-weight:600;color:var(--violet-600);
+  margin-top:10px;transition:.18s;
+}
+.btn-secondary:hover{border-color:var(--violet-500);background:var(--violet-100)}
+
+@media (max-width:720px){
+  .auth-right{padding:18px 18px}
+  .auth-card-head{margin-bottom:16px}
+  .auth-card-head h1{font-size:22px}
+  .auth-card-head p{margin-top:4px;font-size:13px}
+  .auth-tabs{margin-bottom:16px}
+  .field{margin-bottom:11px}
+  .field-box input{padding:10px 12px 10px 0}
+  .row-between{margin:0 0 12px}
+  .btn-submit{padding:12px}
+  .switch-text{margin-top:14px}
+}
+@media (max-width:420px){
+  .auth-right{padding:16px 16px}
+  .auth-card-head h1{font-size:20px}
+}
+</style>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style id="dm-global-override">
+/* === Gold / mustard palette override === */
+:root{
+  --green:#CA9100 !important;
+  --green-dark:#997D36 !important;
+  --badge:#77612A !important;
+  --text:#55451E !important;
+  --muted:#997D36 !important;
+  --border:#E6BB50 !important;
+  --accent:#CA9100 !important;
+  --accent-soft:#FFF3D6 !important;
+  --ink:#55451E !important;
+  --line:#E6BB50 !important;
+  --violet-900:#55451E !important;
+  --violet-800:#77612A !important;
+  --violet-700:#997D36 !important;
+  --violet-600:#CA9100 !important;
+  --violet-500:#E6BB50 !important;
+  --violet-100:#FFF3D6 !important;
+  --paper:#FFFCEF !important;
+  --gold:#E6BB50 !important;
+}
+/* === Remove ALL border-radius everywhere === */
+*, *::before, *::after { border-radius: 0 !important; }
+/* Hide legacy modals for account/orders/checkout auth flow */
+#accountModalOverlay, #ordersModalOverlay { display: none !important; }
+/* Recolor primary UI hits */
+.btn-primary,.btn-checkout,.sidebar-user-sign{background:#CA9100 !important;color:#fff !important;border-color:#CA9100 !important}
+.btn-primary:hover,.btn-checkout:hover{background:#997D36 !important;border-color:#997D36 !important}
+.badge,.new-badge{background:#77612A !important;color:#fff !important}
+a{color:inherit}
+</style>
+<script>
+(function(){
+  function _getUser(){
+    try{
+      var raw = localStorage.getItem('dmUser') || localStorage.getItem('dm_user');
+      if(raw) return JSON.parse(raw);
+    }catch(e){}
+    return null;
+  }
+  window.isLoggedIn = function(){ return !!_getUser(); };
+  window.getCurrentUser = _getUser;
+  function requireLogin(){
+    try{ localStorage.setItem('dmRedirectAfterLogin', location.href); }catch(e){}
+    alert('অর্ডার করার জন্য প্রথমে Login করুন।');
+    window.location.href='account.html';
+  }
+  window.dmRequireLogin = requireLogin;
+  // Replace all legacy modal openers with page navigation
+  window.openAccountModal = function(){ window.location.href='account.html'; };
+  window.closeAccountModal = function(){};
+  window.openOrdersModal = function(){
+    if(!window.isLoggedIn()){ requireLogin(); return; }
+    window.location.href='orders.html';
+  };
+  window.closeOrdersModal = function(){};
+
+  // Update Login label if logged in
+  function paintAuth(){
+    var u = _getUser(); if(!u) return;
+    var name = (u.name||u.mobile||u.email||'Account').split(/[@\s]/)[0];
+    ['dmAcctLabel','dmAcctLabelMb'].forEach(function(id){var e=document.getElementById(id);if(e) e.textContent=name;});
+    // Header sign in in index-like nav
+    document.querySelectorAll('#headerSignInBtn span, .sidebar-user-sign').forEach(function(el){
+      if(el.tagName==='SPAN') el.textContent = name;
+    });
+  }
+  document.addEventListener('DOMContentLoaded', paintAuth);
+
+  // Guard order/checkout actions site-wide
+  document.addEventListener('click', function(e){
+    var t = e.target.closest('[data-require-login], .btn-checkout, [onclick*="submitOrder"], [onclick*="placeOrder"], [onclick*="confirmOrder"], [onclick*="openCheckout"]');
+    if(!t) return;
+    if(window.isLoggedIn()) return;
+    e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
+    requireLogin();
+  }, true);
+})();
+</script>
+
+
+</head>
+<body>
+
+<div class="page-shell">
+
+<!-- ===== Mobile Header (হুবহু index.html) ===== -->
+<div class="mobile-header">
+  <button class="hamburger-btn" onclick="openSidebar()" aria-label="Menu"><i class="fas fa-bars"></i></button>
+  <div class="logo-center">
+    <a href="index.html" aria-label="Home" style="display:inline-block;line-height:0"><img loading="lazy" decoding="async" src="assets/d5f720099214.png" alt="Logo"></a>
+  </div>
+  <div style="width:36px"></div>
+</div>
+<div class="mobile-search-bar">
+  <div class="mobile-search-wrap" id="mobileSearchWrap">
+    <i class="fas fa-search s-icon" onclick="runProductSearch('mobileSearchInput')" style="cursor:pointer"></i>
+    <span class="s-divider"></span>
+    <input type="text" id="mobileSearchInput" placeholder="কী খুঁজছেন? যেমন: শার্ট, শাড়ি, কম্বল..." oninput="syncSearchInputs('mobileSearchInput', this.value)" onkeydown="if(event.key==='Enter') runProductSearch('mobileSearchInput')" />
+    <i class="fas fa-times s-dots" id="mobileSearchClear" style="display:none" onclick="clearProductSearch('mobileSearchInput')"></i>
+  </div>
+  <div class="search-suggest" id="mobileSearchSuggest"></div>
+</div>
+
+<!-- ===== Sidebar Overlay + Drawer (হুবহু index.html) ===== -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <button class="sidebar-close-btn" onclick="closeSidebar()" aria-label="Close menu"><i class="fas fa-times"></i></button>
+    <div class="sidebar-user">
+      <div class="avatar"><i class="fas fa-user"></i></div>
+      <div>
+        <div class="user-text">Hello, what are you looking for?</div>
+        <div class="user-sub">আপনার অ্যাকাউন্টে লগইন করুন</div>
+      </div>
+      <button class="sidebar-user-sign" onclick="closeSidebar()">Login</button>
+    </div>
+  </div>
+
+  <div class="sidebar-menu">
+    <a href="index.html" class="sidebar-menu-item"><i class="fas fa-home"></i><span>Home</span></a>
+
+    <div class="sidebar-menu-item sidebar-cat-toggle" onclick="toggleSidebarCategories()">
+      <span class="toggle-left"><i class="fas fa-th-large"></i><span>Categories</span></span>
+      <i class="fas fa-chevron-down chevron" id="sidebarCatChevron"></i>
+    </div>
+    <div class="sidebar-subcats" id="sidebarSubcats">
+      <a href="index.html#men-wear">Men's Wear</a>
+      <a href="index.html#women-wear">Women's Wear</a>
+      <a href="index.html#winter-wear">Winter Wear</a>
+      <a href="index.html#home-linen">Home Linen</a>
+      <a href="index.html#suits">Suits &amp; Panjabi</a>
+    </div>
+
+    <a href="services.html" class="sidebar-menu-item"><i class="fas fa-concierge-bell"></i><span>Services</span></a>
+    <a href="about.html" class="sidebar-menu-item"><i class="fas fa-info-circle"></i><span>About Us</span></a>
+    <a href="contact.html" class="sidebar-menu-item"><i class="fas fa-address-card"></i><span>Contact</span></a>
+    <a href="account.html" class="sidebar-menu-item"><i class="fas fa-sign-in-alt"></i><span>Login / Account</span></a>
+  </div>
+</div>
+
+<!-- ===== Desktop Header (হুবহু index.html) ===== -->
+<header class="header">
+  <div class="container header-top">
+    <a href="index.html" class="logo">
+      <img loading="lazy" decoding="async" src="assets/d5f720099214.png" alt="Logo">
+    </a>
+    <nav class="main-nav" id="mainNav">
+      <a href="index.html">Home</a>
+      <a href="services.html">Services</a>
+      <a href="about.html">About Us</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+    <div class="search-box" id="desktopSearchWrap">
+      <i class="fas fa-search s-icon" onclick="runProductSearch('desktopSearchInput')" style="cursor:pointer"></i>
+      <span class="s-divider"></span>
+      <input type="text" id="desktopSearchInput" placeholder="কী খুঁজছেন? যেমন: শার্ট, শাড়ি, কম্বল..." oninput="syncSearchInputs('desktopSearchInput', this.value)" onkeydown="if(event.key==='Enter') runProductSearch('desktopSearchInput')" />
+      <i class="fas fa-times s-dots" id="desktopSearchClear" style="display:none" onclick="clearProductSearch('desktopSearchInput')"></i>
+      <div class="search-suggest" id="desktopSearchSuggest"></div>
+    </div>
+    <div class="header-icons">
+      <div class="icon-btn" onclick="window.location.href='cart.html'"><i class="fas fa-shopping-cart"></i><span class="cart-count">0</span><span>Cart</span></div>
+      <div class="icon-btn" id="headerSignInBtn" onclick="window.location.href='account.html'"><i class="far fa-user"></i><span>Login</span></div>
+    </div>
+  </div>
+</header>
+
+<div class="auth-shell">
+
+  <!-- ===== Left hero panel ===== -->
+  <aside class="auth-hero">
+    <div class="auth-hero-orb orb-a"></div>
+    <div class="auth-hero-orb orb-b"></div>
+    <div class="auth-hero-orb orb-c"></div>
+    <div class="auth-hero-dots">
+      <span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span>
+    </div>
+
+    <div class="auth-hero-topline">
+      <span class="mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="7"/><circle cx="12" cy="13" r="3"/><path d="M4 8h1M19 8h1M9 3h6"/></svg>
+      </span>
+      Dhopa Mama
+    </div>
+
+    <div class="auth-hero-body">
+      <span class="auth-hero-tag"><svg viewBox="0 0 8 8" fill="currentColor"><circle cx="4" cy="4" r="4"/></svg> ফরিদপুর সদরের বিশ্বস্ত লন্ড্রি সার্ভিস</span>
+      <h1 class="auth-hero-title">পরিষ্কার জীবন <br><em>শুরু হোক এখান থেকে</em></h1>
+      <p class="auth-hero-sub">
+        অ্যাকাউন্ট তৈরি করুন আর ঘরে বসেই অর্ডার করুন — ফ্রি হোম পিকআপ ও ডেলিভারিসহ
+        নরমাল ওযp��াশ, ড্রাই ওয়াশ ও আয়রন সার্ভিস। এখনই যুক্ত হোন।
+      </p>
+
+      <div class="auth-hero-stats">
+        <div class="stat"><b>5000+</b><span>সন্তুষ্ট গ্রাহক</span></div>
+        <div class="stat"><b>ফ্রি</b><span>হোম পিকআপ</span></div>
+        <div class="stat"><b>48ঘ.</b><span>দ্রুত ডেলিভারি</span></div>
+      </div>
+    </div>
+
+    <div class="auth-hero-foot">
+      <span>©</span> ধোপা মামা, dhopamama.com — সব সময় আপনার পাশে
+    </div>
+  </aside>
+
+  <!-- ===== Right auth panel ===== -->
+  <main class="auth-right">
+    <div class="auth-card">
+
+      <div class="auth-card-head">
+        <h1 id="authHeading">Login</h1>
+        <p id="authSubheading">অ্যাকাউন্টে প্রবেশ করে অর্ডার শুরু করুন</p>
+      </div>
+
+      <div class="auth-tabs">
+        <button type="button" id="tabSignin" class="is-active" onclick="setMode('signin')">Login</button>
+        <button type="button" id="tabSignup" onclick="setMode('signup')">Sign Up</button>
+      </div>
+
+      <p class="auth-error" id="authError"></p>
+
+      <form id="authForm" onsubmit="handleSubmit(event)">
+
+        <div class="field name-field" id="nameField">
+          <label>আপনার নাম</label>
+          <div class="field-box">
+            <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg></span>
+            <input type="text" id="fldName" placeholder="পূর্ণ নাম লিখুন" autocomplete="name" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label>মোবাইল নম্বর / ইমেইল</label>
+          <div class="field-box">
+            <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14"/><path d="M3 6l9 7 9-7"/></svg></span>
+            <input type="text" id="fldContact" placeholder="মোবাইল নম্বর অথবা ইমেইল লিখুন" autocomplete="username" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label>পাসওয়ার্ড</label>
+          <div class="field-box">
+            <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span>
+            <input type="password" id="fldPass" placeholder="পাসওয়ার্ড লিখুন" autocomplete="current-password" />
+            <button type="button" class="eye-btn" id="eyeBtn" onclick="togglePass()">
+              <svg id="eyeIconOpen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+              <svg id="eyeIconClosed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M3 3l18 18"/><path d="M10.6 5.1A11 11 0 0 1 12 5c7 0 11 7 11 7a13.2 13.2 0 0 1-3.1 3.8M6.5 6.6C3.7 8.4 1 12 1 12s4 7 11 7a10.8 10.8 0 0 0 4.2-.85"/><path d="M9.5 9.6a3 3 0 0 0 4.2 4.2"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="row-between">
+          <label class="remember"><input type="checkbox" checked /> মনে রাখুন</label>
+          <a href="#" class="forgot-link" id="forgotLink" onclick="openForgotModal(event)">পাসওয়ার্ড ভুলে গেছেন?</a>
+        </div>
+
+        <button type="submit" class="btn-submit" id="submitBtn">
+          <span class="spin" id="submitSpin"></span>
+          <span id="submitLabel">Login</span>
+        </button>
+      </form>
+
+      <p class="switch-text" id="switchText">
+        অ্যাকাউন্ট নেই? <a href="#" onclick="setMode('signup');return false;">Sign Up</a>
+      </p>
+
+    </div>
+  </main>
+
+</div>
+
+</div><!-- /.page-shell -->
+
+<!-- ===== Mobile bottom nav (হুবহু index.html) ===== -->
+<nav class="mobile-bottom-nav">
+  <div class="nav-items">
+    <a href="index.html" class="nav-item"><i class="fas fa-home"></i><span>Home</span></a>
+    <a href="services.html" class="nav-item"><i class="fas fa-concierge-bell"></i><span>Service</span></a>
+    <a href="about.html" class="nav-item"><i class="fas fa-info-circle"></i><span>About Us</span></a>
+    <a href="cart.html" class="nav-item"><i class="fas fa-shopping-cart"></i><span>Cart</span></a>
+    <a href="account.html" class="nav-item active"><i class="fas fa-user"></i><span>Login</span></a>
+  </div>
+</nav>
+
+<!-- ===== Forgot password modal ===== -->
+<div class="modal-overlay" id="forgotOverlay">
+  <div class="modal-box">
+    <button type="button" class="modal-close" onclick="closeForgotModal()" aria-label="বন্ধ করুন">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4l16 16M20 4L4 20"/></svg>
+    </button>
+
+    <!-- Step 1: enter mobile/email -->
+    <div id="forgotStep1">
+      <div class="modal-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/><path d="M12 15v2"/></svg>
+      </div>
+      <h2>পাসওয়ার্ড রিসেট করুন</h2>
+      <p class="modal-sub">আপনার নিবন্ধিত মোবাইল নম্বর অথবা ইমেইল দিন — আমরা একটি ভেরিফিকেশন কোড (OTP) পাঠাবো।</p>
+
+      <div class="field">
+        <label>মোবাইল নম্বর / ইমেইল</label>
+        <div class="field-box">
+          <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14"/><path d="M3 6l9 7 9-7"/></svg></span>
+          <input type="text" id="forgotContact" placeholder="মোবাইল নম্বর অথবা ইমেইল লিখুন" autocomplete="username" />
+        </div>
+      </div>
+
+      <p class="modal-error" id="forgotError1"></p>
+
+      <button type="button" class="btn-submit" id="sendOtpBtn" onclick="sendOtp()">
+        <span class="spin" id="sendOtpSpin"></span>
+        <span id="sendOtpLabel">OTP পাঠান</span>
+      </button>
+    </div>
+
+    <!-- Step 2: enter OTP + new password -->
+    <div id="forgotStep2" style="display:none">
+      <div class="modal-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16"/><path d="M9 12l2 2 4-4"/></svg>
+      </div>
+      <h2>কোড ভেরিফাই করুন</h2>
+      <p class="modal-sub" id="forgotStep2Sub">আপনার ইমেইলে পাঠানো কোডটি ও নতুন পাসওয়ার্ড দিন।</p>
+
+      <div class="field">
+        <label>OTP কোড</label>
+        <div class="field-box">
+          <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16"/><path d="M8 4v16M16 4v16"/></svg></span>
+          <input type="text" id="forgotOtp" placeholder="6-সংখ্যার কোড লিখুন" inputmode="numeric" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label>নতুন পাসওয়ার্ড</label>
+        <div class="field-box">
+          <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span>
+          <input type="password" id="forgotNewPass" placeholder="নতুন পাসওয়ার্ড লিখুন" autocomplete="new-password" />
+          <button type="button" class="eye-btn" onclick="toggleForgotPass()">
+            <svg id="forgotEyeOpen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+            <svg id="forgotEyeClosed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M3 3l18 18"/><path d="M10.6 5.1A11 11 0 0 1 12 5c7 0 11 7 11 7a13.2 13.2 0 0 1-3.1 3.8M6.5 6.6C3.7 8.4 1 12 1 12s4 7 11 7a10.8 10.8 0 0 0 4.2-.85"/><path d="M9.5 9.6a3 3 0 0 0 4.2 4.2"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <p class="modal-error" id="forgotError2"></p>
+
+      <button type="button" class="btn-submit" id="resetBtn" onclick="resetPassword()">
+        <span class="spin" id="resetSpin"></span>
+        <span id="resetLabel">পাসওয়ার্ড রিসেট করুন</span>
+      </button>
+      <button type="button" class="btn-secondary" onclick="backToForgotStep1()">পুনরায় OTP পাঠান</button>
+    </div>
+
+    <!-- Step 3: success -->
+    <div id="forgotStep3" style="display:none">
+      <div class="modal-icon success">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+      </div>
+      <h2>পাসওয়ার্ড রিসেট সফল হয়েছে</h2>
+      <p class="modal-success-text">এখন আপনার নতুন পাসওয়ার্ড দিয়ে Login করুন।</p>
+      <button type="button" class="btn-submit" onclick="closeForgotModal()">Login পেজে ফিরে যান</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+window.API_BASE = window.API_BASE || '';
+var AUTH_KEY = 'dm_auth';
+var mode = 'signin';
+
+/* ============ নেভবার — সাইডবার (হুবহু index.html এর কার্যকারিতা) ============ */
+function openSidebar(){
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('sidebarOverlay').classList.add('open');
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('open');
+}
+function toggleSidebarCategories(){
+  document.getElementById('sidebarSubcats').classList.toggle('open');
+  document.getElementById('sidebarCatChevron').classList.toggle('open');
+}
+
+/* ============ নেভবার — সার্চ বক্স (এই পেজে প্রোডাক্ট নেই, তাই সার্চ করলে হোমপেজে ফলাফল দেখাবে) ============ */
+function syncSearchInputs(sourceId, value){
+  ['desktopSearchInput','mobileSearchInput'].forEach(function(id){
+    var el = document.getElementById(id);
+    if (el && id !== sourceId) el.value = value;
+  });
+  ['desktopSearchClear','mobileSearchClear'].forEach(function(id){
+    var el = document.getElementById(id);
+    if (el) el.style.display = value ? 'flex' : 'none';
+  });
+}
+function runProductSearch(inputId){
+  var input = document.getElementById(inputId);
+  if (!input || !input.value.trim()) return;
+  window.location.href = 'index.html#search=' + encodeURIComponent(input.value.trim());
+}
+function clearProductSearch(sourceId){
+  syncSearchInputs(sourceId, '');
+  var input = document.getElementById(sourceId);
+  if (input){ input.value=''; input.focus(); }
+}
+
+function setMode(m){
+  mode = m;
+  var isSignup = (m === 'signup');
+  document.getElementById('tabSignin').classList.toggle('is-active', !isSignup);
+  document.getElementById('tabSignup').classList.toggle('is-active', isSignup);
+  document.getElementById('nameField').classList.toggle('show', isSignup);
+  document.getElementById('authHeading').textContent = isSignup ? 'Sign Up' : 'Login';
+  document.getElementById('authSubheading').textContent = isSignup
+    ? 'নতুন অ্যাকাউন্ট খুলে আজই প্রথম অর্ডার করুন'
+    : 'অ্যাকাউন্টে প্রবেশ করে অর্ডার শুরু করুন';
+  document.getElementById('submitLabel').textContent = isSignup ? 'Sign Up' : 'Login';
+  document.getElementById('switchText').innerHTML = isSignup
+    ? 'ইতিমধ্যে অ্যাকাউন্ট আছে? <a href="#" onclick="setMode(\'signin\');return false;">Login</a>'
+    : 'অ্যাকাউন্ট নেই? <a href="#" onclick="setMode(\'signup\');return false;">Sign Up</a>';
+  hideError();
+}
+
+function togglePass(){
+  var input = document.getElementById('fldPass');
+  var open = document.getElementById('eyeIconOpen');
+  var closed = document.getElementById('eyeIconClosed');
+  var hidden = input.type === 'password';
+  input.type = hidden ? 'text' : 'password';
+  open.style.display = hidden ? 'none' : 'block';
+  closed.style.display = hidden ? 'block' : 'none';
+}
+
+function showError(msg){
+  var el = document.getElementById('authError');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+function hideError(){
+  document.getElementById('authError').style.display = 'none';
+}
+
+function saveSession(token, user){
+  try { localStorage.setItem(AUTH_KEY, JSON.stringify({ token: token, user: user })); } catch(e){}
+}
+
+function handleSubmit(e){
+  e.preventDefault();
+  hideError();
+
+  var name = document.getElementById('fldName').value.trim();
+  var contact = document.getElementById('fldContact').value.trim();
+  var pass = document.getElementById('fldPass').value.trim();
+
+  if (mode === 'signup' && !name){
+    showError('অনুগ্রহ করে আপনার নাম দিন।');
+    return;
+  }
+  if (!contact || !pass){
+    showError('মোবাইল/ইমেইল ও পাসওয়ার্ড দিন।');
+    return;
+  }
+
+  var btn = document.getElementById('submitBtn');
+  var spin = document.getElementById('submitSpin');
+  var label = document.getElementById('submitLabel');
+  btn.disabled = true;
+  spin.style.display = 'inline-block';
+  var prevLabel = label.textContent;
+  label.textContent = 'অপেক্ষা করুন...';
+
+  var ep = (mode === 'signup') ? '/api/register' : '/api/login';
+  var payload = (mode === 'signup')
+    ? { name: name, contact: contact, password: pass }
+    : { contact: contact, password: pass };
+
+  fetch(window.API_BASE + ep, {
+    method: 'POST',
+    headers: { 'Content-Type':'application/json' },
+    body: JSON.stringify(payload)
+  })
+  .then(function(r){ return r.json().then(function(d){ return { status:r.status, data:d }; }); })
+  .then(function(res){
+    if ((res.status === 200 || res.status === 201) && res.data && res.data.token){
+      saveSession(res.data.token, { name: res.data.name || name || contact, contact: res.data.contact || contact });
+      label.textContent = 'সফল! পাঠানো হচ্ছে...';
+      window.location.href = 'index.html';
+    } else {
+      showError((res.data && res.data.error) || 'সমস্যা হয়েছে, আবার চেষ্টা করুন।');
+    }
+  })
+  .catch(function(){
+    showError('সার্ভারে সংযোগ করা যায়নি — ইন্টারনেট চেক করুন।');
+  })
+  .finally(function(){
+    btn.disabled = false;
+    spin.style.display = 'none';
+    label.textContent = prevLabel;
+  });
+}
+
+/* ===================== পাসওয়ার্ড ভুলে গেছেন — মডাল ফ্লো ===================== */
+var forgotContactValue = '';
+
+function openForgotModal(e){
+  if (e) e.preventDefault();
+  hideForgotErrors();
+  showForgotStep(1);
+
+  /* Login ফর্মে যদি নাম্বার/ইমেইল আগে থেকে দেওয়া থাকে, সেটি এখানে অটো-ফিল হয়ে যাবে */
+  var loginContact = document.getElementById('fldContact').value.trim();
+  var forgotInput = document.getElementById('forgotContact');
+  forgotInput.value = loginContact;
+
+  document.getElementById('forgotOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+
+  setTimeout(function(){
+    forgotInput.focus();
+    forgotInput.select();
+  }, 50);
+}
+
+function closeForgotModal(){
+  document.getElementById('forgotOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+  setTimeout(function(){
+    showForgotStep(1);
+    hideForgotErrors();
+    document.getElementById('forgotContact').value = '';
+    document.getElementById('forgotOtp').value = '';
+    document.getElementById('forgotNewPass').value = '';
+  }, 200);
+}
+
+function showForgotStep(n){
+  document.getElementById('forgotStep1').style.display = (n === 1) ? 'block' : 'none';
+  document.getElementById('forgotStep2').style.display = (n === 2) ? 'block' : 'none';
+  document.getElementById('forgotStep3').style.display = (n === 3) ? 'block' : 'none';
+}
+
+function hideForgotErrors(){
+  document.getElementById('forgotError1').style.display = 'none';
+  document.getElementById('forgotError2').style.display = 'none';
+}
+function showForgotError(stepId, msg){
+  var el = document.getElementById(stepId);
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+function backToForgotStep1(){
+  hideForgotErrors();
+  showForgotStep(1);
+}
+
+function toggleForgotPass(){
+  var input = document.getElementById('forgotNewPass');
+  var open = document.getElementById('forgotEyeOpen');
+  var closed = document.getElementById('forgotEyeClosed');
+  var hidden = input.type === 'password';
+  input.type = hidden ? 'text' : 'password';
+  open.style.display = hidden ? 'none' : 'block';
+  closed.style.display = hidden ? 'block' : 'none';
+}
+
+function sendOtp(){
+  hideForgotErrors();
+  var contact = document.getElementById('forgotContact').value.trim();
+  if (!contact){
+    showForgotError('forgotError1', 'অনুগ্রহ করে মোবাইল নম্বর অথবা ইমেইল দিন।');
+    return;
+  }
+  forgotContactValue = contact;
+
+  var btn = document.getElementById('sendOtpBtn');
+  var spin = document.getElementById('sendOtpSpin');
+  var label = document.getElementById('sendOtpLabel');
+  btn.disabled = true;
+  spin.style.display = 'inline-block';
+  var prevLabel = label.textContent;
+  label.textContent = 'পাঠানো হচ্ছে...';
+
+  fetch(window.API_BASE + '/api/auth/forgot-password', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ email: contact, contact: contact })
+  })
+  .then(function(r){ if (!r.ok) throw new Error('failed'); return r.json(); })
+  .then(function(){
+    document.getElementById('forgotStep2Sub').textContent =
+      contact + ' — ঠিকানায় পাঠানো কোডটি ও নতুন পাসওয়ার্ড দিন।';
+    showForgotStep(2);
+    setTimeout(function(){ document.getElementById('forgotOtp').focus(); }, 50);
+  })
+  .catch(function(){
+    showForgotError('forgotError1', 'OTP পাঠানো যায়নি — মোবাইল নম্বর অথবা ইমেইল যাচাই করুন।');
+  })
+  .finally(function(){
+    btn.disabled = false;
+    spin.style.display = 'none';
+    label.textContent = prevLabel;
+  });
+}
+
+function resetPassword(){
+  hideForgotErrors();
+  var otp = document.getElementById('forgotOtp').value.trim();
+  var np = document.getElementById('forgotNewPass').value.trim();
+
+  if (!otp || !np){
+    showForgotError('forgotError2', 'OTP ও নতুন পাসওয়ার্ড দুটোই দিন।');
+    return;
+  }
+
+  var btn = document.getElementById('resetBtn');
+  var spin = document.getElementById('resetSpin');
+  var label = document.getElementById('resetLabel');
+  btn.disabled = true;
+  spin.style.display = 'inline-block';
+  var prevLabel = label.textContent;
+  label.textContent = 'অপেক্ষা করুন...';
+
+  fetch(window.API_BASE + '/api/auth/reset-password', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ email: forgotContactValue, otp: otp, newPassword: np })
+  })
+  .then(function(r){ if (!r.ok) throw new Error('failed'); return r.json(); })
+  .then(function(){
+    showForgotStep(3);
+  })
+  .catch(function(){
+    showForgotError('forgotError2', 'পাসওয়ার্ড রিসেট ব্যর্থ হয়েছে — OTP ভুল অথবা মেয়াদ শেষ।');
+  })
+  .finally(function(){
+    btn.disabled = false;
+    spin.style.display = 'none';
+    label.textContent = prevLabel;
+  });
+}
+
+/* বাইরে ক্লিক করলে মডাল বন্ধ হবে */
+document.getElementById('forgotOverlay').addEventListener('click', function(e){
+  if (e.target === this) closeForgotModal();
+});
+
+/* আগে থেকে লগইন থাকলে সরাসরি হোমপেজে পাঠিয়ে দেয় */
+(function(){
+  try {
+    var raw = localStorage.getItem(AUTH_KEY);
+    if (raw){
+      var saved = JSON.parse(raw);
+      if (saved && saved.token && saved.user){
+        renderProfileView(saved.user);
+      }
+    }
+  } catch(e){}
+})();
+</script>
+
+
+<script id="dm-client-auth">
+/* Purely client-side auth: stores users in localStorage.
+   Overrides API-based handlers so the site works without a backend. */
+(function(){
+  var USERS_KEY = 'dmUsers';
+  var SESSION_KEY = 'dmUser';
+  function readUsers(){ try{ return JSON.parse(localStorage.getItem(USERS_KEY)||'[]'); }catch(e){ return []; } }
+  function writeUsers(a){ localStorage.setItem(USERS_KEY, JSON.stringify(a)); }
+  function saveSession(u){ localStorage.setItem(SESSION_KEY, JSON.stringify(u)); localStorage.setItem('dm_auth', JSON.stringify({token:'local', user:u})); }
+  function redirectAfterLogin(){
+    var back = localStorage.getItem('dmRedirectAfterLogin');
+    localStorage.removeItem('dmRedirectAfterLogin');
+    if(back && !back.includes('account.html')) window.location.href = back;
+    else renderProfileView(JSON.parse(localStorage.getItem(SESSION_KEY)||'{}'));
+  }
+  function showErr(msg){ var el=document.getElementById('authError'); if(el){el.textContent=msg;el.style.display='block';} else alert(msg); }
+  window.handleSubmit = function(e){
+    e.preventDefault();
+    var el=document.getElementById('authError'); if(el) el.style.display='none';
+    var name = (document.getElementById('fldName')||{}).value || '';
+    var contact = (document.getElementById('fldContact')||{}).value || '';
+    var pass = (document.getElementById('fldPass')||{}).value || '';
+    name=name.trim(); contact=contact.trim(); pass=pass.trim();
+    var isSignup = (typeof mode!=='undefined' ? mode==='signup' : document.getElementById('submitLabel').textContent.toLowerCase().indexOf('sign')>-1);
+    if(isSignup && !name){ showErr('অনুগ্রহ করে আপনার নাম দিন।'); return; }
+    if(!contact || !pass){ showErr('মোবাইল/ইমেইল ও পাসওয়ার্ড দিন।'); return; }
+    var users = readUsers();
+    if(isSignup){
+      if(users.find(function(u){return u.contact===contact;})){ showErr('এই নাম্বার/ইমেইলে অ্যাকাউন্ট আছে। Login করুন।'); return; }
+      var user = {name:name, contact:contact, pass:pass, createdAt:Date.now()};
+      users.push(user); writeUsers(users);
+      saveSession({name:name, contact:contact, mobile:contact, email:contact});
+      redirectAfterLogin();
+    } else {
+      var m = users.find(function(u){return u.contact===contact;});
+      if(!m){ showErr('অ্যাকাউন্ট পাওয়া যায়নি। প্রথমে Sign Up করুন।'); return; }
+      if(m.pass!==pass){ showErr('পাসওয়ার্ড ভুল।'); return; }
+      saveSession({name:m.name, contact:m.contact, mobile:m.contact, email:m.contact});
+      redirectAfterLogin();
+    }
+  };
+  window.sendOtp = function(){ alert('ডেমো: OTP পাঠানো হয়েছে (123456)।'); var s=document.getElementById('otpStep'); if(s) s.style.display='block'; };
+  window.resetPassword = function(){
+    var contact = ((document.getElementById('forgotContact')||{}).value||'').trim();
+    var np = ((document.getElementById('newPass')||{}).value||'').trim();
+    if(!contact||!np){ alert('তথ্য দিন।'); return; }
+    var users = readUsers();
+    var i = users.findIndex(function(u){return u.contact===contact;});
+    if(i<0){ alert('অ্যাকাউন্ট পাওয়া যায়নি।'); return; }
+    users[i].pass = np; writeUsers(users);
+    alert('পাসওয়ার্ড আপডেট হয়েছে। এখন Login করুন।');
+    if(typeof closeForgotModal==='function') closeForgotModal();
+  };
+  })();
+</script>
+
+
+<!-- ============ Profile + My Orders view (shown when logged in) ============ -->
+<style id="dm-profile-style">
+/* ===== Profile Shell Base ===== */
+.profile-shell{display:none;background:#FFFCEF;min-height:100vh;font-family:'Hind Siliguri','Noto Sans',system-ui,sans-serif}
+.profile-shell.active{display:block}
+.auth-shell.hidden,.auth-hero.hidden{display:none!important}
+
+/* ===== Profile Hero Header ===== */
+.pf-hero{background:linear-gradient(135deg,#55451E 0%,#997D36 55%,#CA9100 100%);padding:32px 24px 0;position:relative;overflow:hidden}
+.pf-hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:rgba(255,255,255,.07);border-radius:50%}
+.pf-hero::after{content:'';position:absolute;bottom:-40px;left:20%;width:140px;height:140px;background:rgba(255,255,255,.05);border-radius:50%}
+.pf-hero-inner{max-width:1100px;margin:0 auto;position:relative;z-index:1}
+.pf-hero-top{display:flex;align-items:center;gap:20px;flex-wrap:wrap;padding-bottom:24px}
+.pf-avatar-wrap{position:relative;flex-shrink:0}
+.pf-avatar{width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:800;color:#fff;border:3px solid rgba(255,255,255,.4);font-family:'Hind Siliguri',sans-serif}
+.pf-avatar-edit{position:absolute;bottom:0;right:0;width:24px;height:24px;background:#CA9100;border:2px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;font-size:10px}
+.pf-hero-info{flex:1;min-width:0}
+.pf-hero-name{font-size:24px;font-weight:800;color:#fff;margin-bottom:4px;font-family:'Hind Siliguri',sans-serif;word-break:break-word}
+.pf-hero-contact{color:rgba(255,255,255,.8);font-size:14px;margin-bottom:6px}
+.pf-hero-since{color:rgba(255,255,255,.65);font-size:12px}
+.pf-hero-since i{margin-right:4px}
+.pf-top-friend-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.18);color:#FFD700;font-size:12px;font-weight:700;padding:4px 10px;border-radius:20px;margin-top:6px;border:1px solid rgba(255,215,0,.4)}
+.pf-top-friend-badge i{color:#FFD700}
+.pf-logout{background:rgba(255,255,255,.15);color:#fff;border:1.5px solid rgba(255,255,255,.35);padding:10px 18px;font-weight:700;cursor:pointer;font-family:inherit;font-size:14px;transition:.18s;white-space:nowrap;margin-left:auto;align-self:flex-start}
+.pf-logout:hover{background:rgba(255,255,255,.25);border-color:rgba(255,255,255,.6)}
+.pf-logout i{margin-right:6px}
+
+/* ===== Quick Stats Row ===== */
+.pf-stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid rgba(255,255,255,.15)}
+.pf-stat-item{padding:16px 20px;text-align:center;border-right:1px solid rgba(255,255,255,.12)}
+.pf-stat-item:last-child{border-right:none}
+.pf-stat-num{font-size:26px;font-weight:800;color:#fff;display:block;line-height:1.1}
+.pf-stat-label{font-size:11px;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:.6px;margin-top:3px}
+@media(max-width:600px){.pf-stats-row{grid-template-columns:repeat(2,1fr)}.pf-stat-item:nth-child(2){border-right:none}.pf-stat-item:nth-child(1),.pf-stat-item:nth-child(2){border-bottom:1px solid rgba(255,255,255,.12)}}
+
+/* ===== Main Content Area ===== */
+.pf-body{max-width:1100px;margin:0 auto;padding:28px 20px 80px}
+
+/* ===== Main Tabs ===== */
+.pf-main-tabs{display:flex;gap:4px;border-bottom:2px solid #E6BB50;margin-bottom:24px;overflow-x:auto;scrollbar-width:none}
+.pf-main-tabs::-webkit-scrollbar{display:none}
+.pf-main-tab{background:none;border:none;font-size:14px;font-weight:600;color:#997D36;padding:12px 18px;cursor:pointer;font-family:inherit;white-space:nowrap;position:relative;transition:.18s}
+.pf-main-tab.active{color:#CA9100}
+.pf-main-tab.active::after{content:"";position:absolute;left:0;right:0;bottom:-2px;height:2px;background:#CA9100}
+.pf-main-tab:hover:not(.active){color:#55451E}
+
+/* ===== Tab Panels ===== */
+.pf-panel{display:none}
+.pf-panel.active{display:block}
+
+/* ===== Section Cards ===== */
+.pf-section-card{background:#fff;border:1px solid #E6BB50;padding:24px;margin-bottom:18px}
+.pf-section-title{font-size:16px;font-weight:700;color:#55451E;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid #F5E0A0;display:flex;align-items:center;gap:8px}
+.pf-section-title i{color:#CA9100;font-size:15px}
+
+/* ===== Profile Info Grid ===== */
+.pf-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:580px){.pf-info-grid{grid-template-columns:1fr}}
+.pf-info-row{display:flex;flex-direction:column;gap:4px}
+.pf-info-label{font-size:11.5px;color:#997D36;text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+.pf-info-val{font-size:15px;font-weight:600;color:#55451E;background:#FFFCEF;padding:10px 14px;border:1px solid #E6BB50;font-family:'Hind Siliguri',sans-serif}
+
+/* ===== Edit Profile Form ===== */
+.pf-edit-form{display:none}
+.pf-edit-form.show{display:block}
+.pf-field{margin-bottom:14px}
+.pf-field label{display:block;font-size:12.5px;font-weight:600;color:#997D36;margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px}
+.pf-field input,.pf-field textarea{width:100%;border:1.5px solid #E6BB50;background:#fff;padding:11px 14px;font-size:14px;font-family:'Hind Siliguri',sans-serif;color:#55451E;outline:none;transition:.18s}
+.pf-field input:focus,.pf-field textarea:focus{border-color:#CA9100;background:#FFFCEF}
+.pf-field textarea{resize:vertical;min-height:80px}
+.pf-form-btns{display:flex;gap:10px;flex-wrap:wrap}
+.pf-btn{border:1.5px solid #E6BB50;background:#fff;color:#55451E;padding:10px 20px;font-weight:700;cursor:pointer;font-family:inherit;font-size:14px;transition:.18s}
+.pf-btn:hover{background:#FFF3D6;border-color:#CA9100;color:#CA9100}
+.pf-btn.solid{background:#CA9100;border-color:#CA9100;color:#fff}
+.pf-btn.solid:hover{background:#997D36;border-color:#997D36}
+.pf-btn.danger{background:#e11d48;border-color:#e11d48;color:#fff}
+.pf-btn.danger:hover{background:#be123c;border-color:#be123c}
+.pf-edit-toggle{color:#CA9100;font-size:13px;font-weight:700;cursor:pointer;margin-left:auto;background:none;border:none;font-family:inherit;padding:0;display:flex;align-items:center;gap:5px}
+.pf-edit-toggle:hover{text-decoration:underline}
+
+/* ===== Quick Actions ===== */
+.pf-quick-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px}
+@media(max-width:640px){.pf-quick-actions{grid-template-columns:repeat(2,1fr)}}
+.pf-quick-btn{background:#fff;border:1.5px solid #E6BB50;padding:16px 12px;text-align:center;cursor:pointer;transition:.18s;text-decoration:none;color:#55451E;display:flex;flex-direction:column;align-items:center;gap:8px}
+.pf-quick-btn:hover{border-color:#CA9100;background:#FFF3D6;color:#CA9100}
+.pf-quick-btn i{font-size:22px;color:#CA9100}
+.pf-quick-btn span{font-size:13px;font-weight:600;font-family:'Hind Siliguri',sans-serif}
+
+/* ===== Orders Section ===== */
+.pf-order-filter-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.pf-order-tabs{display:flex;gap:8px;flex-wrap:wrap}
+.pf-order-tab{background:#FFF3D6;border:1.5px solid #E6BB50;color:#55451E;padding:7px 14px;font-weight:700;cursor:pointer;font-family:inherit;font-size:13px;transition:.18s}
+.pf-order-tab.active{background:#CA9100;border-color:#CA9100;color:#fff}
+.pf-order-tab-count{background:rgba(0,0,0,.1);border-radius:20px;font-size:11px;padding:1px 7px;margin-left:4px}
+.pf-daterange{display:flex;align-items:center;gap:8px;margin-left:auto;flex-wrap:wrap}
+.pf-date{display:flex;align-items:center;gap:6px;background:#fff;border:1.5px solid #E6BB50;padding:6px 10px;font-size:13px;color:#997D36}
+.pf-date i{font-size:12px;color:#CA9100}
+.pf-date input[type=date]{border:none;background:none;outline:none;font-family:inherit;font-size:13px;color:#55451E;width:130px}
+.pf-to{font-size:13px;color:#997D36}
+.pf-reset{background:none;border:1.5px solid #E6BB50;color:#997D36;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit}
+.pf-reset:hover{border-color:#CA9100;color:#CA9100}
+
+/* ===== Order Summary Stats ===== */
+.pf-summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+@media(max-width:640px){.pf-summary-grid{grid-template-columns:repeat(2,1fr)}}
+.pf-sum-card{background:#fff;border:1.5px solid #E6BB50;padding:18px 16px}
+.pf-sum-card.accent{border-color:#CA9100;background:#FFF3D6}
+.pf-sum-card.green{border-color:#16a34a}
+.pf-sum-card.red{border-color:#e11d48}
+.pf-sum-card-label{font-size:11.5px;color:#997D36;text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-bottom:6px}
+.pf-sum-card-val{font-size:26px;font-weight:800;color:#55451E;line-height:1}
+.pf-sum-card.green .pf-sum-card-val{color:#16a34a}
+.pf-sum-card.red .pf-sum-card-val{color:#e11d48}
+.pf-sum-card.accent .pf-sum-card-val{color:#CA9100}
+
+/* ===== Order Cards ===== */
+#pfOrders{display:flex;flex-direction:column;gap:16px}
+.pf-card{border:1.5px solid #E6BB50;background:#fff;overflow:hidden}
+.pf-card-head{background:#FFF3D6;padding:14px 18px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;border-bottom:1px solid #E6BB50}
+.pf-card-id{font-size:14px;font-weight:800;color:#55451E;font-family:'Hind Siliguri',sans-serif}
+.pf-card-date{font-size:12.5px;color:#997D36;margin-left:4px}
+.pf-badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;font-size:12px;font-weight:700;border-radius:20px}
+.pf-badge.processing{background:#FEF9C3;color:#854D0E;border:1px solid #FDE047}
+.pf-badge.completed{background:#DCFCE7;color:#15803D;border:1px solid #86EFAC}
+.pf-badge.cancelled{background:#FEE2E2;color:#B91C1C;border:1px solid #FCA5A5}
+.pf-badge i{font-size:10px}
+.pf-card-actions{margin-left:auto;display:flex;gap:8px}
+.pf-card-act{background:none;border:1.5px solid #E6BB50;color:#CA9100;padding:6px 12px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;transition:.18s;display:flex;align-items:center;gap:5px}
+.pf-card-act:hover{background:#CA9100;color:#fff;border-color:#CA9100}
+.pf-card-act.cancel{color:#e11d48;border-color:#e11d48}
+.pf-card-act.cancel:hover{background:#e11d48;color:#fff}
+.pf-card-body{padding:16px 18px}
+.pf-card-cust{background:#F9F5E8;padding:10px 14px;margin-bottom:12px;font-size:13px;color:#997D36;border-left:3px solid #CA9100;display:flex;flex-wrap:wrap;gap:12px}
+.pf-card-cust span{color:#55451E;font-weight:600}
+.pf-card-items{display:flex;flex-direction:column;gap:8px}
+.pf-item{display:flex;align-items:center;gap:12px;padding:10px 12px;background:#FFFCEF;border:1px solid #F0E0B8}
+.pf-item-icon{width:36px;height:36px;background:#FFF3D6;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#CA9100;font-size:16px}
+.pf-item-info{flex:1;min-width:0}
+.pf-item-name{font-size:14px;font-weight:700;color:#55451E;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pf-item-meta{font-size:12px;color:#997D36;margin-top:2px}
+.pf-item-price{font-size:14px;font-weight:800;color:#CA9100;flex-shrink:0}
+.pf-item-badge{display:inline-block;font-size:10.5px;padding:2px 8px;border-radius:20px;margin-left:8px;font-weight:600}
+.pf-item-badge.delivered{background:#DCFCE7;color:#15803D}
+.pf-item-badge.cancelled{background:#FEE2E2;color:#B91C1C}
+.pf-item-badge.pending{background:#FEF9C3;color:#854D0E}
+.pf-card-foot{padding:12px 18px;border-top:1px solid #F0E0B8;display:flex;align-items:center;justify-content:space-between;background:#FFFCEF;flex-wrap:wrap;gap:8px}
+.pf-card-pickup{font-size:12.5px;color:#997D36;display:flex;align-items:center;gap:6px}
+.pf-card-pickup i{color:#CA9100}
+.pf-card-total{font-size:16px;font-weight:800;color:#55451E}
+.pf-card-total span{color:#CA9100}
+
+/* ===== Empty State ===== */
+.pf-empty{text-align:center;padding:48px 20px;color:#997D36}
+.pf-empty-icon{font-size:52px;color:#E6BB50;margin-bottom:14px;display:block}
+.pf-empty h4{font-size:18px;color:#55451E;font-weight:700;margin-bottom:8px}
+.pf-empty p{font-size:14px;line-height:1.6;margin-bottom:20px}
+
+/* ===== Address Section ===== */
+.pf-address-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:600px){.pf-address-grid{grid-template-columns:1fr}}
+.pf-address-card{border:1.5px solid #E6BB50;background:#FFFCEF;padding:16px;position:relative}
+.pf-address-card.default{border-color:#CA9100;background:#FFF9EC}
+.pf-address-default-badge{position:absolute;top:10px;right:10px;background:#CA9100;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px}
+.pf-address-name{font-size:14px;font-weight:700;color:#55451E;margin-bottom:6px}
+.pf-address-line{font-size:13px;color:#997D36;line-height:1.6}
+.pf-address-btns{display:flex;gap:8px;margin-top:12px}
+
+/* ===== Settings Section ===== */
+.pf-settings-section{margin-bottom:20px}
+.pf-settings-label{font-size:12.5px;color:#997D36;text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-bottom:12px;display:block}
+
+/* ===== Modals ===== */
+.modal-overlay{position:fixed;inset:0;background:rgba(29,26,52,.55);display:none;align-items:center;justify-content:center;padding:20px;z-index:500;overflow-y:auto}
+.modal-overlay.open{display:flex}
+.modal-box{width:100%;max-width:420px;background:#fff;max-height:calc(100dvh - 40px);overflow-y:auto;border:1.5px solid #E6BB50;padding:28px;position:relative;box-shadow:0 30px 70px -20px rgba(85,69,30,.25)}
+.modal-close{position:absolute;top:16px;right:16px;width:30px;height:30px;border:1.5px solid #E6BB50;background:#fff;display:flex;align-items:center;justify-content:center;color:#997D36;cursor:pointer}
+.modal-close:hover{border-color:#CA9100;color:#CA9100}
+.modal-close svg,.modal-close i{width:13px;height:13px;font-size:13px}
+.pf-confirm-icon{width:48px;height:48px;background:#FFF3D6;color:#CA9100;display:flex;align-items:center;justify-content:center;margin-bottom:16px;border-radius:50%}
+.pf-modal-actions{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap}
+
+/* Invoice */
+.pf-inv-row{display:flex;justify-content:space-between;align-items:flex-start;padding:10px 0;border-bottom:1px solid #F0E0B8;font-size:13.5px;color:#55451E}
+.pf-inv-row:last-child{border-bottom:none}
+.pf-inv-total{display:flex;justify-content:space-between;padding:12px 0 0;font-weight:800;font-size:16px;color:#55451E;border-top:2px solid #E6BB50;margin-top:8px}
+
+/* ===== Toast ===== */
+.pf-toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:#55451E;color:#fff;padding:12px 22px;font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px;z-index:9999;opacity:0;pointer-events:none;transition:.3s;white-space:nowrap;border-radius:4px}
+.pf-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@media(max-width:720px){.pf-toast{bottom:88px}}
+
+/* ===== Responsive ===== */
+@media(max-width:720px){
+  .pf-hero{padding:24px 16px 0}
+  .pf-avatar{width:64px;height:64px;font-size:26px}
+  .pf-hero-name{font-size:20px}
+  .pf-body{padding:20px 14px 80px}
+  .pf-card-head{padding:12px 14px}
+  .pf-card-body{padding:14px}
+  .pf-card-foot{padding:10px 14px}
+  .pf-main-tab{padding:10px 12px;font-size:13px}
+}
+</style>
+
+<section class="profile-shell" id="profileShell">
+
+  <!-- ===== Profile Hero ===== -->
+  <div class="pf-hero">
+    <div class="pf-hero-inner">
+      <div class="pf-hero-top">
+        <div class="pf-avatar-wrap">
+          <div class="pf-avatar" id="pfAvatar">U</div>
+          <div class="pf-avatar-edit"><i class="fas fa-camera"></i></div>
+        </div>
+        <div class="pf-hero-info">
+          <div class="pf-hero-name" id="pfName">User</div>
+          <div class="pf-hero-contact" id="pfContact">—</div>
+          <div class="pf-hero-since"><i class="fas fa-calendar-check"></i> সদস্য হওয়ার তারিখ: <span id="pfSince">—</span></div>
+          <div id="pfTopFriendBadge" style="display:none" class="pf-top-friend-badge"><i class="fas fa-crown"></i> Top Friend</div>
+        </div>
+        <button class="pf-logout" onclick="dmLogout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+      </div>
+      <!-- Quick Stats -->
+      <div class="pf-stats-row">
+        <div class="pf-stat-item"><span class="pf-stat-num" id="pfTotOrders">0</span><div class="pf-stat-label">মোট অর্ডার</div></div>
+        <div class="pf-stat-item"><span class="pf-stat-num" id="pfTotSpent">৳0</span><div class="pf-stat-label">মোট খরচ</div></div>
+        <div class="pf-stat-item"><span class="pf-stat-num" id="pfTotComp">0</span><div class="pf-stat-label">সম্পন্ন</div></div>
+        <div class="pf-stat-item"><span class="pf-stat-num" id="pfTotCanc">0</span><div class="pf-stat-label">বাতিল</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Main Body ===== -->
+  <div class="pf-body">
+
+    <!-- Quick Actions -->
+    <div class="pf-quick-actions">
+      <a href="index.html" class="pf-quick-btn"><i class="fas fa-plus-circle"></i><span>নতুন অর্ডার</span></a>
+      <a href="cart.html" class="pf-quick-btn"><i class="fas fa-shopping-cart"></i><span>আমার কার্ট</span></a>
+      <a href="services.html" class="pf-quick-btn"><i class="fas fa-concierge-bell"></i><span>সার্ভিস দেখুন</span></a>
+      <a href="contact.html" class="pf-quick-btn"><i class="fas fa-headset"></i><span>সাপোর্ট</span></a>
+    </div>
+
+    <!-- Main Tabs -->
+    <div class="pf-main-tabs">
+      <button class="pf-main-tab active" data-panel="orders" onclick="switchPfPanel('orders',this)"><i class="fas fa-box"></i> আমার অর্ডার</button>
+      <button class="pf-main-tab" data-panel="profile" onclick="switchPfPanel('profile',this)"><i class="fas fa-user"></i> প্রোফাইল</button>
+      <button class="pf-main-tab" data-panel="address" onclick="switchPfPanel('address',this)"><i class="fas fa-map-marker-alt"></i> ঠিকানা</button>
+      <button class="pf-main-tab" data-panel="settings" onclick="switchPfPanel('settings',this)"><i class="fas fa-cog"></i> সেটিংস</button>
+    </div>
+
+    <!-- ===== Panel: Orders ===== -->
+    <div class="pf-panel active" id="pfPanelOrders">
+      <!-- Summary Cards -->
+      <div class="pf-summary-grid">
+        <div class="pf-sum-card accent"><div class="pf-sum-card-label">মোট অর্ডার</div><div class="pf-sum-card-val" id="pfSumTot">0</div></div>
+        <div class="pf-sum-card"><div class="pf-sum-card-label">মোট খরচ</div><div class="pf-sum-card-val" id="pfSumSpent">৳0</div></div>
+        <div class="pf-sum-card green"><div class="pf-sum-card-label">সম্পন্ন</div><div class="pf-sum-card-val" id="pfSumC">0</div></div>
+        <div class="pf-sum-card red"><div class="pf-sum-card-label">বাতিল</div><div class="pf-sum-card-val" id="pfSumX">0</div></div>
+      </div>
+
+      <!-- Order Filter Tabs + Date Range -->
+      <div class="pf-order-filter-row">
+        <div class="pf-order-tabs">
+          <button class="pf-order-tab active" data-tab="all" onclick="setOrderTab('all',this)">সব <span class="pf-order-tab-count" id="pfCntAll">0</span></button>
+          <button class="pf-order-tab" data-tab="completed" onclick="setOrderTab('completed',this)">সম্পন্ন <span class="pf-order-tab-count" id="pfCntC">0</span></button>
+          <button class="pf-order-tab" data-tab="cancelled" onclick="setOrderTab('cancelled',this)">বাতিল <span class="pf-order-tab-count" id="pfCntX">0</span></button>
+        </div>
+        <div class="pf-daterange">
+          <label class="pf-date"><i class="fas fa-calendar-alt"></i><input type="date" id="pfFrom" onchange="renderOrderList()"></label>
+          <span class="pf-to">থেকে</span>
+          <label class="pf-date"><i class="fas fa-calendar-alt"></i><input type="date" id="pfTo" onchange="renderOrderList()"></label>
+          <button class="pf-reset" id="pfReset" onclick="resetDateFilter()">রিসেট</button>
+        </div>
+      </div>
+
+      <div id="pfOrders"></div>
+    </div>
+
+    <!-- ===== Panel: Profile ===== -->
+    <div class="pf-panel" id="pfPanelProfile">
+      <div class="pf-section-card">
+        <div class="pf-section-title">
+          <i class="fas fa-id-card"></i> ব্যক্তিগত তথ্য
+          <button class="pf-edit-toggle" onclick="toggleEditProfile()"><i class="fas fa-edit"></i> সম্পাদনা</button>
+        </div>
+        <!-- View mode -->
+        <div id="pfProfileView">
+          <div class="pf-info-grid">
+            <div class="pf-info-row"><div class="pf-info-label">নাম</div><div class="pf-info-val" id="pfViewName">—</div></div>
+            <div class="pf-info-row"><div class="pf-info-label">মোবাইল / ইমেইল</div><div class="pf-info-val" id="pfViewContact">—</div></div>
+            <div class="pf-info-row"><div class="pf-info-label">সদস্য হওয়ার তারিখ</div><div class="pf-info-val" id="pfViewSince">—</div></div>
+            <div class="pf-info-row"><div class="pf-info-label">অ্যাকাউন্ট স্ট্যাটাস</div><div class="pf-info-val" style="color:#16a34a"><i class="fas fa-check-circle"></i> সক্রিয়</div></div>
+          </div>
+        </div>
+        <!-- Edit mode -->
+        <div class="pf-edit-form" id="pfProfileEdit">
+          <div class="pf-field"><label>আপনার নাম</label><input type="text" id="pfEditName" placeholder="পূর্ণ নাম"></div>
+          <div class="pf-field"><label>মোবাইল / ইমেইল</label><input type="text" id="pfEditContact" placeholder="01XXXXXXXXX অথবা email@example.com"></div>
+          <div class="pf-form-btns">
+            <button class="pf-btn solid" onclick="saveProfileEdit()"><i class="fas fa-save"></i> সংরক্ষণ করুন</button>
+            <button class="pf-btn" onclick="cancelProfileEdit()">বাতিল</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="pf-section-card">
+        <div class="pf-section-title"><i class="fas fa-history"></i> সাম্প্রতিক কার্যকলাপ</div>
+        <div id="pfRecentActivity" style="color:#997D36;font-size:14px;padding:8px 0">লোড হচ্ছে...</div>
+      </div>
+    </div>
+
+    <!-- ===== Panel: Address ===== -->
+    <div class="pf-panel" id="pfPanelAddress">
+      <div class="pf-section-card">
+        <div class="pf-section-title"><i class="fas fa-map-marker-alt"></i> ডেলিভারি ঠিকানা</div>
+        <div class="pf-address-grid" id="pfAddressGrid">
+          <div style="color:#997D36;font-size:14px">কোনো ঠিকানা সংরক্ষিত নেই।</div>
+        </div>
+        <div style="margin-top:18px;padding-top:14px;border-top:1px solid #F0E0B8">
+          <div class="pf-section-title" style="border:none;padding:0;margin-bottom:14px"><i class="fas fa-plus-circle"></i> নতুন ঠিকানা যোগ করুন</div>
+          <div class="pf-field"><label>প্রাপকের নাম</label><input type="text" id="pfAddrName" placeholder="নাম লিখুন"></div>
+          <div class="pf-field"><label>মোবাইল নম্বর</label><input type="tel" id="pfAddrPhone" placeholder="01XXXXXXXXX"></div>
+          <div class="pf-field"><label>পূর্ণ ঠিকানা</label><textarea id="pfAddrFull" placeholder="বাড়ি নম্বর, রাস্তা, এলাকা, জেলা..."></textarea></div>
+          <div class="pf-form-btns">
+            <button class="pf-btn solid" onclick="saveNewAddress()"><i class="fas fa-save"></i> ঠিকানা সংরক্ষণ</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Panel: Settings ===== -->
+    <div class="pf-panel" id="pfPanelSettings">
+      <div class="pf-section-card">
+        <div class="pf-section-title"><i class="fas fa-lock"></i> পাসওয়ার্ড পরিবর্তন</div>
+        <div class="pf-field"><label>বর্তমান পাসওয়ার্ড</label><input type="password" id="pfOldPass" placeholder="বর্তমান পাসওয়ার্ড"></div>
+        <div class="pf-field"><label>নতুন পাসওয়ার্ড</label><input type="password" id="pfNewPass" placeholder="নতুন পাসওয়ার্ড (কমপক্ষে ৬ অক্ষর)"></div>
+        <div class="pf-field"><label>নতুন পাসওয়ার্ড নিশ্চিত করুন</label><input type="password" id="pfConfPass" placeholder="পাসওয়ার্ড আবার দিন"></div>
+        <div id="pfPassErr" style="display:none;color:#e11d48;font-size:13px;margin-bottom:10px"></div>
+        <div id="pfPassOk" style="display:none;color:#16a34a;font-size:13px;margin-bottom:10px"><i class="fas fa-check-circle"></i> পাসওয়ার্ড সফলভাবে পরিবর্তন হয়েছে!</div>
+        <button class="pf-btn solid" onclick="changePassword()"><i class="fas fa-lock"></i> পাসওয়ার্ড আপডেট করুন</button>
+      </div>
+
+      <div class="pf-section-card">
+        <div class="pf-section-title"><i class="fas fa-bell"></i> নোটিফিকেশন সেটিংস</div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <label style="display:flex;align-items:center;gap:12px;cursor:pointer;font-size:14px;color:#55451E">
+            <input type="checkbox" id="pfNotifOrder" checked style="accent-color:#CA9100;width:16px;height:16px">
+            অর্ডার আপডেট বিজ্ঞপ্তি পেতে চাই
+          </label>
+          <label style="display:flex;align-items:center;gap:12px;cursor:pointer;font-size:14px;color:#55451E">
+            <input type="checkbox" id="pfNotifOffer" checked style="accent-color:#CA9100;width:16px;height:16px">
+            অফার ও ছাড়ের বিজ্ঞপ্তি পেতে চাই
+          </label>
+          <label style="display:flex;align-items:center;gap:12px;cursor:pointer;font-size:14px;color:#55451E">
+            <input type="checkbox" id="pfNotifDeliv" checked style="accent-color:#CA9100;width:16px;height:16px">
+            ডেলিভারি স্ট্যাটাস আপডেট পেতে চাই
+          </label>
+        </div>
+        <button class="pf-btn solid" style="margin-top:16px" onclick="saveNotifSettings()"><i class="fas fa-save"></i> সেটিংস সংরক্ষণ</button>
+      </div>
+
+      <div class="pf-section-card" style="border-color:#FCA5A5">
+        <div class="pf-section-title" style="color:#b91c1c"><i class="fas fa-exclamation-triangle"></i> বিপজ্জনক এলাকা</div>
+        <p style="font-size:13.5px;color:#997D36;margin-bottom:16px">অ্যাকাউন্ট থেকে লগ আউট করলে পুনরায় লগইন করতে হবে।</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="pf-btn" onclick="dmLogout()"><i class="fas fa-sign-out-alt"></i> লগ আউট</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end .pf-body -->
+</section>
+
+<!-- ===== Footer (matches index.html) ===== -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="site-footer-grid">
+      <div>
+        <img loading="lazy" decoding="async" src="assets/d5f720099214.png" alt="Dhopa Mama" class="site-footer-logo"/>
+        <p class="site-footer-about">ঘরে বসে সহজে অর্ডার করুন লন্ড্রি সার্ভিস — ফ্রি পিকআপ ও ডেলিভারিসহ, নরমাল ওয়াশ, ড্রাই ওয়াশ ও আয়রন।</p>
+        <div class="site-footer-social">
+          <a href="#" class="fb" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" class="ig" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="#" class="ln" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+          <a href="#" class="yt" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+        </div>
+      </div>
+      <div>
+        <h4>Quick link</h4>
+        <ul>
+          <li><a href="services.html">Our Services</a></li>
+          <li><a href="about.html">About us</a></li>
+          <li><a href="#">Blog</a></li>
+          <li><a href="#">Careers</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Support</h4>
+        <ul>
+          <li><a href="contact.html">Contact Support</a></li>
+          <li><a href="#">Shipping &amp; Returns</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <ul class="site-footer-no-arrow" style="list-style:none">
+          <li class="site-footer-contact-item">
+            <div class="site-footer-contact-icon"><i class="fas fa-map-marker-alt"></i></div>
+            <span>ফরিদপুর সদর, ফরিদপুর-7800</span>
+          </li>
+          <li class="site-footer-contact-item">
+            <div class="site-footer-contact-icon"><i class="far fa-envelope"></i></div>
+            <span>corporate@falaqfood.com</span>
+          </li>
+          <li class="site-footer-contact-item">
+            <div class="site-footer-contact-icon"><i class="fas fa-phone-alt"></i></div>
+            <span>+8809613821489</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="site-footer-wave">
+    <svg viewBox="0 0 1440 70" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,40 C60,60 120,20 180,40 C240,60 300,20 360,40 C420,60 480,20 540,40 C600,60 660,20 720,40 C780,60 840,20 900,40 C960,60 1020,20 1080,40 C1140,60 1200,20 1260,40 C1320,60 1380,30 1440,40 L1440,70 L0,70 Z" fill="#f0f0f0"/>
+    </svg>
+  </div>
+  <div class="site-footer-bottom">
+    ধোপা মামা (Dhopa Mama) — ফরিদপুর সদর, ফরিদপুরে ফ্রি হোম পিকআপ লন্ড্রি ও কাপড় ধোয়ার সার্ভিস, dhopamama.com<br>
+    Copyright © Dhopa Mama 2026 – All Rights Reserved |
+  </div>
+</footer>
+
+<!-- Invoice modal -->
+<div class="modal-overlay" id="invoiceOverlay">
+  <div class="modal-box" id="invoiceModal">
+    <button class="modal-close" onclick="pfCloseModal('invoiceOverlay')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <h2 id="pfInvTitle" style="font-size:18px;font-weight:800;color:#55451E;margin-bottom:4px">Invoice</h2>
+    <div id="pfInvSub" style="font-size:12.5px;color:#997D36;margin-bottom:18px"></div>
+    <div id="pfInvItems"></div>
+    <div class="pf-inv-total"><span>Total Paid</span><span id="pfInvTotal">৳0</span></div>
+    <div class="pf-modal-actions">
+      <button class="pf-btn" onclick="window.print()">Print</button>
+      <button class="pf-btn solid" onclick="pfCloseModal('invoiceOverlay')">Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- Cancel confirm modal -->
+<div class="modal-overlay" id="cancelOverlay">
+  <div class="modal-box">
+    <div class="pf-confirm-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></div>
+    <h2 style="font-size:16px;margin-bottom:8px;color:#55451E">অর্ডারটি বাতিল করবেন?</h2>
+    <p id="pfCancelText" style="font-size:13px;color:#997D36;margin-bottom:20px">এটি অর্ডার এবং এর আইটেমগুলো বাতিল হিসেবে চিহ্নিত করবে। এটি ফেরত নেওয়া যাবে না।</p>
+    <div class="pf-modal-actions">
+      <button class="pf-btn" onclick="pfCloseModal('cancelOverlay')">অর্ডার রাখুন</button>
+      <button class="pf-btn solid" style="background:#e11d48;border-color:#e11d48" id="pfConfirmCancelBtn">হ্যাঁ, বাতিল করুন</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="pf-toast" id="pfToast"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg><span id="pfToastText">Done</span></div>
+
+<script id="dm-profile-view">
+(function(){
+  var SESSION_KEY = 'dmUser';
+  var USERS_KEY = 'dmUsers';
+  var ORDERS_KEY = 'dmOrders';
+  var ADDR_KEY = 'dmAddresses';
+  var activeTab = 'all';
+
+  function money(n){ return '৳' + Number(n||0).toLocaleString('en-IN'); }
+  function loadOrders(){ try{ return JSON.parse(localStorage.getItem(ORDERS_KEY)||'[]'); }catch(e){ return []; } }
+  function saveOrders(list){ try{ localStorage.setItem(ORDERS_KEY, JSON.stringify(list)); }catch(e){} }
+  function loadAddresses(){ try{ return JSON.parse(localStorage.getItem(ADDR_KEY)||'[]'); }catch(e){ return []; } }
+  function saveAddresses(a){ try{ localStorage.setItem(ADDR_KEY, JSON.stringify(a)); }catch(e){} }
+
+  function orderTotal(o){
+    if(typeof o.total==='number') return o.total;
+    if(Array.isArray(o.items)) return o.items.reduce(function(s,it){ return s + (Number(it.price)||0)*(Number(it.qty)||1); },0);
+    return 0;
+  }
+  function statusOf(o){
+    var st = (o.status||'').toLowerCase();
+    if(st==='completed'||st==='delivered') return 'completed';
+    if(st==='cancelled'||st==='canceled') return 'cancelled';
+    return 'processing';
+  }
+  function orderDateISO(o){
+    if(o.paymentDateISO) return o.paymentDateISO;
+    if(o.createdAt){ try{ return String(o.createdAt).slice(0,10); }catch(e){} }
+    if(o.date && /^d{4}-d{2}-d{2}/.test(o.date)) return o.date.slice(0,10);
+    return null;
+  }
+  function getDateRange(){
+    var from = (document.getElementById('pfFrom')||{}).value || null;
+    var to = (document.getElementById('pfTo')||{}).value || null;
+    return { from:from, to:to };
+  }
+  function inRange(iso, range){
+    if(!iso) return true;
+    if(range.from && iso < range.from) return false;
+    if(range.to && iso > range.to) return false;
+    return true;
+  }
+
+  // ===== Panel Switching =====
+  window.switchPfPanel = function(panel, btn){
+    document.querySelectorAll('.pf-panel').forEach(function(p){ p.classList.remove('active'); });
+    document.querySelectorAll('.pf-main-tab').forEach(function(b){ b.classList.remove('active'); });
+    var el = document.getElementById('pfPanel'+panel.charAt(0).toUpperCase()+panel.slice(1));
+    if(el) el.classList.add('active');
+    if(btn) btn.classList.add('active');
+    if(panel === 'address') renderAddresses();
+    if(panel === 'profile') renderRecentActivity();
+  };
+
+  // ===== Order Tab Switching =====
+  window.setOrderTab = function(tab, btn){
+    activeTab = tab;
+    document.querySelectorAll('.pf-order-tab').forEach(function(b){ b.classList.remove('active'); });
+    if(btn) btn.classList.add('active');
+    renderOrderList();
+  };
+
+  window.resetDateFilter = function(){
+    var from = document.getElementById('pfFrom');
+    var to = document.getElementById('pfTo');
+    if(from) from.value = '';
+    if(to) to.value = '';
+    renderOrderList();
+  };
+
+  // ===== Main renderProfileView =====
+  window.renderProfileView = function(user){
+    if(!user) return;
+    document.body.style.overflow = 'auto';
+    document.body.style.height = 'auto';
+    document.querySelectorAll('.auth-shell,.auth-hero').forEach(function(el){ el.classList.add('hidden'); });
+    var sh = document.getElementById('profileShell'); if(!sh) return;
+    sh.classList.add('active');
+
+    var name = user.name || user.contact || 'User';
+    var contact = user.contact || user.email || user.mobile || '';
+
+    // Hero info
+    document.getElementById('pfName').textContent = name;
+    document.getElementById('pfContact').textContent = contact;
+    document.getElementById('pfAvatar').textContent = (name[0]||'U').toUpperCase();
+
+    // Member since
+    var since = '—';
+    if(user.createdAt){
+      try{
+        var d = new Date(user.createdAt);
+        since = d.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+      }catch(e){}
+    } else {
+      since = 'পুরনো সদস্য';
+    }
+    var sinceEl = document.getElementById('pfSince'); if(sinceEl) sinceEl.textContent = since;
+
+    // Profile view panel
+    var vn = document.getElementById('pfViewName'); if(vn) vn.textContent = name;
+    var vc = document.getElementById('pfViewContact'); if(vc) vc.textContent = contact;
+    var vs = document.getElementById('pfViewSince'); if(vs) vs.textContent = since;
+
+    // Edit fields prefill
+    var en = document.getElementById('pfEditName'); if(en) en.value = name;
+    var ec = document.getElementById('pfEditContact'); if(ec) ec.value = contact;
+
+    // Top Friend badge
+    var totalOrders = loadOrders().length;
+    if(totalOrders >= 10){
+      var badge = document.getElementById('pfTopFriendBadge');
+      if(badge) badge.style.display = 'inline-flex';
+    }
+
+    renderStats();
+    renderOrderList();
+  };
+
+  function renderStats(){
+    var allOrders = loadOrders();
+    var counts = {all:allOrders.length, completed:0, cancelled:0};
+    var spent = 0;
+    allOrders.forEach(function(o){
+      var s = statusOf(o);
+      if(s==='completed') counts.completed++;
+      else if(s==='cancelled') counts.cancelled++;
+      spent += orderTotal(o);
+    });
+    // Hero stats
+    var t = document.getElementById('pfTotOrders'); if(t) t.textContent = counts.all;
+    var sp = document.getElementById('pfTotSpent'); if(sp) sp.textContent = money(spent);
+    var c = document.getElementById('pfTotComp'); if(c) c.textContent = counts.completed;
+    var x = document.getElementById('pfTotCanc'); if(x) x.textContent = counts.cancelled;
+    // Summary cards (in orders panel)
+    var st = document.getElementById('pfSumTot'); if(st) st.textContent = counts.all;
+    var ss = document.getElementById('pfSumSpent'); if(ss) ss.textContent = money(spent);
+    var sc = document.getElementById('pfSumC'); if(sc) sc.textContent = counts.completed;
+    var sx = document.getElementById('pfSumX'); if(sx) sx.textContent = counts.cancelled;
+  }
+
+  window.renderOrderList = function(){
+    var range = getDateRange();
+    var allOrders = loadOrders();
+    var orders = allOrders.filter(function(o){ return inRange(orderDateISO(o), range); });
+
+    var counts = {all:orders.length, completed:0, cancelled:0};
+    orders.forEach(function(o){ var s=statusOf(o); if(s==='completed') counts.completed++; else if(s==='cancelled') counts.cancelled++; });
+    var ca = document.getElementById('pfCntAll'); if(ca) ca.textContent = counts.all;
+    var cc = document.getElementById('pfCntC'); if(cc) cc.textContent = counts.completed;
+    var cx = document.getElementById('pfCntX'); if(cx) cx.textContent = counts.cancelled;
+
+    var filtered = orders.filter(function(o){
+      if(activeTab==='completed') return statusOf(o)==='completed';
+      if(activeTab==='cancelled') return statusOf(o)==='cancelled';
+      return true;
+    });
+
+    var list = document.getElementById('pfOrders');
+    if(!list) return;
+
+    if(!filtered.length){
+      list.innerHTML = '<div class="pf-empty"><span class="pf-empty-icon"><i class="fas fa-box-open"></i></span><h4>কোনো অর্ডার পাওয়া যায়নি</h4><p>এখানে আপনার অর্ডারগুলো দেখা যাবে।<br>নতুন অর্ডার দিতে সার্ভিস পেজে যান।</p><a href="index.html" class="pf-btn solid" style="display:inline-flex;align-items:center;gap:6px;text-decoration:none;padding:12px 22px"><i class="fas fa-plus-circle"></i> নতুন অর্ডার করুন</a></div>';
+      return;
+    }
+
+    list.innerHTML = filtered.map(function(o){
+      var id = o.id || o.orderId || '—';
+      var iso = orderDateISO(o);
+      var dateDisp = '—';
+      if(iso){ try{ var d=new Date(iso); dateDisp=d.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}); }catch(e){} }
+      var st = statusOf(o);
+      var badgeClass = st==='completed'?'completed':st==='cancelled'?'cancelled':'processing';
+      var badgeIcon = st==='completed'?'fa-check-circle':st==='cancelled'?'fa-times-circle':'fa-clock';
+      var badgeLabel = st==='completed'?'সম্পন্ন':st==='cancelled'?'বাতিল':'প্রক্রিয়াধীন';
+
+      var cust = o.customer || {};
+      var custHtml = '';
+      if(cust.name||cust.mobile||cust.address){
+        custHtml = '<div class="pf-card-cust">';
+        if(cust.name) custHtml += '<span><i class="fas fa-user" style="color:#CA9100;margin-right:4px"></i>' + cust.name + '</span>';
+        if(cust.mobile) custHtml += '<span><i class="fas fa-phone" style="color:#CA9100;margin-right:4px"></i>' + cust.mobile + '</span>';
+        if(cust.address) custHtml += '<span><i class="fas fa-map-marker-alt" style="color:#CA9100;margin-right:4px"></i>' + cust.address + '</span>';
+        custHtml += '</div>';
+      }
+var items = o.items || [];
+
+var itemsHtml = items.length ? items.map(function(it){
+  var iSt = (it.status || '').toLowerCase();
+  var iBadge = (iSt === 'delivered' || iSt === 'completed')
+    ? 'delivered'
+    : (iSt === 'cancelled' || iSt === 'canceled')
+      ? 'cancelled'
+      : 'pending';
+
+  var iBLabel = (iSt === 'delivered' || iSt === 'completed')
+    ? 'ডেলিভারি হয়েছে'
+    : (iSt === 'cancelled' || iSt === 'canceled')
+      ? 'বাতিল'
+      : 'অপেক্ষায়';
+
+  var qty = it.qty || 1;
+  var price = Number(it.price || 0) * qty;
+
+  return '' +
+    '<div class="pf-item">' +
+      '<div class="pf-item-icon">' +
+        '<i class="fas fa-tshirt"></i>' +
+      '</div>' +
+      '<div class="pf-item-info">' +
+        '<div class="pf-item-name">' +
+          (it.title || it.name || 'Service') +
+          '<span class="pf-item-badge ' + iBadge + '">' + iBLabel + '</span>' +
+        '</div>' +
+        '<div class="pf-item-meta">' +
+          'By ' + (it.by || 'Dhopa Mama') +
+          (it.size && it.size !== '-' ? ' • Size: ' + it.size : '') +
+          (qty > 1 ? ' • Qty: ' + qty : '') +
+        '</div>' +
+      '</div>' +
+      '<div class="pf-item-price">' +
+        money(price) +
+      '</div>' +
+    '</div>';
+}).join('') : 
+'<div class="pf-item" style="color:#997D36;font-size:13px">আইটেমের তথ্য পাওয়া যায়নি</div>';
+
+var pickup = o.pickup || o.date || '';
+var method = o.method || o.paymentMethod || '';
+
+var canCancel = st === 'processing';
+
+return '' +
+'<div class="pf-card" data-order-id="' + id + '">' +
+
+  '<div class="pf-card-head">' +
+
+    '<div>' +
+      '<div class="pf-card-id">#' + id + '</div>' +
+      '<div class="pf-card-date">' + dateDisp + '</div>' +
+    '</div>' +
+
+    '<span class="pf-badge ' + badgeClass + '">' +
+      '<i class="fas ' + badgeIcon + '"></i>' +
+      badgeLabel +
+    '</span>' +
+
+    '<div class="pf-card-actions">' +
+
+      '<button class="pf-card-act" onclick="pfShowInvoice(\'' + id + '\')">' +
+        '<i class="fas fa-file-invoice"></i> ইনভয়েস' +
+      '</button>' +
+
+      (canCancel
+        ? '<button class="pf-card-act cancel" onclick="pfAskCancel(\'' + id + '\')">' +
+            '<i class="fas fa-times"></i> বাতিল' +
+          '</button>'
+        : ''
+      ) +
+
+    '</div>' +
+
+  '</div>' +
+
+  '<div class="pf-card-body">' +
+    custHtml +
+    '<div class="pf-card-items">' +
+      itemsHtml +
+    '</div>' +
+  '</div>' +
+
+  '<div class="pf-card-foot">' +
+
+    (
+      pickup
+        ? '<div class="pf-card-pickup">' +
+            '<i class="fas fa-truck"></i> পিকআপ: ' +
+            pickup +
+            (method ? ' | পেমেন্ট: ' + method : '') +
+          '</div>'
+        : '<div></div>'
+    ) +
+
+    '<div class="pf-card-total">' +
+      'মোট: <span>' + money(orderTotal(o)) + '</span>' +
+    '</div>' +
+
+  '</div>' +
+
+'</div>';
+    }).join('');
+  };
+
+  // ===== Invoice =====
+  window.pfShowInvoice = function(orderId){
+    var allOrders = loadOrders();
+    var o = allOrders.find(function(x){ return String(x.id||x.orderId)===String(orderId); });
+    if(!o) return;
+    var iso = orderDateISO(o)||'—';
+    var dateDisp = '—';
+    if(iso!=='—'){ try{ var d=new Date(iso); dateDisp=d.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}); }catch(e){} }
+    document.getElementById('pfInvTitle').textContent = 'Invoice — #'+(o.id||o.orderId||'?');
+    document.getElementById('pfInvSub').textContent = 'তারিখ: '+dateDisp+' | স্ট্যাটাস: '+statusOf(o);
+    var items = o.items||[];
+    document.getElementById('pfInvItems').innerHTML = items.map(function(it){
+      var qty=it.qty||1; var price=Number(it.price||0)*qty;
+      return '<div class="pf-inv-row"><span>'+(it.title||it.name||'Service')+' x'+qty+'</span><span>'+money(price)+'</span></div>';
+    }).join('') || '<div class="pf-inv-row"><span>সার্ভিস চার্জ</span><span>'+money(orderTotal(o))+'</span></div>';
+    document.getElementById('pfInvTotal').textContent = money(orderTotal(o));
+    document.getElementById('invoiceOverlay').classList.add('open');
+  };
+
+  // ===== Cancel Order =====
+  var pendingCancelId = null;
+  window.pfAskCancel = function(orderId){
+    var o = loadOrders().find(function(x){ return String(x.id||x.orderId)===String(orderId); });
+    if(!o || statusOf(o)==='cancelled') return;
+    pendingCancelId = orderId;
+    document.getElementById('pfCancelText').textContent = 'অর্ডার #'+orderId+' বাতিল করা হবে। এটি পূর্বাবস্থায় ফেরানো যাবে না।';
+    document.getElementById('cancelOverlay').classList.add('open');
+  };
+  document.addEventListener('DOMContentLoaded', function(){
+    var btn = document.getElementById('pfConfirmCancelBtn');
+    if(btn) btn.addEventListener('click', function(){
+      var list = loadOrders();
+      var o = list.find(function(x){ return String(x.id||x.orderId)===String(pendingCancelId); });
+      if(o){
+        o.status='cancelled';
+        if(Array.isArray(o.items)) o.items.forEach(function(it){ it.status='Cancelled'; });
+        saveOrders(list); renderOrderList(); renderStats(); pfToast('অর্ডার #'+pendingCancelId+' বাতিল করা হয়েছে');
+      }
+      document.getElementById('cancelOverlay').classList.remove('open');
+      pendingCancelId = null;
+    });
+  });
+
+  // ===== Modal helpers =====
+  window.pfOpenModal = function(id){ var el=document.getElementById(id); if(el) el.classList.add('open'); };
+  window.pfCloseModal = function(id){ var el=document.getElementById(id); if(el) el.classList.remove('open'); };
+
+  // ===== Profile Edit =====
+  window.toggleEditProfile = function(){
+    var v=document.getElementById('pfProfileView'), e=document.getElementById('pfProfileEdit');
+    if(!v||!e) return;
+    var isEditing = e.classList.contains('show');
+    if(isEditing){ cancelProfileEdit(); } else { v.style.display='none'; e.classList.add('show'); }
+  };
+  window.cancelProfileEdit = function(){
+    var v=document.getElementById('pfProfileView'), e=document.getElementById('pfProfileEdit');
+    if(v) v.style.display=''; if(e) e.classList.remove('show');
+  };
+  window.saveProfileEdit = function(){
+    var name=(document.getElementById('pfEditName')||{}).value||'';
+    var contact=(document.getElementById('pfEditContact')||{}).value||'';
+    name=name.trim(); contact=contact.trim();
+    if(!name||!contact){ pfToast('নাম ও মোবাইল/ইমেইল দিন।'); return; }
+    try{
+      var u = JSON.parse(localStorage.getItem(SESSION_KEY)||'null');
+      if(!u){ pfToast('সেশন পাওয়া যায়নি।'); return; }
+      u.name=name; u.contact=contact; u.mobile=contact; u.email=contact;
+      localStorage.setItem(SESSION_KEY, JSON.stringify(u));
+      // Update users list too
+      var users = JSON.parse(localStorage.getItem(USERS_KEY)||'[]');
+      var idx = users.findIndex(function(x){ return x.contact===u.contact||x.name===u.name; });
+      if(idx>=0){ users[idx].name=name; users[idx].contact=contact; localStorage.setItem(USERS_KEY, JSON.stringify(users)); }
+      // Update UI
+      document.getElementById('pfName').textContent=name;
+      document.getElementById('pfAvatar').textContent=(name[0]||'U').toUpperCase();
+      var vn=document.getElementById('pfViewName'); if(vn) vn.textContent=name;
+      var vc=document.getElementById('pfViewContact'); if(vc) vc.textContent=contact;
+      cancelProfileEdit();
+      pfToast('প্রোফাইল আপডেট হয়েছে!');
+    }catch(err){ pfToast('সমস্যা হয়েছে, আবার চেষ্টা করুন।'); }
+  };
+
+  // ===== Password Change =====
+  window.changePassword = function(){
+    var old=(document.getElementById('pfOldPass')||{}).value||'';
+    var np=(document.getElementById('pfNewPass')||{}).value||'';
+    var conf=(document.getElementById('pfConfPass')||{}).value||'';
+    var err=document.getElementById('pfPassErr'), ok=document.getElementById('pfPassOk');
+    if(err) err.style.display='none'; if(ok) ok.style.display='none';
+    if(!old||!np||!conf){ if(err){err.textContent='সব ঘর পূরণ করুন।'; err.style.display='block';} return; }
+    if(np.length<6){ if(err){err.textContent='পাসওয়ার্ড কমপক্ষে ৬ অক্ষর হতে হবে।'; err.style.display='block';} return; }
+    if(np!==conf){ if(err){err.textContent='নতুন পাসওয়ার্ড দুটি মিলছে না।'; err.style.display='block';} return; }
+    try{
+      var u=JSON.parse(localStorage.getItem(SESSION_KEY)||'null');
+      if(!u){ if(err){err.textContent='সেশন পাওয়া যায়নি।'; err.style.display='block';} return; }
+      var users=JSON.parse(localStorage.getItem(USERS_KEY)||'[]');
+      var idx=users.findIndex(function(x){ return x.contact===u.contact; });
+      if(idx<0){ if(err){err.textContent='ব্যবহারকারী পাওয়া যায়নি।'; err.style.display='block';} return; }
+      if(users[idx].pass!==old){ if(err){err.textContent='বর্তমান পাসওয়ার্ড ভুল।'; err.style.display='block';} return; }
+      users[idx].pass=np; localStorage.setItem(USERS_KEY, JSON.stringify(users));
+      document.getElementById('pfOldPass').value=''; document.getElementById('pfNewPass').value=''; document.getElementById('pfConfPass').value='';
+      if(ok) ok.style.display='block';
+      pfToast('পাসওয়ার্ড পরিবর্তন সফল!');
+    }catch(e){ if(err){err.textContent='সমস্যা হয়েছে।'; err.style.display='block';} }
+  };
+
+  // ===== Notification Settings =====
+  window.saveNotifSettings = function(){ pfToast('সেটিংস সংরক্ষণ হয়েছে!'); };
+
+  // ===== Address =====
+  function renderAddresses(){
+    var addrs = loadAddresses();
+    var grid = document.getElementById('pfAddressGrid');
+    if(!grid) return;
+    if(!addrs.length){ grid.innerHTML='<div style="color:#997D36;font-size:14px;grid-column:1/-1">কোনো ঠিকানা সংরক্ষিত নেই।</div>'; return; }
+    grid.innerHTML = addrs.map(function(a, i){
+      return '<div class="pf-address-card'+(i===0?' default':'')+'">'+
+        (i===0?'<span class="pf-address-default-badge">ডিফল্ট</span>':'')+
+        '<div class="pf-address-name">'+a.name+'</div>'+
+        '<div class="pf-address-line"><i class="fas fa-phone" style="color:#CA9100;margin-right:5px"></i>'+a.phone+'</div>'+
+        '<div class="pf-address-line"><i class="fas fa-map-marker-alt" style="color:#CA9100;margin-right:5px"></i>'+a.address+'</div>'+
+        '<div class="pf-address-btns">'+
+        (i>0?'<button class="pf-btn" style="font-size:12px;padding:6px 12px" onclick="setDefaultAddress('+i+')">ডিফল্ট করুন</button>':'')+
+        '<button class="pf-btn danger" style="font-size:12px;padding:6px 12px" onclick="deleteAddress('+i+')">মুছুন</button>'+
+        '</div></div>';
+    }).join('');
+  }
+  window.saveNewAddress = function(){
+    var name=(document.getElementById('pfAddrName')||{}).value||'';
+    var phone=(document.getElementById('pfAddrPhone')||{}).value||'';
+    var addr=(document.getElementById('pfAddrFull')||{}).value||'';
+    name=name.trim(); phone=phone.trim(); addr=addr.trim();
+    if(!name||!phone||!addr){ pfToast('সব ঘর পূরণ করুন।'); return; }
+    var addrs=loadAddresses();
+    addrs.push({name:name, phone:phone, address:addr});
+    saveAddresses(addrs);
+    document.getElementById('pfAddrName').value='';
+    document.getElementById('pfAddrPhone').value='';
+    document.getElementById('pfAddrFull').value='';
+    renderAddresses();
+    pfToast('ঠিকানা সংরক্ষিত হয়েছে!');
+  };
+  window.setDefaultAddress = function(idx){
+    var addrs=loadAddresses();
+    var item=addrs.splice(idx,1)[0];
+    addrs.unshift(item);
+    saveAddresses(addrs);
+    renderAddresses();
+    pfToast('ডিফল্ট ঠিকানা আপডেট হয়েছে!');
+  };
+  window.deleteAddress = function(idx){
+    var addrs=loadAddresses();
+    addrs.splice(idx,1);
+    saveAddresses(addrs);
+    renderAddresses();
+    pfToast('ঠিকানা মুছে ফেলা হয়েছে।');
+  };
+
+  // ===== Recent Activity =====
+  function renderRecentActivity(){
+    var el=document.getElementById('pfRecentActivity'); if(!el) return;
+    var orders=loadOrders();
+    if(!orders.length){ el.innerHTML='<p style="color:#997D36">কোনো কার্যকলাপ নেই।</p>'; return; }
+    var recent=orders.slice(0,5);
+    el.innerHTML='<div style="display:flex;flex-direction:column;gap:10px">'+recent.map(function(o){
+      var id=o.id||o.orderId||'?';
+      var iso=orderDateISO(o);
+      var st=statusOf(o);
+      var icon=st==='completed'?'fa-check-circle':st==='cancelled'?'fa-times-circle':'fa-clock';
+      var col=st==='completed'?'#16a34a':st==='cancelled'?'#e11d48':'#CA9100';
+      return '<div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:#FFFCEF;border:1px solid #F0E0B8">'+
+        '<i class="fas '+icon+'" style="color:'+col+';font-size:18px;flex-shrink:0"></i>'+
+        '<div style="flex:1"><div style="font-size:14px;font-weight:700;color:#55451E">অর্ডার #'+id+'</div>'+
+        '<div style="font-size:12px;color:#997D36">'+(iso||'তারিখ নেই')+'</div></div>'+
+        '<div style="font-size:14px;font-weight:800;color:#CA9100">'+money(orderTotal(o))+'</div>'+
+        '</div>';
+    }).join('')+'</div>';
+  }
+
+  // ===== Toast =====
+  var toastTimer=null;
+  function pfToast(text){
+    var t=document.getElementById('pfToast'); if(!t) return;
+    document.getElementById('pfToastText').textContent=text;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer=setTimeout(function(){ t.classList.remove('show'); },2600);
+  }
+
+  // ===== Logout =====
+  window.dmLogout = function(){
+    localStorage.removeItem('dmUser');
+    localStorage.removeItem('dm_auth');
+    location.reload();
+  };
+
+  // ===== Tab click handler (fallback for old pf-tabs) =====
+  document.addEventListener('DOMContentLoaded', function(){
+    // Close modals on overlay click
+    document.querySelectorAll('.modal-overlay').forEach(function(el){
+      el.addEventListener('click', function(e){ if(e.target===el) el.classList.remove('open'); });
+    });
+    // Auto-show profile if logged in
+    try{
+      var u=JSON.parse(localStorage.getItem(SESSION_KEY)||'null');
+      if(u) window.renderProfileView(u);
+    }catch(e){}
+  });
+})();
+</script>
+
+</body>
+</html>

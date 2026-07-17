@@ -1,35 +1,31 @@
 /**
- * Dhopa Mama / Dhopa Mama — Backend API
- * Stack: Express + MongoDB (Mongoose) + Cloudinary
- * Deploy: Render.com (Web Service, Node)
- *
- * Environment variables (Render → Environment):
- *   MONGODB_URI, JWT_SECRET, ADMIN_USERNAME, ADMIN_PASSWORD,
- *   ALLOWED_ORIGINS (comma-separated), PORT (Render auto-sets),
- *   CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET
+ * Dhopa Mama — Backend API
+ * Stack: Express + MongoDB (Mongoose) + Cloudinary + JWT + bcrypt
+ * Replit: serves on process.env.PORT (8080)
+ * Also serves static frontend (/) and admin panel (/admin/)
  */
 
-require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const cloudinary = require('cloudinary').v2;
+const path = require('path');
+const fs = require('fs');
 
 const app = express();
+
+/* ── Body parsing ── */
 app.use(express.json({ limit: '25mb' }));
-// Return a clear JSON error instead of a raw connection failure when a
-// request body is too large (this is what most "network/CORS" save errors
-// on the admin panel actually are, once legacy base64 images pile up).
 app.use((err, req, res, next) => {
   if (err && err.type === 'entity.too.large') {
-    return res.status(413).json({ error: 'Payload too large — run the image migration script to move remaining base64 images to Cloudinary.' });
+    return res.status(413).json({ error: 'Payload too large — image too big.' });
   }
   next(err);
 });
 
-/* ---------------- Cloudinary ---------------- */
+/* ── Cloudinary ── */
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key:    process.env.CLOUDINARY_API_KEY,
@@ -37,26 +33,20 @@ cloudinary.config({
   secure: true
 });
 
-/* ---------------- CORS ---------------- */
-const allowed = (process.env.ALLOWED_ORIGINS || '')
-  .split(',').map(s => s.trim()).filter(Boolean);
-app.use(cors({
-  origin: function (origin, cb) {
-    // allow tools like curl / server-to-server (no origin) and configured origins
-    if (!origin) return cb(null, true);
-    if (allowed.length === 0) return cb(null, true); // dev fallback
-    if (allowed.includes(origin)) return cb(null, true);
-    return cb(null, true); // permissive; tighten later if needed
-  },
-  credentials: true
-}));
+/* ── CORS (permissive for Replit dev) ── */
+app.use(cors({ origin: true, credentials: true }));
 
+/* ── Static files: admin panel at /admin ── */
+const ADMIN_DIR = path.join(__dirname, 'public', 'admin');
+if (fs.existsSync(ADMIN_DIR)) {
+  app.use('/admin', express.static(ADMIN_DIR));
+  app.get('/admin', (_req, res) => res.sendFile(path.join(ADMIN_DIR, 'admin.html')));
+}
 
-/* ---------------- Google Apps Script order email ----------------
- * প্রতিটি নতুন অর্ডার Apps Script webhook-এ পাঠানো হয়, যা
- * trejin.shop@gmail.com এ ইমেইল পাঠায় (Code.gs দেখুন)।
- * Render → Environment এ APPS_SCRIPT_URL সেট করুন (Web App deploy URL)।
- */
+/* ── Static files: frontend at / (served AFTER /api and /admin routes) ── */
+const FRONTEND_DIR = path.join(__dirname, 'public', 'frontend');
+
+/* ── Google Apps Script email notification ── */
 async function notifyOrderByEmail(order) {
   const url = process.env.APPS_SCRIPT_URL;
   if (!url) return;
@@ -66,34 +56,34 @@ async function notifyOrderByEmail(order) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(order)
     });
-    console.log('Order email webhook sent:', order.id);
   } catch (e) {
     console.error('Order email webhook failed:', e.message);
   }
 }
 
-/* ---------------- MongoDB ---------------- */
+/* ── MongoDB ── */
 mongoose.set('strictQuery', true);
-mongoose.connect(process.env.MONGODB_URI, { serverSelectionTimeoutMS: 15000 })
-  .then(() => console.log('✅ MongoDB connected'))
-  .catch(err => console.error('❌ MongoDB error:', err.message));
+const MONGODB_URI = process.env.MONGODB_URI;
+if (MONGODB_URI) {
+  mongoose.connect(MONGODB_URI, { serverSelectionTimeoutMS: 15000 })
+    .then(() => console.log('✅ MongoDB connected'))
+    .catch(err => console.error('❌ MongoDB error:', err.message));
+} else {
+  console.warn('⚠️  MONGODB_URI not set — DB features disabled');
+}
 
-/* ---------------- Schemas ----------------
- * সব collection-এ একটি করে "singleton doc" রাখা হয়েছে (key: 'main') যেখানে
- * পুরো array সংরক্ষিত। এভাবে admin panel-এর বর্তমান localStorage-based
- * ফরম্যাটের সাথে ১:১ ম্যাচ করে কাজ করা যায়।
- */
+/* ── Schemas ── */
 const BucketSchema = new mongoose.Schema({
   key:  { type: String, unique: true, default: 'main' },
   data: { type: mongoose.Schema.Types.Mixed, default: [] }
 }, { timestamps: true });
 
-const Products    = mongoose.model('Products',    BucketSchema, 'products');
-const Categories  = mongoose.model('Categories',  BucketSchema, 'categories');
-const Services    = mongoose.model('Services',    BucketSchema, 'services');
-const Settings    = mongoose.model('Settings',    new mongoose.Schema({
-  key: { type: String, unique: true, default: 'main' },
-  data: { type: mongoose.Schema.Types.Mixed, default: { bkash:'01700-000000', nagad:'01800-000000' } }
+const Products   = mongoose.model('Products',   BucketSchema, 'products');
+const Categories = mongoose.model('Categories', BucketSchema, 'categories');
+const Services   = mongoose.model('Services',   BucketSchema, 'services');
+const Settings   = mongoose.model('Settings', new mongoose.Schema({
+  key:  { type: String, unique: true, default: 'main' },
+  data: { type: mongoose.Schema.Types.Mixed, default: { bkash: '01700-000000', nagad: '01800-000000' } }
 }, { timestamps: true }), 'settings');
 
 const OrderSchema = new mongoose.Schema({
@@ -120,14 +110,6 @@ const UserSchema = new mongoose.Schema({
 }, { timestamps: true });
 const User = mongoose.model('User', UserSchema, 'users');
 
-/* ---------------- Analytics: site visits + product clicks ----------------
- * এডমিন প্যানেলের "Analytics" ট্যাবে দেখানোর জন্য — কোন প্রোডাক্টে কতজন
- * ক্লিক করলো, আজকে/এই সপ্তাহে/সর্বমোট কতজন সাইট ভিজিট করলো ইত্যাদি।
- * এটি Google Analytics (GA4, gtag) এর পাশাপাশি কাজ করে — ইনডেক্স পেজে GA4
- * ইভেন্টও পাঠানো হয় (real GA4 ড্যাশবোর্ডে দেখার জন্য), আর এখানে নিজস্ব
- * MongoDB-ভিত্তিক দ্রুত সারাংশ রাখা হয় যাতে এডমিন প্যানেলে সরাসরি লাইভ
- * পরিসংখ্যান দেখানো যায় (কোনো Google service-account credential ছাড়াই)।
- */
 const VisitEventSchema = new mongoose.Schema({
   ts:   { type: Date, default: Date.now, index: true },
   page: String,
@@ -137,13 +119,13 @@ const VisitEvent = mongoose.model('VisitEvent', VisitEventSchema, 'visit_events'
 
 const ClickEventSchema = new mongoose.Schema({
   ts:          { type: Date, default: Date.now, index: true },
-  type:        { type: String, default: 'product_view' }, // product_view | add_to_cart
+  type:        { type: String, default: 'product_view' },
   productId:   String,
   productName: String
 });
 const ClickEvent = mongoose.model('ClickEvent', ClickEventSchema, 'click_events');
 
-/* ---------------- Helpers ---------------- */
+/* ── Bucket helpers ── */
 async function getBucket(Model) {
   let doc = await Model.findOne({ key: 'main' });
   if (!doc) doc = await Model.create({ key: 'main', data: Model === Settings ? undefined : [] });
@@ -155,8 +137,8 @@ async function putBucket(Model, data) {
   );
 }
 
-/* ---------------- Auth: tokens ---------------- */
-const SECRET = process.env.JWT_SECRET || 'dev';
+/* ── Auth helpers ── */
+const SECRET = process.env.JWT_SECRET || 'dhopa-mama-dev-secret-change-in-prod';
 function signAdminToken() {
   return jwt.sign({ role: 'admin' }, SECRET, { expiresIn: '365d' });
 }
@@ -184,7 +166,6 @@ function requireUser(req, res, next) {
     next();
   } catch (e) { return res.status(401).json({ error: 'Invalid token' }); }
 }
-// Optional user — attaches req.user if a valid user token is present, else continues
 function optionalUser(req, _res, next) {
   const h = req.headers.authorization || '';
   const token = h.startsWith('Bearer ') ? h.slice(7) : null;
@@ -197,23 +178,26 @@ function optionalUser(req, _res, next) {
   next();
 }
 
-/* ---------------- Routes: health ---------------- */
-app.get('/', (_req, res) => res.json({ ok: true, service: 'Dhopa Mama API' }));
-app.get('/api/health', (_req, res) => res.json({ ok: true, time: new Date().toISOString() }));
+/* ════════════════════════════════════════════
+   API ROUTES
+   ════════════════════════════════════════════ */
 
-/* ---------------- Admin login ---------------- */
+/* Health */
+app.get('/api/health', (_req, res) => res.json({ ok: true, time: new Date().toISOString() }));
+app.get('/api/healthz', (_req, res) => res.json({ ok: true }));
+
+/* Admin login */
 app.post('/api/admin/login', (req, res) => {
   const { username, password } = req.body || {};
-  if (username === process.env.ADMIN_USERNAME && password === process.env.ADMIN_PASSWORD) {
+  const u = process.env.ADMIN_USERNAME || 'admin';
+  const p = process.env.ADMIN_PASSWORD || 'admin123';
+  if (username === u && password === p) {
     return res.json({ token: signAdminToken() });
   }
-  return res.status(401).json({ error: 'Invalid credentials' });
+  return res.status(401).json({ error: 'ভুল ইউজারনেম বা পাসওয়ার্ড।' });
 });
 
-/* ---------------- Cloudinary image upload (admin only) ----------------
- * Body: { image: "data:image/png;base64,...." , folder?: "dhopa-mama" }
- * Returns: { url, public_id }
- */
+/* Cloudinary upload (admin only) */
 app.post('/api/upload', requireAdmin, async (req, res) => {
   try {
     const { image, folder } = req.body || {};
@@ -229,19 +213,15 @@ app.post('/api/upload', requireAdmin, async (req, res) => {
   }
 });
 
-/* ---------------- Bucket collections (products, categories, services, settings) ---------------- */
+/* Bucket routes (products, categories, services, settings) */
 function bucketRoutes(path, Model) {
   app.get(`/api/${path}`, async (_req, res) => {
     try { const b = await getBucket(Model); res.json(b.data); }
     catch (e) { res.status(500).json({ error: e.message }); }
   });
-  // Admin overwrites the whole array/object (matches admin panel's saveData behavior)
   app.put(`/api/${path}`, requireAdmin, async (req, res) => {
     try { const b = await putBucket(Model, req.body); res.json(b.data); }
-    catch (e) {
-      console.error(`PUT /api/${path} failed:`, e.message, e.stack);
-      res.status(500).json({ error: e.message });
-    }
+    catch (e) { res.status(500).json({ error: e.message }); }
   });
 }
 bucketRoutes('products',   Products);
@@ -249,8 +229,7 @@ bucketRoutes('categories', Categories);
 bucketRoutes('services',   Services);
 bucketRoutes('settings',   Settings);
 
-/* ---------------- Analytics routes ---------------- */
-// Public (called from index.html): এক পেজ ভিজিট রেকর্ড করে
+/* Analytics */
 app.post('/api/track/visit', async (req, res) => {
   try {
     const { page, ref } = req.body || {};
@@ -258,7 +237,6 @@ app.post('/api/track/visit', async (req, res) => {
     res.json({ ok: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
-// Public (called from index.html): প্রোডাক্ট ক্লিক / অ্যাড-টু-কার্ট রেকর্ড করে
 app.post('/api/track/click', async (req, res) => {
   try {
     const { type, productId, productName } = req.body || {};
@@ -267,15 +245,12 @@ app.post('/api/track/click', async (req, res) => {
     res.json({ ok: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
-// Admin only: এডমিন প্যানেলের Analytics ট্যাবের জন্য সারাংশ — আজকে/সপ্তাহ/সর্বমোট
-// ভিজিট সংখ্যা এবং সবচেয়ে বেশি ক্লিক পড়া প্রোডাক্টের তালিকা।
 app.get('/api/analytics/summary', requireAdmin, async (req, res) => {
   try {
     const now = new Date();
     const startToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const startWeek = new Date(startToday); startWeek.setDate(startWeek.getDate() - 6);
+    const startWeek  = new Date(startToday); startWeek.setDate(startWeek.getDate() - 6);
     const startAllTime = new Date(0);
-
     const visitCount = (since) => VisitEvent.countDocuments({ ts: { $gte: since } });
     const topProducts = (since, limit = 8) => ClickEvent.aggregate([
       { $match: { ts: { $gte: since } } },
@@ -283,12 +258,10 @@ app.get('/api/analytics/summary', requireAdmin, async (req, res) => {
       { $sort: { clicks: -1 } },
       { $limit: limit }
     ]);
-
     const [visitsToday, visitsWeek, visitsAll, topToday, topWeek, topAll] = await Promise.all([
       visitCount(startToday), visitCount(startWeek), visitCount(startAllTime),
       topProducts(startToday), topProducts(startWeek), topProducts(startAllTime)
     ]);
-
     res.json({
       visitsToday, visitsWeek, visitsAll,
       topToday: topToday.map(x => ({ name: x._id || 'অজানা', clicks: x.clicks })),
@@ -298,13 +271,11 @@ app.get('/api/analytics/summary', requireAdmin, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-/* ---------------- Orders ---------------- */
-// Public: list (admin panel reads this)
-app.get('/api/orders', async (_req, res) => {
-  const list = await Order.find().sort({ createdAt: -1 }).lean();
-  res.json(list);
+/* Orders */
+app.get('/api/orders', requireAdmin, async (_req, res) => {
+  try { const list = await Order.find().sort({ createdAt: -1 }).lean(); res.json(list); }
+  catch (e) { res.status(500).json({ error: e.message }); }
 });
-// Logged-in user: only their own orders (with status)
 app.get('/api/my-orders', requireUser, async (req, res) => {
   try {
     const or = [{ userId: req.user.id }];
@@ -313,7 +284,6 @@ app.get('/api/my-orders', requireUser, async (req, res) => {
     res.json(list);
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
-// Place order (from index.html checkout). If user token present, links order to user.
 app.post('/api/orders', optionalUser, async (req, res) => {
   try {
     const body = req.body || {};
@@ -326,16 +296,13 @@ app.post('/api/orders', optionalUser, async (req, res) => {
     const doc = await Order.findOneAndUpdate(
       { id: body.id }, { $set: body }, { upsert: true, new: true }
     );
-    // নতুন অর্ডার এলেই Apps Script-এর মাধ্যমে জিমেইলে পাঠানো (fire-and-forget)
     notifyOrderByEmail(doc.toObject ? doc.toObject() : doc);
     res.json(doc);
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
-// Admin: bulk replace (admin panel saveData(LS.orders, orders))
 app.put('/api/orders', requireAdmin, async (req, res) => {
   try {
     const arr = Array.isArray(req.body) ? req.body : [];
-    // upsert each; do not delete missing (safer)
     for (const o of arr) {
       if (!o || !o.id) continue;
       await Order.findOneAndUpdate({ id: o.id }, { $set: o }, { upsert: true });
@@ -344,26 +311,28 @@ app.put('/api/orders', requireAdmin, async (req, res) => {
     res.json(list);
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
-// Admin: update single order status
 app.patch('/api/orders/:id', requireAdmin, async (req, res) => {
-  const doc = await Order.findOneAndUpdate({ id: req.params.id }, { $set: req.body }, { new: true });
-  res.json(doc);
+  try {
+    const doc = await Order.findOneAndUpdate({ id: req.params.id }, { $set: req.body }, { new: true });
+    res.json(doc);
+  } catch (e) { res.status(500).json({ error: e.message }); }
 });
 app.delete('/api/orders/:id', requireAdmin, async (req, res) => {
-  await Order.deleteOne({ id: req.params.id });
-  res.json({ ok: true });
+  try { await Order.deleteOne({ id: req.params.id }); res.json({ ok: true }); }
+  catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-/* ---------------- Users ---------------- */
-app.get('/api/users', async (_req, res) => {
-  const list = await User.find().sort({ createdAt: -1 }).select('-password').lean();
-  res.json(list);
+/* Users */
+app.get('/api/users', requireAdmin, async (_req, res) => {
+  try {
+    const list = await User.find().sort({ createdAt: -1 }).select('-password').lean();
+    res.json(list);
+  } catch (e) { res.status(500).json({ error: e.message }); }
 });
-// Register → saves to MongoDB and returns a long-lived token (stays logged in)
 app.post('/api/register', async (req, res) => {
   try {
     const { name, contact, password } = req.body || {};
-    if (!contact || !password) return res.status(400).json({ error: 'contact & password required' });
+    if (!contact || !password) return res.status(400).json({ error: 'contact ও password দিন।' });
     const exists = await User.findOne({ contact });
     if (exists) return res.status(409).json({ error: 'এই নাম্বার/ইমেইল দিয়ে আগে থেকেই রেজিস্টার করা আছে। লগইন করুন।' });
     const hash = await bcrypt.hash(password, 10);
@@ -371,7 +340,6 @@ app.post('/api/register', async (req, res) => {
     res.json({ id: u._id, name: u.name, contact: u.contact, token: signUserToken(u) });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
-// Login → returns a long-lived token
 app.post('/api/login', async (req, res) => {
   try {
     const { contact, password } = req.body || {};
@@ -382,7 +350,6 @@ app.post('/api/login', async (req, res) => {
     res.json({ id: u._id, name: u.name, contact: u.contact, token: signUserToken(u) });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
-// Current user info from token (used to keep session alive on page load)
 app.get('/api/me', requireUser, async (req, res) => {
   try {
     const u = await User.findById(req.user.id).select('-password').lean();
@@ -390,7 +357,6 @@ app.get('/api/me', requireUser, async (req, res) => {
     res.json({ id: u._id, name: u.name, contact: u.contact });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
-// Admin: bulk replace users list (matches admin panel behavior)
 app.put('/api/users', requireAdmin, async (req, res) => {
   try {
     const arr = Array.isArray(req.body) ? req.body : [];
@@ -403,94 +369,115 @@ app.put('/api/users', requireAdmin, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-
-/* ---------------- Forgot Password (Gmail OTP via Apps Script) ---------------- */
-// এই সিস্টেম বর্তমান APPS_SCRIPT_URL ব্যবহার করে OTP ইমেইল পাঠায়।
-// Apps Script-এ পাঠানো পেলোডে { type: 'otp', to, otp } থাকে —
-// Code.gs-এ doPost অংশটি এই টাইপ হ্যান্ডেল করার জন্য আপডেট করতে হবে (নিচে নমুনা দেওয়া হয়েছে)।
-const OTP_STORE = new Map(); // email -> { otp, expiresAt }
-
-function generateOtp(){
-  return String(Math.floor(100000 + Math.random() * 900000));
-}
-
-async function sendOtpEmail(to, otp){
-  const url = process.env.APPS_SCRIPT_URL;
-  if (!url) throw new Error('APPS_SCRIPT_URL not set');
+/* Update user profile (logged-in user) */
+app.patch('/api/me', requireUser, async (req, res) => {
   try {
-    await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ type: 'otp', to, otp })
-    });
-  } catch(e) {
-    console.error('sendOtpEmail failed:', e.message);
-    throw e;
-  }
-}
-
-app.post('/api/auth/forgot-password', async (req, res) => {
-  try {
-    const { email } = req.body || {};
-    if (!email) return res.status(400).json({ error: 'email required' });
-    // ইউজার আছে কিনা যাচাই — না থাকলেও same response (email enumeration prevent)
-    const u = await User.findOne({ contact: email });
-    const otp = generateOtp();
-    OTP_STORE.set(email, { otp, expiresAt: Date.now() + 15 * 60 * 1000 }); // 15 মিনিট
-    if (u) {
-      try { await sendOtpEmail(email, otp); } catch(e){ /* still respond ok */ }
-    }
-    res.json({ ok: true, message: 'যদি এই ইমেইলে অ্যাকাউন্ট থাকে, OTP পাঠানো হয়েছে।' });
+    const { name, contact } = req.body || {};
+    const update = {};
+    if (name) update.name = name;
+    if (contact) update.contact = contact;
+    const u = await User.findByIdAndUpdate(req.user.id, { $set: update }, { new: true }).select('-password');
+    res.json({ id: u._id, name: u.name, contact: u.contact, token: signUserToken(u) });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-app.post('/api/auth/reset-password', async (req, res) => {
+/* Change password (logged-in user) */
+app.post('/api/change-password', requireUser, async (req, res) => {
   try {
-    const { email, otp, newPassword } = req.body || {};
-    if (!email || !otp || !newPassword) return res.status(400).json({ error: 'সব ফিল্ড পূরণ করুন' });
-    const rec = OTP_STORE.get(email);
-    if (!rec || rec.otp !== String(otp) || rec.expiresAt < Date.now()){
-      return res.status(400).json({ error: 'OTP ভুল অথবা মেয়াদ শেষ' });
-    }
-    const u = await User.findOne({ contact: email });
-    if (!u) return res.status(404).json({ error: 'ইউজার নেই' });
+    const { oldPassword, newPassword } = req.body || {};
+    if (!oldPassword || !newPassword) return res.status(400).json({ error: 'সব ফিল্ড পূরণ করুন।' });
+    const u = await User.findById(req.user.id);
+    if (!u) return res.status(404).json({ error: 'ইউজার নেই।' });
+    const ok = await bcrypt.compare(oldPassword, u.password || '');
+    if (!ok) return res.status(401).json({ error: 'বর্তমান পাসওয়ার্ড ভুল।' });
     u.password = await bcrypt.hash(newPassword, 10);
     await u.save();
-    OTP_STORE.delete(email);
     res.json({ ok: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-/* ---------------- Top Friend: মাসিক অর্ডার কাউন্ট ও ডিসকাউন্ট ----------------
- * নিয়ম: চলতি মাসে ২০+ অর্ডার = ৫%, ৩০+ = ১০%, ৫০+ = ৫০% (সবকটি পরের অর্ডারে)
- * মাস শেষ হলে অটো রিসেট। */
-function tierPercent(count){
+/* Forgot / Reset Password */
+const OTP_STORE = new Map();
+function generateOtp() { return String(Math.floor(100000 + Math.random() * 900000)); }
+async function sendOtpEmail(to, otp) {
+  const url = process.env.APPS_SCRIPT_URL;
+  if (!url) throw new Error('APPS_SCRIPT_URL not set');
+  await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ type: 'otp', to, otp })
+  });
+}
+app.post('/api/auth/forgot-password', async (req, res) => {
+  try {
+    const { email, contact } = req.body || {};
+    const id = email || contact;
+    if (!id) return res.status(400).json({ error: 'email বা contact required' });
+    const u = await User.findOne({ contact: id });
+    const otp = generateOtp();
+    OTP_STORE.set(id, { otp, expiresAt: Date.now() + 15 * 60 * 1000 });
+    if (u) { try { await sendOtpEmail(id, otp); } catch(e){} }
+    res.json({ ok: true, message: 'যদি এই ইমেইলে অ্যাকাউন্ট থাকে, OTP পাঠানো হয়েছে।' });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+app.post('/api/auth/reset-password', async (req, res) => {
+  try {
+    const { email, contact, otp, newPassword } = req.body || {};
+    const id = email || contact;
+    if (!id || !otp || !newPassword) return res.status(400).json({ error: 'সব ফিল্ড পূরণ করুন' });
+    const rec = OTP_STORE.get(id);
+    if (!rec || rec.otp !== String(otp) || rec.expiresAt < Date.now()) {
+      return res.status(400).json({ error: 'OTP ভুল অথবা মেয়াদ শেষ' });
+    }
+    const u = await User.findOne({ contact: id });
+    if (!u) return res.status(404).json({ error: 'ইউজার নেই' });
+    u.password = await bcrypt.hash(newPassword, 10);
+    await u.save();
+    OTP_STORE.delete(id);
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+/* Top Friend status */
+function tierPercent(count) {
   if (count >= 50) return 50;
   if (count >= 30) return 10;
   if (count >= 20) return 5;
   return 0;
 }
-
 app.get('/api/top-friend/status', requireUser, async (req, res) => {
   try {
     const now = new Date();
     const start = new Date(now.getFullYear(), now.getMonth(), 1);
     const or = [{ userId: req.user.id }];
     if (req.user.contact) or.push({ userContact: req.user.contact });
-    const count = await Order.countDocuments({
-      $or: or,
-      createdAt: { $gte: start }
-    });
+    const count = await Order.countDocuments({ $or: or, createdAt: { $gte: start } });
     res.json({
       monthlyOrderCount: count,
       discountPercent: tierPercent(count),
       isTopFriend: count >= 20,
-      month: (now.getMonth()+1) + '/' + now.getFullYear()
+      month: (now.getMonth() + 1) + '/' + now.getFullYear()
     });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+/* ════════════════════════════════════════════
+   STATIC FILES (frontend & admin)
+   Must come AFTER all /api routes
+   ════════════════════════════════════════════ */
+if (fs.existsSync(FRONTEND_DIR)) {
+  app.use(express.static(FRONTEND_DIR));
+  // SPA fallback: serve index.html for any unmatched route (excluding /api and /admin)
+  app.get('*', (req, res) => {
+    if (req.path.startsWith('/api/') || req.path.startsWith('/admin/')) return res.status(404).json({ error: 'Not found' });
+    const file = path.join(FRONTEND_DIR, req.path);
+    if (fs.existsSync(file) && fs.statSync(file).isFile()) {
+      return res.sendFile(file);
+    }
+    res.sendFile(path.join(FRONTEND_DIR, 'index.html'));
+  });
+}
 
-/* ---------------- Start ---------------- */
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Dhopa Mama API on :${PORT}`));
+/* ── Start ── */
+const PORT = parseInt(process.env.PORT || '8080', 10);
+app.listen(PORT, '0.0.0.0', () => console.log(`🚀 Dhopa Mama API + Frontend on :${PORT}`));

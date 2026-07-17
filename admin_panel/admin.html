@@ -503,7 +503,7 @@ tr.row-new td{background:var(--brand-light)!important;}
   ব্যবহৃত হয় যাতে admin panel এর বাকি কোড অপরিবর্তিত থাকতে পারে।
   শুধু admin login token টি sessionStorage এ রাখা হয় (session ভিত্তিক)।
 */
-window.API_BASE = window.API_BASE || 'https://dhopa-mama-j75g.onrender.com'; // ← Render URL এখানে বসান
+window.API_BASE = window.API_BASE || ''; // ← Render URL এখানে বসান
 
 (function(){
   var LS_MAP = {
@@ -1647,6 +1647,9 @@ function renderCategoryDonut(){
   const legendEl = document.getElementById('catDonutLegend');
   const topLabelEl = document.getElementById('catDonutTopLabel');
   const topValueEl = document.getElementById('catDonutTopValue');
+
+  // Guard: DOM elements may not exist before admin is logged in
+  if (!svg || !legendEl || !topLabelEl || !topValueEl) return;
 
   if (!shown.length || !totalSold){
     svg.innerHTML = '<circle cx="100" cy="100" r="82" fill="none" stroke="var(--border)" stroke-width="30"/>';
