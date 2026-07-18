@@ -702,7 +702,7 @@ a{color:inherit}
       <h1 class="auth-hero-title">পরিষ্কার জীবন <br><em>শুরু হোক এখান থেকে</em></h1>
       <p class="auth-hero-sub">
         অ্যাকাউন্ট তৈরি করুন আর ঘরে বসেই অর্ডার করুন — ফ্রি হোম পিকআপ ও ডেলিভারিসহ
-        নরমাল ওযp��াশ, ড্রাই ওয়াশ ও আয়রন সার্ভিস। এখনই যুক্ত হোন।
+        নরমাল ওয়াশ, ড্রাই ওয়াশ ও আয়রন সার্ভিস। এখনই যুক্ত হোন।
       </p>
 
       <div class="auth-hero-stats">
@@ -1268,18 +1268,9 @@ document.getElementById('forgotOverlay').addEventListener('click', function(e){
   if (e.target === this) closeForgotModal();
 });
 
-/* আগে থেকে লগইন থাকলে সরাসরি হোমপেজে পাঠিয়ে দেয় */
-(function(){
-  try {
-    var raw = localStorage.getItem(AUTH_KEY);
-    if (raw){
-      var saved = JSON.parse(raw);
-      if (saved && saved.token && saved.user){
-        renderProfileView(saved.user);
-      }
-    }
-  } catch(e){}
-})();
+/* আগে থেকে লগইন থাকলে প্রোফাইল দেখানো হবে।
+   NOTE: renderProfileView এই পয়েন্টে এখনও ডিফাইন হয়নি (নিচে ডিফাইন করা আছে),
+   তাই সরাসরি এখানে কল না করে DOMContentLoaded-এর পর কল করা হচ্ছে (নিচে দেখুন)। */
 </script>
 
 
@@ -2244,10 +2235,13 @@ return '' +
     document.querySelectorAll('.modal-overlay').forEach(function(el){
       el.addEventListener('click', function(e){ if(e.target===el) el.classList.remove('open'); });
     });
-    // Auto-show profile if logged in
+    // Auto-show profile if logged in (real session key is AUTH_KEY = 'dm_auth')
     try{
-      var u=JSON.parse(localStorage.getItem(SESSION_KEY)||'null');
-      if(u) window.renderProfileView(u);
+      var raw = localStorage.getItem(AUTH_KEY);
+      var saved = raw ? JSON.parse(raw) : null;
+      if (saved && saved.token && saved.user){
+        window.renderProfileView(saved.user);
+      }
     }catch(e){}
   });
 })();
