@@ -132,6 +132,8 @@ button{font-family:inherit;cursor:pointer}
 .hamburger-btn{background:none;border:none;font-size:22px;color:#333;padding:4px;cursor:pointer;border-radius:0}
 .mobile-search-bar{display:none;padding:8px 14px;background:#c8d4e8;border-bottom:none;position:relative;z-index:59;overflow:visible;max-height:80px;opacity:1;transition:max-height .28s ease,opacity .22s ease,padding .28s ease;flex-shrink:0}
 .mobile-search-bar.search-hidden{max-height:0;opacity:0;padding-top:0;padding-bottom:0;overflow:hidden}
+.mobile-search-toggle-btn{background:var(--border);border:none;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--green-dark);font-size:15px;cursor:pointer;transition:background .2s,color .2s}
+.mobile-search-toggle-btn:hover,.mobile-search-toggle-btn.active{background:var(--green);color:#fff}
 .mobile-search-wrap{position:relative;height:42px;display:flex;align-items:center;background:#fff;padding:0 14px;gap:10px}
 .mobile-search-wrap .s-icon{color:#999;font-size:14px;flex-shrink:0}
 .mobile-search-wrap .s-divider{width:1px;height:16px;background:#ddd;flex-shrink:0}
@@ -450,6 +452,36 @@ button{font-family:inherit;cursor:pointer}
   .auth-right{padding:16px 16px}
   .auth-card-head h1{font-size:20px}
 }
+.cart-popup-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:flex-end;justify-content:center}
+.cart-popup-overlay.open{display:flex}
+.cart-popup{background:#f5f5f5;width:100%;max-width:500px;border-radius:28px 28px 0 0;max-height:90vh;display:flex;flex-direction:column;animation:cartSlideUp .3s ease;overflow:hidden}
+@keyframes cartSlideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.cart-popup-header{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 14px;background:#f5f5f5}
+.cart-popup-back{width:36px;height:36px;border-radius:50%;background:#fff;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 1px 6px rgba(0,0,0,.1);color:#333;font-size:14px}
+.cart-popup-back:hover{background:#eee}
+.cart-popup-title{font-size:18px;font-weight:700;color:#1a1a1a;text-align:center;flex:1}
+.cart-popup-more{width:36px;height:36px;border-radius:50%;background:#fff;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 1px 6px rgba(0,0,0,.1);color:#e53935;font-size:14px;font-weight:700;padding:0}
+.cart-popup-more:hover{background:#eee}
+.cart-items-list{overflow-y:auto;padding:0 16px 8px;flex:1;display:flex;flex-direction:column;gap:12px}
+.cart-item{display:flex;align-items:center;gap:14px;padding:14px;background:#fff;border-radius:16px}
+.cart-item-img{width:70px;height:70px;border-radius:12px;background:#f5f6fa;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0}
+.cart-item-img img{width:100%;height:100%;object-fit:contain}
+.cart-item-info{flex:1;min-width:0}
+.cart-item-name{font-size:14px;font-weight:700;color:#1a1a1a;line-height:1.3;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cart-item-brand{font-size:12px;color:var(--green);font-weight:500;margin-bottom:6px}
+.cart-item-price{font-size:15px;font-weight:700;color:#1a1a1a}
+.cart-item-qty-row{display:flex;align-items:center;gap:10px;margin-top:6px}
+.cart-item-remove{background:none;border:none;color:#ddd;cursor:pointer;font-size:14px;padding:6px;margin-left:auto;align-self:flex-start}
+.cart-item-remove:hover{color:#e53935}
+.cart-popup-footer{background:#fff;padding:20px 20px 28px;border-radius:20px 20px 0 0;margin-top:4px}
+.cart-total-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;padding-bottom:14px;border-bottom:1.5px solid #f0f0f0}
+.cart-total-label{font-size:17px;font-weight:700;color:#1a1a1a}
+.cart-total-amount{font-size:22px;font-weight:700;color:#1a1a1a}
+.cart-empty-state{text-align:center;padding:40px 20px;color:#bbb;background:#fff;border-radius:16px;margin:0 16px}
+.cart-empty-state i{font-size:44px;margin-bottom:14px;display:block;color:#e0e0e0}
+.cart-empty-state p{font-size:14px;color:#aaa}
+.btn-checkout{width:100%;padding:16px;background:var(--green);color:#fff;border:none;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer}
+.btn-checkout:hover{background:var(--green-dark)}
 </style>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -538,6 +570,30 @@ a{color:inherit}
 </head>
 <body>
 
+<!-- Cart Popup -->
+<div class="cart-popup-overlay" id="cartPopupOverlay" onclick="closeCartPopup(event)">
+  <div class="cart-popup" id="cartPopup">
+    <div class="cart-popup-header">
+      <button class="cart-popup-back" onclick="goBackFromCartPopup()"><i class="fas fa-chevron-left"></i></button>
+      <div class="cart-popup-title">Cart</div>
+      <button class="cart-popup-more" onclick="cancelCart()" aria-label="Close" title="Close"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="cart-items-list" id="cartItemsList">
+      <div class="cart-empty-state">
+        <i class="fas fa-shopping-bag"></i>
+        <p>Cart is empty</p>
+      </div>
+    </div>
+    <div class="cart-popup-footer">
+      <div class="cart-total-row">
+        <div class="cart-total-label">Total</div>
+        <div class="cart-total-amount" id="cartTotalAmount">৳0</div>
+      </div>
+      <button class="btn-checkout" onclick="window.location.href='cart.html'">Checkout Now</button>
+    </div>
+  </div>
+</div>
+
 <div class="page-shell">
 
 <!-- ===== Mobile Header (হুবহু index.html) ===== -->
@@ -546,9 +602,9 @@ a{color:inherit}
   <div class="logo-center">
     <a href="index.html" aria-label="Home" style="display:inline-block;line-height:0"><img loading="lazy" decoding="async" src="assets/d5f720099214.png" alt="Logo"></a>
   </div>
-  <div style="width:36px"></div>
+  <button class="mobile-search-toggle-btn" id="mobileSearchToggleBtn" onclick="toggleMobileSearchBar()" aria-label="Search" aria-expanded="false"><i class="fas fa-search"></i></button>
 </div>
-<div class="mobile-search-bar">
+<div class="mobile-search-bar search-hidden" id="mobileSearchBar">
   <div class="mobile-search-wrap" id="mobileSearchWrap">
     <i class="fas fa-search s-icon" onclick="runProductSearch('mobileSearchInput')" style="cursor:pointer"></i>
     <span class="s-divider"></span>
@@ -615,7 +671,7 @@ a{color:inherit}
       <div class="search-suggest" id="desktopSearchSuggest"></div>
     </div>
     <div class="header-icons">
-      <div class="icon-btn" onclick="window.location.href='cart.html'"><i class="fas fa-shopping-cart"></i><span class="cart-count">0</span><span>Cart</span></div>
+      <div class="icon-btn" onclick="renderCart();openCartPopup();"><i class="fas fa-shopping-cart"></i><span class="cart-count">0</span><span>Cart</span></div>
       <div class="icon-btn" id="headerSignInBtn" onclick="window.location.href='account.html'"><i class="far fa-user"></i><span>Login</span></div>
     </div>
   </div>
@@ -735,7 +791,7 @@ a{color:inherit}
     <a href="index.html" class="nav-item"><i class="fas fa-home"></i><span>Home</span></a>
     <a href="services.html" class="nav-item"><i class="fas fa-concierge-bell"></i><span>Service</span></a>
     <a href="about.html" class="nav-item"><i class="fas fa-info-circle"></i><span>About Us</span></a>
-    <a href="cart.html" class="nav-item"><i class="fas fa-shopping-cart"></i><span>Cart</span></a>
+    <a href="cart.html" class="nav-item" onclick="renderCart();openCartPopup();return false;"><i class="fas fa-shopping-cart"></i><span>Cart</span></a>
     <a href="account.html" class="nav-item active"><i class="fas fa-user"></i><span>Login</span></a>
   </div>
 </nav>
@@ -826,6 +882,95 @@ window.API_BASE = window.API_BASE || '';
 var AUTH_KEY = 'dm_auth';
 var mode = 'signin';
 
+/* ============ কার্ট পপ-আপ (হুবহু index.html এর কার্যকারিতা) ============ */
+var cart = [];
+
+function renderCart() {
+  var list = document.getElementById('cartItemsList');
+  var totalEl = document.getElementById('cartTotalAmount');
+  if (!list) return;
+
+  if (cart.length === 0) {
+    list.innerHTML = '<div class="cart-empty-state"><i class="fas fa-shopping-bag"></i><p>Cart is empty</p></div>';
+    if (totalEl) totalEl.textContent = '৳0';
+    return;
+  }
+
+  var total = 0;
+  var html = '';
+  cart.forEach(function(item, idx) {
+    total += Number(item.price) * Number(item.qty);
+    html += `
+      <div class="cart-item">
+        <div class="cart-item-img">
+          ${item.img ? `<img loading="lazy" decoding="async" src="${item.img}" alt="${item.name}">` : `<i class="fas ${item.icon}" style="font-size:26px;color:var(--green)"></i>`}
+        </div>
+        <div class="cart-item-info">
+          <div class="cart-item-name">${item.name}</div>
+          <div class="cart-item-brand">${item.brand || ''}</div>
+          <div class="cart-item-price">৳${Number(item.price).toLocaleString()}</div>
+          <div class="cart-item-qty-row">
+            <button class="qty-btn-minus" onclick="changeQty(${idx},-1)"><i class="fas fa-minus"></i></button>
+            <span class="qty-num">${item.qty}</span>
+            <button class="qty-btn-plus" onclick="changeQty(${idx},1)"><i class="fas fa-plus"></i></button>
+          </div>
+        </div>
+        <button class="cart-item-remove" onclick="removeItem(${idx})"><i class="fas fa-times"></i></button>
+      </div>
+    `;
+  });
+  list.innerHTML = html;
+  if (totalEl) totalEl.textContent = '৳' + total.toLocaleString();
+}
+
+function changeQty(idx, delta) {
+  cart[idx].qty += delta;
+  if (cart[idx].qty < 1) cart[idx].qty = 1;
+  renderCart();
+  var total = cart.reduce(function(s,i){ return s + i.qty; }, 0);
+  var cc = document.querySelector('.cart-count');
+  if (cc) cc.textContent = total;
+}
+
+function removeItem(idx) {
+  cart.splice(idx, 1);
+  renderCart();
+  var total = cart.reduce(function(s,i){ return s + i.qty; }, 0);
+  var cc = document.querySelector('.cart-count');
+  if (cc) cc.textContent = total;
+}
+
+function openCartPopup() {
+  var overlay = document.getElementById('cartPopupOverlay');
+  if (overlay) overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeCartPopup(e) {
+  if (e && e.target !== document.getElementById('cartPopupOverlay')) return;
+  closeCartPopupDirect();
+}
+
+function closeCartPopupDirect() {
+  var overlay = document.getElementById('cartPopupOverlay');
+  if (overlay) overlay.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function cancelCart() {
+  closeCartPopupDirect();
+}
+
+function goBackFromCartPopup() {
+  closeCartPopupDirect();
+}
+
+function openCartIfNotEmpty() {
+  renderCart();
+  openCartPopup();
+}
+
+
 /* ============ নেভবার — সাইডবার (হুবহু index.html এর কার্যকারিতা) ============ */
 function openSidebar(){
   document.getElementById('sidebar').classList.add('open');
@@ -838,6 +983,26 @@ function closeSidebar(){
 function toggleSidebarCategories(){
   document.getElementById('sidebarSubcats').classList.toggle('open');
   document.getElementById('sidebarCatChevron').classList.toggle('open');
+}
+
+/* মোবাইলে ডান পাশের সার্চ আইকনে ক্লিক করলে mobile-search-bar টগল হবে (ডিফল্টভাবে হিডেন) */
+function toggleMobileSearchBar(){
+  var searchBar = document.getElementById('mobileSearchBar');
+  var toggleBtn = document.getElementById('mobileSearchToggleBtn');
+  if(!searchBar || !toggleBtn) return;
+  var icon = toggleBtn.querySelector('i');
+  var willOpen = searchBar.classList.contains('search-hidden');
+  searchBar.classList.toggle('search-hidden');
+  toggleBtn.classList.toggle('active', willOpen);
+  toggleBtn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+  if(icon){
+    icon.classList.toggle('fa-search', !willOpen);
+    icon.classList.toggle('fa-times', willOpen);
+  }
+  if(willOpen){
+    var input = document.getElementById('mobileSearchInput');
+    if(input) setTimeout(function(){ input.focus(); }, 260);
+  }
 }
 
 /* ============ নেভবার — সার্চ বক্স (এই পেজে প্রোডাক্ট নেই, তাই সার্চ করলে হোমপেজে ফলাফল দেখাবে) ============ */
