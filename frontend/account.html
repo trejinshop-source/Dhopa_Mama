@@ -1283,62 +1283,6 @@ document.getElementById('forgotOverlay').addEventListener('click', function(e){
 </script>
 
 
-<script id="dm-client-auth">
-/* Purely client-side auth: stores users in localStorage.
-   Overrides API-based handlers so the site works without a backend. */
-(function(){
-  var USERS_KEY = 'dmUsers';
-  var SESSION_KEY = 'dmUser';
-  function readUsers(){ try{ return JSON.parse(localStorage.getItem(USERS_KEY)||'[]'); }catch(e){ return []; } }
-  function writeUsers(a){ localStorage.setItem(USERS_KEY, JSON.stringify(a)); }
-  function saveSession(u){ localStorage.setItem(SESSION_KEY, JSON.stringify(u)); localStorage.setItem('dm_auth', JSON.stringify({token:'local', user:u})); }
-  function redirectAfterLogin(){
-    var back = localStorage.getItem('dmRedirectAfterLogin');
-    localStorage.removeItem('dmRedirectAfterLogin');
-    if(back && !back.includes('account.html')) window.location.href = back;
-    else renderProfileView(JSON.parse(localStorage.getItem(SESSION_KEY)||'{}'));
-  }
-  function showErr(msg){ var el=document.getElementById('authError'); if(el){el.textContent=msg;el.style.display='block';} else alert(msg); }
-  window.handleSubmit = function(e){
-    e.preventDefault();
-    var el=document.getElementById('authError'); if(el) el.style.display='none';
-    var name = (document.getElementById('fldName')||{}).value || '';
-    var contact = (document.getElementById('fldContact')||{}).value || '';
-    var pass = (document.getElementById('fldPass')||{}).value || '';
-    name=name.trim(); contact=contact.trim(); pass=pass.trim();
-    var isSignup = (typeof mode!=='undefined' ? mode==='signup' : document.getElementById('submitLabel').textContent.toLowerCase().indexOf('sign')>-1);
-    if(isSignup && !name){ showErr('অনুগ্রহ করে আপনার নাম দিন।'); return; }
-    if(!contact || !pass){ showErr('মোবাইল/ইমেইল ও পাসওয়ার্ড দিন।'); return; }
-    var users = readUsers();
-    if(isSignup){
-      if(users.find(function(u){return u.contact===contact;})){ showErr('এই নাম্বার/ইমেইলে অ্যাকাউন্ট আছে। Login করুন।'); return; }
-      var user = {name:name, contact:contact, pass:pass, createdAt:Date.now()};
-      users.push(user); writeUsers(users);
-      saveSession({name:name, contact:contact, mobile:contact, email:contact});
-      redirectAfterLogin();
-    } else {
-      var m = users.find(function(u){return u.contact===contact;});
-      if(!m){ showErr('অ্যাকাউন্ট পাওয়া যায়নি। প্রথমে Sign Up করুন।'); return; }
-      if(m.pass!==pass){ showErr('পাসওয়ার্ড ভুল।'); return; }
-      saveSession({name:m.name, contact:m.contact, mobile:m.contact, email:m.contact});
-      redirectAfterLogin();
-    }
-  };
-  window.sendOtp = function(){ alert('ডেমো: OTP পাঠানো হয়েছে (123456)।'); var s=document.getElementById('otpStep'); if(s) s.style.display='block'; };
-  window.resetPassword = function(){
-    var contact = ((document.getElementById('forgotContact')||{}).value||'').trim();
-    var np = ((document.getElementById('newPass')||{}).value||'').trim();
-    if(!contact||!np){ alert('তথ্য দিন।'); return; }
-    var users = readUsers();
-    var i = users.findIndex(function(u){return u.contact===contact;});
-    if(i<0){ alert('অ্যাকাউন্ট পাওয়া যায়নি।'); return; }
-    users[i].pass = np; writeUsers(users);
-    alert('পাসওয়ার্ড আপডেট হয়েছে। এখন Login করুন।');
-    if(typeof closeForgotModal==='function') closeForgotModal();
-  };
-  })();
-</script>
-
 
 <!-- ============ Profile + My Orders view (shown when logged in) ============ -->
 <style id="dm-profile-style">
