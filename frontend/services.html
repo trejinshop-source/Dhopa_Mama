@@ -3181,6 +3181,12 @@ function syncMainNavActive(){
   });
 }
 window.addEventListener('hashchange',applyRoute);
+/* এই পেজ (services.html) সবসময় সার্ভিস ভিউ দেখাবে — রিফ্রেশ দিলে hash খালি থাকলেও
+   সাথে সাথেই (কোনো দেরি ছাড়া) #/services সেট করে দেওয়া হয়, যাতে pv-body কখনো
+   সাময়িকভাবেও hide না হয়ে যায় */
+if (!location.hash || (location.hash !== '#/about' && location.hash !== '#/contact' && location.hash !== '#/services')) {
+  location.hash = '#/services';
+}
 applyRoute();
 function submitPageContact(e){
   e.preventDefault();
