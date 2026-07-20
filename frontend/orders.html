@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Orders — Order History</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+/* ===== Shared site chrome (header + footer + mobile bottom nav) ===== */
+:root{--green:#CA9100;--green-dark:#997D36;--border:#E6BB50;--font-display:'Hind Siliguri','Noto Sans',system-ui,sans-serif}
+.container{max-width:1240px;margin:0 auto;padding:0 16px}
+.header{background:#fff;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50}
+.header-top{display:flex;align-items:center;gap:30px;padding:5px 0}
+.logo img{height:52px;width:auto;max-width:220px;object-fit:contain}
+.logo{margin-left:32px}
+@media(max-width:720px){.logo{margin-left:0}}
+.main-nav{display:flex;align-items:center;gap:6px}
+.main-nav a{padding:8px 14px;font-weight:700;color:#55451E;font-size:15px;border-radius:6px;font-family:'Poppins','Hind Siliguri','Noto Sans',system-ui,sans-serif;letter-spacing:.2px;text-decoration:none}
+.main-nav a.active,.main-nav a:hover{color:var(--green)}
+@media(max-width:900px){.main-nav{display:none}}
+.search-box{flex:1;max-width:480px;margin-left:auto;position:relative;height:46px;display:flex;align-items:center;background:#fff;border:1px solid #dde3f0;padding:0 14px;gap:10px}
+.search-box .s-icon{color:#999;font-size:15px}
+.search-box .s-divider{width:1px;height:18px;background:#ddd}
+.search-box input{flex:1;border:none;background:transparent;outline:none;font-size:14px;font-family:inherit;color:#333}
+@media(max-width:720px){.search-box{display:none}}
+.header-icons{display:flex;align-items:center;background:#f3f8f3;border:1px solid #e4efe4}
+.icon-btn{display:flex;align-items:center;justify-content:center;width:42px;height:42px;background:transparent;color:var(--green);cursor:pointer;position:relative;transition:.2s}
+.icon-btn:not(:last-child){border-right:1px solid #e4efe4}
+.icon-btn:hover{background:var(--green);color:#fff}
+.icon-btn i{font-size:17px}
+.icon-btn span:not(.cart-count){display:none}
+.cart-count{position:absolute;top:2px;right:2px;background:var(--green);color:#fff;border-radius:50%;font-size:10px;min-width:16px;height:16px;display:flex;align-items:center;justify-content:center;font-weight:700}
+.cat-nav{border-bottom:1px solid var(--border)}
+.cat-nav .container{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:10px 16px;justify-content:center}
+.cat-nav a{padding:8px 18px;font-size:14px;color:#333;border-radius:20px;font-weight:500;text-decoration:none}
+.cat-nav a:hover{color:var(--green)}
+@media(min-width:721px){.cat-nav{display:none}}
+.footer{background:#fff;color:#444;padding:50px 0 0;margin-top:30px;border-top:1px solid #eee}
+.footer-grid{display:grid;grid-template-columns:1.8fr 1fr 1fr 1.3fr;gap:36px;margin-bottom:0}
+.footer h4{color:#1a1a1a;font-size:16px;margin-bottom:18px;font-weight:700;font-family:var(--font-display)}
+.footer ul{list-style:none;padding:0}
+.footer ul li{margin-bottom:10px;font-size:14px;display:flex;align-items:flex-start;gap:8px;color:#555}
+.footer ul li::before{content:"›";color:#CA9100;font-weight:700;font-size:16px;line-height:1.2;flex-shrink:0}
+.footer ul li a{color:#555;text-decoration:none}
+.footer ul li a:hover{color:#CA9100}
+.footer-about{font-size:14px;line-height:1.7;color:#666;margin-bottom:20px}
+.footer-logo{height:72px;margin-bottom:14px}
+.footer-social{display:flex;gap:14px;margin-top:8px}
+.footer-social a{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;text-decoration:none}
+.footer-social .fb{background:#1877f2}
+.footer-social .ig{background:radial-gradient(circle at 30% 107%,#fdf497 0%,#fdf497 5%,#fd5949 45%,#d6249f 60%,#285AEB 90%)}
+.footer-social .ln{background:#0077b5}
+.footer-social .yt{background:#ff0000}
+.footer-contact-item{display:flex;align-items:flex-start;gap:10px;margin-bottom:12px;font-size:14px;color:#555}
+.footer-contact-icon{width:32px;height:32px;border-radius:50%;border:1.5px solid #CA9100;display:flex;align-items:center;justify-content:center;color:#CA9100;font-size:13px;flex-shrink:0}
+.footer-no-arrow li::before{display:none}
+.footer-wave{margin-top:40px;line-height:0}
+.footer-wave svg{width:100%;height:70px;display:block}
+.footer-bottom{background:#f5f5f5;text-align:center;font-size:13px;color:#888;padding:14px 0}
+@media(max-width:900px){.footer-grid{grid-template-columns:1fr 1fr;gap:26px}}
+@media(max-width:560px){.footer-grid{grid-template-columns:1fr}}
+.mobile-bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1.5px solid #eee;z-index:60;padding:6px 0 8px}
+.mobile-bottom-nav .nav-items{display:flex;justify-content:space-around}
+.mobile-bottom-nav .nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;color:#666;text-decoration:none;padding:4px 12px}
+.mobile-bottom-nav .nav-item i{font-size:20px;color:#888}
+.mobile-bottom-nav .nav-item.active{color:#CA9100}
+.mobile-bottom-nav .nav-item.active i{color:#CA9100}
+@media(max-width:720px){.mobile-bottom-nav{display:block}body{padding-bottom:70px}}
+/* ===== end shared chrome ===== */
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --ink:#1a1a1a;
+    --muted:#8b8b93;
+    --line:#eef0f2;
+    --accent:#4f46e5;
+    --accent-soft:#eef0fd;
+    --green:#16a34a;
+    --red:#e11d48;
+  }
+  html,body{
+    font-family:'Poppins',system-ui,sans-serif;
+    color:var(--ink);
+    background:#ffffff;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{text-decoration:none;color:inherit}
+  button{font-family:inherit;cursor:pointer}
+  img{display:block;max-width:100%}
+
+  .oh-page{padding:40px 24px 80px}
+  .oh-container{max-width:900px;margin:0 auto}
+
+  .oh-title{font-size:26px;font-weight:700;color:var(--ink);margin-bottom:26px;letter-spacing:-.2px}
+
+  /* ===== Toolbar: tabs + date range ===== */
+  .oh-toolbar{
+    display:flex;align-items:center;justify-content:space-between;
+    gap:16px;flex-wrap:wrap;margin-bottom:26px;
+  }
+  .oh-tabs{display:flex;align-items:center;gap:26px;flex-wrap:wrap}
+  .oh-tabs button{
+    background:none;border:none;
+    font-size:14.5px;font-weight:500;color:#4b4b52;font-family:inherit;
+    position:relative;padding:0 0 6px;transition:color .15s ease;
+    display:flex;align-items:center;gap:6px;
+  }
+  .oh-tabs button:hover{color:var(--accent)}
+  .oh-tabs button.active{color:var(--accent);font-weight:600}
+  .oh-tabs button.active::after{
+    content:"";position:absolute;left:0;right:0;bottom:-2px;height:2px;
+    background:var(--accent);border-radius:2px;
+  }
+  .oh-tab-count{
+    font-size:11px;font-weight:600;color:#9a9aa2;background:#f2f2f4;
+    border-radius:20px;padding:1px 7px;
+  }
+  .oh-tabs button.active .oh-tab-count{color:var(--accent);background:var(--accent-soft)}
+
+  .oh-daterange{display:flex;align-items:center;gap:10px}
+  .oh-date{
+    display:flex;align-items:center;gap:8px;
+    background:#f2f2f4;border-radius:10px;
+    padding:7px 12px;font-size:13px;color:#4b4b52;font-weight:500;
+    white-space:nowrap;border:1px solid transparent;
+    transition:border-color .15s ease,background .15s ease;
+  }
+  .oh-date:focus-within{border-color:var(--accent);background:#fff}
+  .oh-date svg{flex-shrink:0;opacity:.7}
+  .oh-date input[type="date"]{
+    border:none;background:none;font-family:inherit;font-size:13px;color:#4b4b52;
+    font-weight:500;outline:none;cursor:pointer;
+  }
+  .oh-to{font-size:13px;color:#9a9aa2;font-weight:500}
+  .oh-reset{
+    font-size:12.5px;font-weight:600;color:var(--accent);background:none;border:none;
+    padding:6px 4px;white-space:nowrap;
+  }
+  .oh-reset:hover{text-decoration:underline}
+
+  /* ===== Order list ===== */
+  #ohList{display:flex;flex-direction:column;gap:20px}
+
+  .oh-card{
+    border:1px solid var(--line);
+    border-radius:16px;
+    overflow:hidden;
+    box-shadow:0 2px 18px rgba(20,20,43,.04);
+    animation:ohFadeIn .25s ease;
+  }
+  @keyframes ohFadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+  .oh-card-head{
+    display:flex;align-items:center;justify-content:space-between;
+    gap:16px;flex-wrap:wrap;
+    padding:20px 22px;
+  }
+  .oh-order-id{font-size:15px;font-weight:600;color:var(--ink);margin-bottom:6px;display:flex;align-items:center;gap:10px}
+  .oh-order-pay{font-size:13.5px;color:var(--muted)}
+  .oh-order-badge{
+    font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;
+    padding:3px 9px;border-radius:20px;
+  }
+  .oh-order-badge.completed{color:var(--green);background:#eafaf0}
+  .oh-order-badge.cancelled{color:var(--red);background:#fdeef0}
+  .oh-order-badge.processing{color:#b45309;background:#fef6e7}
+
+  .oh-card-actions{display:flex;align-items:center;gap:10px}
+  .btn-outline,.btn-solid{
+    border-radius:10px;padding:10px 18px;font-size:13px;font-weight:600;
+    border:1px solid var(--line);background:#fff;color:#3f3f46;
+    transition:.15s ease;
+  }
+  .btn-outline:hover{border-color:#d7d7de;background:#fafafc}
+  .btn-solid{
+    background:var(--accent);border-color:var(--accent);color:#fff;
+    box-shadow:0 6px 16px rgba(79,70,229,.28);
+  }
+  .btn-solid:hover{background:#453cd6}
+  .btn-solid:active,.btn-outline:active{transform:scale(.97)}
+
+  .oh-item{
+    display:grid;
+    grid-template-columns:64px 1.7fr 1fr 1fr;
+    align-items:center;gap:18px;
+    padding:20px 22px;
+    border-top:1px solid var(--line);
+  }
+  .oh-item-img{
+    width:64px;height:64px;border-radius:10px;
+    background:linear-gradient(155deg,#f4f4f6 0%,#e9e9ee 100%);
+    display:flex;align-items:center;justify-content:center;
+    overflow:hidden;flex-shrink:0;
+  }
+  .oh-item-img svg{width:60%;height:60%}
+
+  .oh-item-title{font-size:15px;font-weight:600;color:var(--ink);margin-bottom:5px}
+  .oh-item-by{font-size:12.5px;color:var(--muted);margin-bottom:10px}
+  .oh-item-meta{font-size:13px;color:#6b6b72}
+  .oh-item-meta b{color:var(--ink);font-weight:600;margin-left:4px}
+
+  .oh-label{font-size:12px;color:var(--muted);margin-bottom:6px}
+  .oh-status{font-size:14px;font-weight:600}
+  .oh-status.delivered{color:var(--green)}
+  .oh-status.cancelled{color:var(--red)}
+  .oh-status.processing{color:#b45309}
+  .oh-date-val{font-size:13.5px;font-weight:600;color:var(--ink)}
+
+  .oh-card-foot{
+    display:flex;align-items:center;justify-content:space-between;
+    gap:16px;flex-wrap:wrap;
+    padding:18px 22px;
+    border-top:1px solid var(--line);
+    background:#fbfbfc;
+  }
+  .oh-cancel{
+    display:flex;align-items:center;gap:8px;
+    background:none;border:none;color:#9a9aa2;font-size:13.5px;font-weight:500;
+  }
+  .oh-cancel:hover{color:var(--red)}
+  .oh-cancel svg{opacity:.7}
+  .oh-cancel:disabled{color:#c9c9d1;cursor:not-allowed}
+  .oh-cancel:disabled:hover{color:#c9c9d1}
+  .oh-payment-status{font-size:13.5px;color:#9a9aa2;display:flex;align-items:center;gap:6px}
+  .oh-payment-status.is-cancelled{color:var(--red)}
+  .oh-total{font-size:14px;color:#4b4b52}
+  .oh-total b{color:var(--ink);font-weight:700;margin-left:4px}
+
+  /* ===== Empty state ===== */
+  .oh-empty{
+    text-align:center;padding:70px 20px;color:var(--muted);
+    border:1px dashed var(--line);border-radius:16px;
+  }
+  .oh-empty svg{margin:0 auto 14px;opacity:.5}
+  .oh-empty h3{font-size:16px;color:var(--ink);margin-bottom:6px;font-weight:600}
+  .oh-empty p{font-size:13.5px}
+
+  /* ===== Summary tab ===== */
+  .oh-summary-grid{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:8px;
+  }
+  .oh-stat{
+    border:1px solid var(--line);border-radius:16px;padding:20px;
+  }
+  .oh-stat-label{font-size:12.5px;color:var(--muted);margin-bottom:10px;font-weight:500}
+  .oh-stat-value{font-size:24px;font-weight:700;color:var(--ink)}
+  .oh-stat.accent .oh-stat-value{color:var(--accent)}
+  .oh-stat.green .oh-stat-value{color:var(--green)}
+  .oh-stat.red .oh-stat-value{color:var(--red)}
+
+  /* ===== Modal (invoice) ===== */
+  .oh-modal-overlay{
+    display:none;position:fixed;inset:0;background:rgba(20,20,30,.5);
+    align-items:center;justify-content:center;z-index:500;padding:20px;
+  }
+  .oh-modal-overlay.open{display:flex}
+  .oh-modal{
+    background:#fff;border-radius:18px;max-width:460px;width:100%;
+    max-height:88vh;overflow:auto;padding:28px;position:relative;
+    animation:ohPop .22s cubic-bezier(.34,1.56,.64,1);
+  }
+  @keyframes ohPop{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
+  .oh-modal-close{
+    position:absolute;top:18px;right:18px;width:30px;height:30px;
+    border:none;background:#f2f2f4;color:#6b6b72;font-size:14px;
+    display:flex;align-items:center;justify-content:center;border-radius:8px;
+  }
+  .oh-modal-close:hover{background:#e8e8ec}
+  .oh-modal h2{font-size:18px;font-weight:700;margin-bottom:4px}
+  .oh-modal .oh-modal-sub{font-size:12.5px;color:var(--muted);margin-bottom:18px}
+  .oh-invoice-row{
+    display:flex;justify-content:space-between;align-items:flex-start;
+    padding:10px 0;border-bottom:1px solid var(--line);font-size:13.5px;
+  }
+  .oh-invoice-row:last-of-type{border-bottom:none}
+  .oh-invoice-row .name{font-weight:600;color:var(--ink)}
+  .oh-invoice-row .sub{font-size:11.5px;color:var(--muted);margin-top:2px}
+  .oh-invoice-total{
+    display:flex;justify-content:space-between;align-items:center;
+    margin-top:16px;padding-top:16px;border-top:2px solid var(--ink);
+    font-size:15px;font-weight:700;
+  }
+  .oh-modal-actions{display:flex;gap:10px;margin-top:22px}
+  .oh-modal-actions button{flex:1}
+
+  /* ===== Confirm dialog ===== */
+  .oh-confirm .oh-modal{max-width:340px;text-align:center;padding:28px 24px}
+  .oh-confirm-icon{
+    width:52px;height:52px;border-radius:50%;background:#fdeef0;color:var(--red);
+    display:flex;align-items:center;justify-content:center;margin:0 auto 16px;
+  }
+  .oh-confirm h2{font-size:16px;margin-bottom:8px}
+  .oh-confirm p{font-size:13px;color:var(--muted);margin-bottom:20px}
+
+  /* ===== Toast ===== */
+  .oh-toast{
+    position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);
+    background:#1a1a1a;color:#fff;font-size:13.5px;font-weight:500;
+    padding:13px 22px;border-radius:12px;display:flex;align-items:center;gap:10px;
+    opacity:0;pointer-events:none;transition:.25s ease;z-index:600;
+    box-shadow:0 12px 30px rgba(0,0,0,.25);white-space:nowrap;
+  }
+  .oh-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .oh-toast svg{flex-shrink:0}
+
+  /* ===== Responsive ===== */
+  @media (max-width:720px){
+    .oh-page{padding:24px 16px 60px}
+    .oh-toolbar{flex-direction:column;align-items:flex-start}
+    .oh-tabs{gap:16px;overflow-x:auto;width:100%;padding-bottom:2px}
+    .oh-daterange{width:100%;justify-content:space-between;flex-wrap:wrap}
+    .oh-card-head{flex-direction:column;align-items:flex-start}
+    .oh-card-actions{width:100%}
+    .btn-outline,.btn-solid{flex:1;text-align:center}
+    .oh-item{grid-template-columns:52px 1fr;grid-template-rows:auto auto;row-gap:10px}
+    .oh-item-img{width:52px;height:52px}
+    .oh-item-status,.oh-item-delivery{grid-column:2}
+    .oh-card-foot{flex-direction:column;align-items:flex-start;gap:10px}
+    .oh-summary-grid{grid-template-columns:repeat(2,1fr)}
+    .oh-toast{white-space:normal;width:calc(100% - 32px);text-align:center;justify-content:center}
+  }
+.cart-popup-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:flex-end;justify-content:center}
+.cart-popup-overlay.open{display:flex}
+.cart-popup{background:#f5f5f5;width:100%;max-width:500px;border-radius:28px 28px 0 0;max-height:90vh;display:flex;flex-direction:column;animation:cartSlideUp .3s ease;overflow:hidden}
+@keyframes cartSlideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.cart-popup-header{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 14px;background:#f5f5f5}
+.cart-popup-back{width:36px;height:36px;border-radius:50%;background:#fff;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 1px 6px rgba(0,0,0,.1);color:#333;font-size:14px}
+.cart-popup-back:hover{background:#eee}
+.cart-popup-title{font-size:18px;font-weight:700;color:#1a1a1a;text-align:center;flex:1}
+.cart-popup-more{width:36px;height:36px;border-radius:50%;background:#fff;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 1px 6px rgba(0,0,0,.1);color:#e53935;font-size:14px;font-weight:700;padding:0}
+.cart-popup-more:hover{background:#eee}
+.cart-items-list{overflow-y:auto;padding:0 16px 8px;flex:1;display:flex;flex-direction:column;gap:12px}
+.cart-item{display:flex;align-items:center;gap:14px;padding:14px;background:#fff;border-radius:16px}
+.cart-item-img{width:70px;height:70px;border-radius:12px;background:#f5f6fa;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0}
+.cart-item-img img{width:100%;height:100%;object-fit:contain}
+.cart-item-info{flex:1;min-width:0}
+.cart-item-name{font-size:14px;font-weight:700;color:#1a1a1a;line-height:1.3;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cart-item-brand{font-size:12px;color:var(--green);font-weight:500;margin-bottom:6px}
+.cart-item-price{font-size:15px;font-weight:700;color:#1a1a1a}
+.cart-item-qty-row{display:flex;align-items:center;gap:10px;margin-top:6px}
+.cart-item-remove{background:none;border:none;color:#ddd;cursor:pointer;font-size:14px;padding:6px;margin-left:auto;align-self:flex-start}
+.cart-item-remove:hover{color:#e53935}
+.cart-popup-footer{background:#fff;padding:20px 20px 28px;border-radius:20px 20px 0 0;margin-top:4px}
+.cart-total-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;padding-bottom:14px;border-bottom:1.5px solid #f0f0f0}
+.cart-total-label{font-size:17px;font-weight:700;color:#1a1a1a}
+.cart-total-amount{font-size:22px;font-weight:700;color:#1a1a1a}
+.cart-empty-state{text-align:center;padding:40px 20px;color:#bbb;background:#fff;border-radius:16px;margin:0 16px}
+.cart-empty-state i{font-size:44px;margin-bottom:14px;display:block;color:#e0e0e0}
+.cart-empty-state p{font-size:14px;color:#aaa}
+.btn-checkout{width:100%;padding:16px;background:var(--green);color:#fff;border:none;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer}
+.btn-checkout:hover{background:var(--green-dark)}
+</style>
+</head>
+<body>
+
+<!-- Cart Popup -->
+<div class="cart-popup-overlay" id="cartPopupOverlay" onclick="closeCartPopup(event)">
+  <div class="cart-popup" id="cartPopup">
+    <div class="cart-popup-header">
+      <button class="cart-popup-back" onclick="goBackFromCartPopup()"><i class="fas fa-chevron-left"></i></button>
+      <div class="cart-popup-title">Cart</div>
+      <button class="cart-popup-more" onclick="cancelCart()" aria-label="Close" title="Close"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="cart-items-list" id="cartItemsList">
+      <div class="cart-empty-state">
+        <i class="fas fa-shopping-bag"></i>
+        <p>Cart is empty</p>
+      </div>
+    </div>
+    <div class="cart-popup-footer">
+      <div class="cart-total-row">
+        <div class="cart-total-label">Total</div>
+        <div class="cart-total-amount" id="cartTotalAmount">৳0</div>
+      </div>
+      <button class="btn-checkout" onclick="window.location.href='cart.html'">Checkout Now</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Site Header ===== -->
+<header class="header">
+  <div class="container header-top">
+    <a href="index.html" class="logo">
+      <img loading="lazy" decoding="async" src="assets/d5f720099214.png" alt="Dhopa Mama">
+    </a>
+    <nav class="main-nav" id="mainNav">
+      <a href="index.html">Home</a>
+      <a href="services.html">Services</a>
+      <a href="about.html">About Us</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+    <div class="search-box">
+      <i class="fas fa-search s-icon"></i>
+      <span class="s-divider"></span>
+      <input type="text" placeholder="কী খুঁজছেন? যেমন: শার্ট, শাড়ি, কম্বল..." />
+    </div>
+    <div class="header-icons">
+      <a href="cart.html" class="icon-btn" onclick="renderCart();openCartPopup();return false;"><i class="fas fa-shopping-cart"></i><span class="cart-count">0</span><span>Cart</span></a>
+      <a href="account.html" class="icon-btn"><i class="far fa-user"></i><span>Account</span></a>
+    </div>
+  </div>
+  <nav class="cat-nav">
+    <div class="container">
+      <a href="index.html#men-wear">Men's Wear</a>
+      <a href="index.html#women-wear">Women's Wear</a>
+      <a href="index.html#winter-wear">Winter Wear</a>
+      <a href="index.html#home-linen">Home Linen</a>
+      <a href="index.html#suits">Suits &amp; Panjabi</a>
+    </div>
+  </nav>
+</header>
+
+<div class="oh-page">
+
+  <div class="oh-container">
+    <div style="background:#FFF3D6;border:1.5px solid #E6BB50;padding:12px 18px;margin-bottom:20px;display:flex;align-items:center;gap:12px;font-size:14px;color:#55451E">
+      <i class="fas fa-user-circle" style="color:#CA9100;font-size:18px"></i>
+      <span>সম্পূর্ণ প্রোফাইল, ঠিকানা ও সেটিংস দেখতে&nbsp;</span>
+      <a href="account.html" style="color:#CA9100;font-weight:700;text-decoration:none">প্রোফাইলে যান <i class="fas fa-arrow-right" style="font-size:11px"></i></a>
+    </div>
+    <h1 class="oh-title">অর্ডার ইতিহাস</h1>
+
+    <div class="oh-toolbar">
+      <div class="oh-tabs" id="ohTabs">
+        <button data-tab="all" class="active">All Order <span class="oh-tab-count" id="cntAll">0</span></button>
+        <button data-tab="summary">Summary</button>
+        <button data-tab="completed">Completed <span class="oh-tab-count" id="cntCompleted">0</span></button>
+        <button data-tab="cancelled">Cancelled <span class="oh-tab-count" id="cntCancelled">0</span></button>
+      </div>
+      <div class="oh-daterange">
+        <label class="oh-date">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          <input type="date" id="ohFrom">
+        </label>
+        <span class="oh-to">To</span>
+        <label class="oh-date">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          <input type="date" id="ohTo">
+        </label>
+        <button class="oh-reset" id="ohReset">Reset</button>
+      </div>
+    </div>
+
+    <!-- Summary tab content -->
+    <div id="ohSummary" style="display:none">
+      <div class="oh-summary-grid">
+        <div class="oh-stat accent">
+          <div class="oh-stat-label">Total Orders</div>
+          <div class="oh-stat-value" id="statTotalOrders">0</div>
+        </div>
+        <div class="oh-stat">
+          <div class="oh-stat-label">Total Spent</div>
+          <div class="oh-stat-value" id="statTotalSpent">$0.00</div>
+        </div>
+        <div class="oh-stat green">
+          <div class="oh-stat-label">Completed</div>
+          <div class="oh-stat-value" id="statCompleted">0</div>
+        </div>
+        <div class="oh-stat red">
+          <div class="oh-stat-label">Cancelled</div>
+          <div class="oh-stat-value" id="statCancelled">0</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order list -->
+    <div id="ohList"></div>
+  </div>
+</div>
+
+<!-- Invoice modal -->
+<div class="oh-modal-overlay" id="invoiceOverlay">
+  <div class="oh-modal" id="invoiceModal">
+    <button class="oh-modal-close" onclick="closeModal('invoiceOverlay')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <h2 id="invTitle">Invoice</h2>
+    <div class="oh-modal-sub" id="invSub"></div>
+    <div id="invItems"></div>
+    <div class="oh-invoice-total"><span>Total Paid</span><span id="invTotal">$0.00</span></div>
+    <div class="oh-modal-actions">
+      <button class="btn-outline" onclick="window.print()">Print</button>
+      <button class="btn-solid" onclick="closeModal('invoiceOverlay')">Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- Cancel confirm modal -->
+<div class="oh-modal-overlay oh-confirm" id="cancelOverlay">
+  <div class="oh-modal">
+    <div class="oh-confirm-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></div>
+    <h2>Cancel this order?</h2>
+    <p id="cancelText">This will mark the order and its items as cancelled. This can't be undone.</p>
+    <div class="oh-modal-actions">
+      <button class="btn-outline" onclick="closeModal('cancelOverlay')">Keep order</button>
+      <button class="btn-solid" style="background:var(--red);border-color:var(--red)" id="confirmCancelBtn">Yes, cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="oh-toast" id="ohToast"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg><span id="ohToastText">Done</span></div>
+
+<script>
+/* ============ কার্ট পপ-আপ (হুবহু index.html এর কার্যকারিতা) ============ */
+var cart = [];
+
+function renderCart() {
+  var list = document.getElementById('cartItemsList');
+  var totalEl = document.getElementById('cartTotalAmount');
+  if (!list) return;
+
+  if (cart.length === 0) {
+    list.innerHTML = '<div class="cart-empty-state"><i class="fas fa-shopping-bag"></i><p>Cart is empty</p></div>';
+    if (totalEl) totalEl.textContent = '৳0';
+    return;
+  }
+
+  var total = 0;
+  var html = '';
+  cart.forEach(function(item, idx) {
+    total += Number(item.price) * Number(item.qty);
+    html += `
+      <div class="cart-item">
+        <div class="cart-item-img">
+          ${item.img ? `<img loading="lazy" decoding="async" src="${item.img}" alt="${item.name}">` : `<i class="fas ${item.icon}" style="font-size:26px;color:var(--green)"></i>`}
+        </div>
+        <div class="cart-item-info">
+          <div class="cart-item-name">${item.name}</div>
+          <div class="cart-item-brand">${item.brand || ''}</div>
+          <div class="cart-item-price">৳${Number(item.price).toLocaleString()}</div>
+          <div class="cart-item-qty-row">
+            <button class="qty-btn-minus" onclick="changeQty(${idx},-1)"><i class="fas fa-minus"></i></button>
+            <span class="qty-num">${item.qty}</span>
+            <button class="qty-btn-plus" onclick="changeQty(${idx},1)"><i class="fas fa-plus"></i></button>
+          </div>
+        </div>
+        <button class="cart-item-remove" onclick="removeItem(${idx})"><i class="fas fa-times"></i></button>
+      </div>
+    `;
+  });
+  list.innerHTML = html;
+  if (totalEl) totalEl.textContent = '৳' + total.toLocaleString();
+}
+
+function changeQty(idx, delta) {
+  cart[idx].qty += delta;
+  if (cart[idx].qty < 1) cart[idx].qty = 1;
+  renderCart();
+  var total = cart.reduce(function(s,i){ return s + i.qty; }, 0);
+  var cc = document.querySelector('.cart-count');
+  if (cc) cc.textContent = total;
+}
+
+function removeItem(idx) {
+  cart.splice(idx, 1);
+  renderCart();
+  var total = cart.reduce(function(s,i){ return s + i.qty; }, 0);
+  var cc = document.querySelector('.cart-count');
+  if (cc) cc.textContent = total;
+}
+
+function openCartPopup() {
+  var overlay = document.getElementById('cartPopupOverlay');
+  if (overlay) overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeCartPopup(e) {
+  if (e && e.target !== document.getElementById('cartPopupOverlay')) return;
+  closeCartPopupDirect();
+}
+
+function closeCartPopupDirect() {
+  var overlay = document.getElementById('cartPopupOverlay');
+  if (overlay) overlay.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function cancelCart() {
+  closeCartPopupDirect();
+}
+
+function goBackFromCartPopup() {
+  closeCartPopupDirect();
+}
+
+/* ===================== Data ===================== */
+var ORDERS_KEY = 'dmOrders';
+var DEFAULT_ITEM_ICON = '<svg viewBox="0 0 48 48" fill="none" stroke="#997D36" stroke-width="1.6"><rect x="10" y="12" width="28" height="26"/><path d="M16 12v-2a4 4 0 0 1 8 0v2"/></svg>';
+var API_BASE = window.API_BASE || '';
+
+function currentUserContact(){
+  try{ var u = JSON.parse(localStorage.getItem('dmUser')||'null'); return u && (u.contact||u.email||u.mobile) || null; }catch(e){ return null; }
+}
+function getAuthToken(){
+  try{
+    var s = localStorage.getItem('dm_auth') || localStorage.getItem('dmUser');
+    if(s){ var p = JSON.parse(s); return p && (p.token || '') || ''; }
+  }catch(e){}
+  return '';
+}
+function normalizeOrder(o){
+  var iso = o.paymentDateISO || (o.createdAt ? String(o.createdAt).slice(0,10) : (o.date && /^\d{4}-\d{2}-\d{2}/.test(o.date) ? o.date.slice(0,10) : ''));
+  var display = o.paymentDateDisplay;
+  if (!display && iso){
+    try{ display = new Date(iso).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}); }catch(e){ display = iso; }
+  }
+  var st = (o.status||'Pending').toLowerCase();
+  if (st==='delivered'||st==='completed') st='completed';
+  else if (st==='cancelled'||st==='canceled') st='cancelled';
+  else if (st==='pending'||st==='processing') st='processing';
+  else st='processing';
+  var items = (o.items||[]).map(function(it){
+    return {
+      title: it.title||it.name||'Item',
+      by: it.by||it.category||'Dhopa Mama',
+      size: it.size||'-',
+      qty: Number(it.qty||1),
+      price: Number(it.price||0),
+      status: it.status || (st==='completed'?'Delivered':st==='cancelled'?'Cancelled':'Processing'),
+      deliveryDate: it.deliveryDate || display || '',
+      icon: it.icon || DEFAULT_ITEM_ICON
+    };
+  });
+  return {
+    id: String(o.id||o.orderId||Date.now()).replace(/[^A-Za-z0-9]/g,'').slice(-8) || String(Date.now()).slice(-8),
+    rawId: o.id || '',
+    paymentDateISO: iso || '',
+    paymentDateDisplay: display || '—',
+    status: st,
+    total: o.total || 0,
+    userContact: o.userContact || null,
+    items: items
+  };
+}
+function loadOrdersFromLocalStorage(){
+  var raw;
+  try{ raw = JSON.parse(localStorage.getItem(ORDERS_KEY)||'[]'); }catch(e){ raw = []; }
+  if (!Array.isArray(raw)) raw = [];
+  var uc = currentUserContact();
+  var list = raw.map(normalizeOrder);
+  if (uc){
+    var owned = list.filter(function(o){ return o.userContact && String(o.userContact) === String(uc); });
+    var untagged = list.filter(function(o){ return !o.userContact; });
+    list = owned.concat(untagged);
+  }
+  return list;
+}
+function loadOrders(){
+  return loadOrdersFromLocalStorage();
+}
+
+/* ===================== API অর্ডার লোড (সার্ভার থেকে) ===================== */
+function fetchOrdersFromAPI(callback){
+  var token = getAuthToken();
+  if (!token){ if(callback) callback(false); return; }
+  fetch(API_BASE + '/api/my-orders', {
+    headers: { 'Authorization': 'Bearer ' + token },
+    cache: 'no-store'
+  })
+  .then(function(r){ return r.ok ? r.json() : null; })
+  .then(function(data){
+    if (!data || !Array.isArray(data)){ if(callback) callback(false); return; }
+    ORDERS = data.map(normalizeOrder);
+    ORDERS.forEach(recomputeStatus);
+    render();
+    if(callback) callback(true);
+  })
+  .catch(function(){ if(callback) callback(false); });
+}
+
+let ORDERS = loadOrders();
+let activeTab = 'all';
+let pendingCancelId = null;
+
+/* ===================== Helpers ===================== */
+function money(n){ return '৳' + Number(n||0).toLocaleString('en-IN'); }
+function orderTotal(o){ return o.items.reduce(function(s,it){ return s + it.price*it.qty; }, 0); }
+function recomputeStatus(o){
+  var statuses = o.items.map(function(it){ return it.status; });
+  if (statuses.length && statuses.every(function(s){ return s==='Cancelled'; })) o.status = 'cancelled';
+  else if (statuses.length && statuses.every(function(s){ return s==='Delivered'; })) o.status = 'completed';
+  else o.status = 'processing';
+}
+function persistOrders(){
+  try{
+    // Merge back changes (like cancel) into stored list, matching by id
+    var raw = JSON.parse(localStorage.getItem(ORDERS_KEY)||'[]');
+    if (!Array.isArray(raw)) raw = [];
+    var byId = {};
+    ORDERS.forEach(function(o){ byId[o.id] = o; });
+    raw = raw.map(function(o){
+      var id = String(o.id||'').replace(/[^A-Za-z0-9]/g,'').slice(-8);
+      if (byId[id]){
+        o.status = byId[id].status;
+        if (Array.isArray(o.items) && byId[id].items.length === o.items.length){
+          o.items.forEach(function(it,i){ it.status = byId[id].items[i].status; });
+        }
+      }
+      return o;
+    });
+    localStorage.setItem(ORDERS_KEY, JSON.stringify(raw));
+  }catch(e){}
+}
+ORDERS.forEach(recomputeStatus);
+
+// Auto-refresh when another tab (e.g. cart checkout) writes a new order
+window.addEventListener('storage', function(e){
+  if (e.key === ORDERS_KEY){ ORDERS = loadOrders(); ORDERS.forEach(recomputeStatus); render(); }
+});
+// Also refresh when this tab regains focus (e.g. after returning from cart)
+window.addEventListener('focus', function(){ ORDERS = loadOrders(); ORDERS.forEach(recomputeStatus); render(); });
+
+
+
+function badgeLabel(status){
+  return status === 'completed' ? 'Completed' : status === 'cancelled' ? 'Cancelled' : 'Processing';
+}
+
+/* ===================== Filtering ===================== */
+function getDateRange(){
+  var from = document.getElementById('ohFrom').value;
+  var to = document.getElementById('ohTo').value;
+  return { from: from || null, to: to || null };
+}
+function inRange(dateISO, range){
+  if (range.from && dateISO < range.from) return false;
+  if (range.to && dateISO > range.to) return false;
+  return true;
+}
+function getFiltered(){
+  var range = getDateRange();
+  return ORDERS.filter(function(o){
+    if (!inRange(o.paymentDateISO, range)) return false;
+    if (activeTab === 'completed') return o.status === 'completed';
+    if (activeTab === 'cancelled') return o.status === 'cancelled';
+    return true; /* all / summary */
+  });
+}
+
+/* ===================== Rendering ===================== */
+function itemRow(order, item, idx){
+  var statusClass = item.status === 'Delivered' ? 'delivered' : item.status === 'Cancelled' ? 'cancelled' : 'processing';
+  return '' +
+    '<div class="oh-item">' +
+      '<div class="oh-item-img">'+ item.icon +'</div>' +
+      '<div>' +
+        '<div class="oh-item-title">'+ item.title +'</div>' +
+        '<div class="oh-item-by">By: '+ item.by +'</div>' +
+        '<div class="oh-item-meta">Size: '+ item.size +' &nbsp; Qty: '+ item.qty +' &nbsp; <b>Price '+ money(item.price) +'</b></div>' +
+      '</div>' +
+      '<div>' +
+        '<div class="oh-label">Status</div>' +
+        '<div class="oh-status '+statusClass+'">'+ item.status +'</div>' +
+      '</div>' +
+      '<div>' +
+        '<div class="oh-label">Delivery Expected by</div>' +
+        '<div class="oh-date-val">'+ item.deliveryDate +'</div>' +
+      '</div>' +
+    '</div>';
+}
+
+function cardHTML(order){
+  var total = orderTotal(order);
+  var isCancelled = order.status === 'cancelled';
+  return '' +
+    '<div class="oh-card" data-order="'+order.id+'">' +
+      '<div class="oh-card-head">' +
+        '<div>' +
+          '<div class="oh-order-id">Order : #'+order.id+' <span class="oh-order-badge '+order.status+'">'+badgeLabel(order.status)+'</span></div>' +
+          '<div class="oh-order-pay">Order Payment : '+order.paymentDateDisplay+'</div>' +
+        '</div>' +
+        '<div class="oh-card-actions">' +
+          '<button class="btn-outline" onclick="openInvoice(\''+order.id+'\')">Show Invoice</button>' +
+          '<button class="btn-solid" onclick="buyNow(\''+order.id+'\')">Buy NOW</button>' +
+        '</div>' +
+      '</div>' +
+      order.items.map(function(it,i){ return itemRow(order,it,i); }).join('') +
+      '<div class="oh-card-foot">' +
+        '<button class="oh-cancel" '+(isCancelled?'disabled':'')+' onclick="askCancel(\''+order.id+'\')">' +
+          '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6L6 18"/></svg>' +
+          (isCancelled ? 'order cancelled' : 'cancel order') +
+        '</button>' +
+        '<div class="oh-payment-status '+(isCancelled?'is-cancelled':'')+'">'+(isCancelled ? 'Payment refunded' : 'Payment Is Succesfull')+'</div>' +
+        '<div class="oh-total">Total Price: <b>'+money(total)+'</b></div>' +
+      '</div>' +
+    '</div>';
+}
+
+function emptyHTML(){
+  var noneAtAll = ORDERS.length === 0;
+  return '' +
+    '<div class="oh-empty">' +
+      '<svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="#c9c9d1" stroke-width="1.6"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V5a4 4 0 0 1 8 0v2"/></svg>' +
+      '<h3>' + (noneAtAll ? 'এখনো কোনো অর্ডার নেই' : 'No orders here') + '</h3>' +
+      '<p>' + (noneAtAll ? 'Home থেকে সার্ভিস অর্ডার করুন — অর্ডার এখানে দেখা যাবে।' : 'Try a different tab or adjust the date range.') + '</p>' +
+      (noneAtAll ? '<p style="margin-top:14px"><a href="index.html" class="btn-solid" style="display:inline-block;text-decoration:none">Order Now</a></p>' : '') +
+    '</div>';
+}
+
+
+function renderSummary(){
+  var range = getDateRange();
+  var inRangeOrders = ORDERS.filter(function(o){ return inRange(o.paymentDateISO, range); });
+  var completed = inRangeOrders.filter(function(o){ return o.status==='completed'; }).length;
+  var cancelled = inRangeOrders.filter(function(o){ return o.status==='cancelled'; }).length;
+  var spent = inRangeOrders.reduce(function(s,o){ return s + orderTotal(o); }, 0);
+  document.getElementById('statTotalOrders').textContent = inRangeOrders.length;
+  document.getElementById('statTotalSpent').textContent = money(spent);
+  document.getElementById('statCompleted').textContent = completed;
+  document.getElementById('statCancelled').textContent = cancelled;
+}
+
+function updateTabCounts(){
+  var range = getDateRange();
+  var inRangeOrders = ORDERS.filter(function(o){ return inRange(o.paymentDateISO, range); });
+  document.getElementById('cntAll').textContent = inRangeOrders.length;
+  document.getElementById('cntCompleted').textContent = inRangeOrders.filter(function(o){ return o.status==='completed'; }).length;
+  document.getElementById('cntCancelled').textContent = inRangeOrders.filter(function(o){ return o.status==='cancelled'; }).length;
+}
+
+function render(){
+  updateTabCounts();
+  var listEl = document.getElementById('ohList');
+  var summaryEl = document.getElementById('ohSummary');
+
+  if (activeTab === 'summary'){
+    summaryEl.style.display = '';
+    listEl.style.display = 'none';
+    renderSummary();
+    return;
+  }
+  summaryEl.style.display = 'none';
+  listEl.style.display = '';
+
+  var filtered = getFiltered();
+  listEl.innerHTML = filtered.length ? filtered.map(cardHTML).join('') : emptyHTML();
+}
+
+/* ===================== Tabs ===================== */
+document.getElementById('ohTabs').addEventListener('click', function(e){
+  var btn = e.target.closest('button[data-tab]');
+  if (!btn) return;
+  activeTab = btn.getAttribute('data-tab');
+  document.querySelectorAll('#ohTabs button').forEach(function(b){ b.classList.toggle('active', b === btn); });
+  render();
+});
+
+/* ===================== Date range ===================== */
+document.getElementById('ohFrom').addEventListener('change', render);
+document.getElementById('ohTo').addEventListener('change', render);
+document.getElementById('ohReset').addEventListener('click', function(){
+  document.getElementById('ohFrom').value = '';
+  document.getElementById('ohTo').value = '';
+  render();
+});
+
+/* ===================== Modals ===================== */
+function openModal(id){ document.getElementById(id).classList.add('open'); document.body.style.overflow = 'hidden'; }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); document.body.style.overflow = ''; }
+document.querySelectorAll('.oh-modal-overlay').forEach(function(ov){
+  ov.addEventListener('click', function(e){ if (e.target === ov) closeModal(ov.id); });
+});
+
+function openInvoice(orderId){
+  var order = ORDERS.find(function(o){ return o.id === orderId; });
+  if (!order) return;
+  document.getElementById('invTitle').textContent = 'Invoice — #' + order.id;
+  document.getElementById('invSub').textContent = 'Order Payment : ' + order.paymentDateDisplay;
+  document.getElementById('invItems').innerHTML = order.items.map(function(it){
+    return '<div class="oh-invoice-row"><div><div class="name">'+it.title+'</div><div class="sub">Size: '+it.size+' · Qty: '+it.qty+'</div></div><div>'+money(it.price*it.qty)+'</div></div>';
+  }).join('');
+  document.getElementById('invTotal').textContent = money(orderTotal(order));
+  openModal('invoiceOverlay');
+}
+
+function askCancel(orderId){
+  var order = ORDERS.find(function(o){ return o.id === orderId; });
+  if (!order || order.status === 'cancelled') return;
+  pendingCancelId = orderId;
+  document.getElementById('cancelText').textContent = 'This will mark order #' + orderId + ' and its items as cancelled. This can\'t be undone.';
+  openModal('cancelOverlay');
+}
+
+document.getElementById('confirmCancelBtn').addEventListener('click', function(){
+  var order = ORDERS.find(function(o){ return o.id === pendingCancelId; });
+  if (order){
+    order.items.forEach(function(it){ it.status = 'Cancelled'; });
+    recomputeStatus(order);
+    persistOrders();
+    render();
+    showToast('Order #' + order.id + ' has been cancelled');
+  }
+  closeModal('cancelOverlay');
+  pendingCancelId = null;
+});
+
+function buyNow(orderId){
+  var order = ORDERS.find(function(o){ return o.id === orderId; });
+  if (!order) return;
+  showToast('Items from order #' + order.id + ' added to cart');
+}
+
+/* ===================== Toast ===================== */
+var toastTimer = null;
+function showToast(text){
+  var toast = document.getElementById('ohToast');
+  document.getElementById('ohToastText').textContent = text;
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ toast.classList.remove('show'); }, 2600);
+}
+
+/* ===================== Init ===================== */
+render();
+// সার্ভার থেকে অর্ডার লোড করো — admin-updated স্ট্যাটাস দেখাবে
+fetchOrdersFromAPI(function(ok){
+  if(!ok){
+    // API না পেলে localStorage থেকে দেখাও
+    ORDERS = loadOrdersFromLocalStorage();
+    ORDERS.forEach(recomputeStatus);
+    render();
+  }
+});
+// প্রতি ৩০ সেকেন্ডে স্বয়ংক্রিয় রিফ্রেশ — admin স্ট্যাটাস আপডেট সঙ্গে সঙ্গে দেখাবে
+setInterval(function(){
+  fetchOrdersFromAPI(null);
+}, 30000);
+</script>
+
+<!-- ===== Site Footer ===== -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <img loading="lazy" decoding="async" src="assets/d5f720099214.png" alt="Dhopa Mama" class="footer-logo"/>
+        <p class="footer-about">ঘরে বসে সহজে অর্ডার করুন লন্ড্রি সার্ভিস — ফ্রি পিকআপ ও ডেলিভারিসহ, নরমাল ওয়াশ, ড্রাই ওয়াশ ও আয়রন।</p>
+        <div class="footer-social">
+          <a href="#" class="fb" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" class="ig" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="#" class="ln" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+          <a href="#" class="yt" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+        </div>
+      </div>
+      <div>
+        <h4>Quick link</h4>
+        <ul>
+          <li><a href="services.html">Our Services</a></li>
+          <li><a href="about.html">About us</a></li>
+          <li><a href="#">Blog</a></li>
+          <li><a href="#">Careers</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Support</h4>
+        <ul>
+          <li><a href="contact.html">Contact Support</a></li>
+          <li><a href="#">Shipping &amp; Returns</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <ul class="footer-no-arrow" style="list-style:none">
+          <li class="footer-contact-item">
+            <div class="footer-contact-icon"><i class="fas fa-map-marker-alt"></i></div>
+            <span>ফরিদপুর সদর, ফরিদপুর-৭৮০০</span>
+          </li>
+          <li class="footer-contact-item">
+            <div class="footer-contact-icon"><i class="far fa-envelope"></i></div>
+            <span>corporate@dhopamama.com</span>
+          </li>
+          <li class="footer-contact-item">
+            <div class="footer-contact-icon"><i class="fas fa-phone-alt"></i></div>
+            <span>+8809613821489</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="footer-wave">
+    <svg viewBox="0 0 1440 70" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,40 C60,60 120,20 180,40 C240,60 300,20 360,40 C420,60 480,20 540,40 C600,60 660,20 720,40 C780,60 840,20 900,40 C960,60 1020,20 1080,40 C1140,60 1200,20 1260,40 C1320,60 1380,30 1440,40 L1440,70 L0,70 Z" fill="#f0f0f0"/>
+    </svg>
+  </div>
+  <div class="footer-bottom">
+    ধোপা মামা (Dhopa Mama) — ফরিদপুর সদর, ফরিদপুরে ফ্রি হোম পিকআপ লন্ড্রি ও কাপড় ধোয়ার সার্ভিস, dhopamama.com<br>
+    Copyright © Dhopa Mama 2026 – All Rights Reserved |
+  </div>
+</footer>
+
+<!-- ===== Mobile Bottom Nav ===== -->
+<nav class="mobile-bottom-nav">
+  <div class="nav-items">
+    <a href="index.html" class="nav-item"><i class="fas fa-home"></i><span>Home</span></a>
+    <a href="services.html" class="nav-item"><i class="fas fa-concierge-bell"></i><span>Service</span></a>
+    <a href="about.html" class="nav-item"><i class="fas fa-info-circle"></i><span>About Us</span></a>
+    <a href="cart.html" class="nav-item" onclick="renderCart();openCartPopup();return false;"><i class="fas fa-shopping-cart"></i><span>Cart</span></a>
+    <a href="account.html" class="nav-item"><i class="far fa-user"></i><span>Account</span></a>
+  </div>
+</nav>
+
+
+<style id="page-transition-css">
+/* ===== Page Transition ===== */
+#page-transition-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: #fff;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+#page-transition-overlay.active { opacity: 1; pointer-events: all; }
+body { animation: pageReveal .28s ease forwards; }
+@keyframes pageReveal { from { opacity:0; } to { opacity:1; } }
+</style>
+<div id="page-transition-overlay"></div>
+
+<style id="mobile-nav-color-override">
+/* Mobile bottom nav — match desktop navbar colors (#CA9100 active, #997D36 inactive) */
+.mobile-bottom-nav .nav-item { color: #997D36 !important; font-weight: 500 !important; }
+.mobile-bottom-nav .nav-item i { color: #997D36 !important; }
+.mobile-bottom-nav .nav-item span { color: #997D36 !important; }
+.mobile-bottom-nav .nav-item.active { color: #CA9100 !important; font-weight: 700 !important; }
+.mobile-bottom-nav .nav-item.active i { color: #CA9100 !important; }
+.mobile-bottom-nav .nav-item.active span { color: #CA9100 !important; font-weight: 700 !important; }
+</style>
+
+<script id="page-transition-js">
+(function(){
+  var overlay = document.getElementById('page-transition-overlay');
+  if(!overlay) return;
+  document.addEventListener('click', function(e){
+    var a = e.target.closest('a[href]');
+    if(!a) return;
+    var href = a.getAttribute('href');
+    if(!href || href.startsWith('#') || href.startsWith('javascript') ||
+       a.target === '_blank' || href.startsWith('http') || href.startsWith('//')) return;
+    var onclick = a.getAttribute('onclick') || '';
+    if(onclick.indexOf('return false') !== -1) return;
+    e.preventDefault();
+    overlay.classList.add('active');
+    setTimeout(function(){ window.location.href = href; }, 230);
+  }, true);
+})();
+</script>
+
+<script id="scroll-nav-js">
+(function(){
+  var lastY = window.pageYOffset || 0;
+  var ticking = false;
+  function update(){
+    var y = window.pageYOffset || 0;
+    var diff = y - lastY;
+    lastY = y;
+    document.querySelectorAll('.header, .mobile-header').forEach(function(h){
+      if(diff > 4 && y > 70){
+        h.style.transition = 'transform .3s ease';
+        h.style.transform = 'translateY(-110%)';
+      } else if(diff < -2 || y <= 70){
+        h.style.transition = 'transform .3s ease';
+        h.style.transform = 'translateY(0)';
+      }
+    });
+    ticking = false;
+  }
+  window.addEventListener('scroll', function(){
+    if(!ticking){ requestAnimationFrame(update); ticking=true; }
+  }, {passive:true});
+})();
+</script>
+
+</body>
+</html>
