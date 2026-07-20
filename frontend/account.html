@@ -2247,5 +2247,74 @@ return '' +
 })();
 </script>
 
+
+<style id="page-transition-css">
+/* ===== Page Transition ===== */
+#page-transition-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: #fff;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+#page-transition-overlay.active { opacity: 1; pointer-events: all; }
+body { animation: pageReveal .28s ease forwards; }
+@keyframes pageReveal { from { opacity:0; } to { opacity:1; } }
+</style>
+<div id="page-transition-overlay"></div>
+
+<style id="mobile-nav-color-override">
+/* Mobile bottom nav — match desktop navbar colors (#CA9100 active, #997D36 inactive) */
+.mobile-bottom-nav .nav-item { color: #997D36 !important; font-weight: 500 !important; }
+.mobile-bottom-nav .nav-item i { color: #997D36 !important; }
+.mobile-bottom-nav .nav-item span { color: #997D36 !important; }
+.mobile-bottom-nav .nav-item.active { color: #CA9100 !important; font-weight: 700 !important; }
+.mobile-bottom-nav .nav-item.active i { color: #CA9100 !important; }
+.mobile-bottom-nav .nav-item.active span { color: #CA9100 !important; font-weight: 700 !important; }
+</style>
+
+<script id="page-transition-js">
+(function(){
+  var overlay = document.getElementById('page-transition-overlay');
+  if(!overlay) return;
+  document.addEventListener('click', function(e){
+    var a = e.target.closest('a[href]');
+    if(!a) return;
+    var href = a.getAttribute('href');
+    if(!href || href.startsWith('#') || href.startsWith('javascript') ||
+       a.target === '_blank' || href.startsWith('http') || href.startsWith('//')) return;
+    var onclick = a.getAttribute('onclick') || '';
+    if(onclick.indexOf('return false') !== -1) return;
+    e.preventDefault();
+    overlay.classList.add('active');
+    setTimeout(function(){ window.location.href = href; }, 230);
+  }, true);
+})();
+</script>
+
+<script id="scroll-nav-js">
+(function(){
+  var lastY = window.pageYOffset || 0;
+  var ticking = false;
+  function update(){
+    var y = window.pageYOffset || 0;
+    var diff = y - lastY;
+    lastY = y;
+    document.querySelectorAll('.header, .mobile-header').forEach(function(h){
+      if(diff > 4 && y > 70){
+        h.style.transition = 'transform .3s ease';
+        h.style.transform = 'translateY(-110%)';
+      } else if(diff < -2 || y <= 70){
+        h.style.transition = 'transform .3s ease';
+        h.style.transform = 'translateY(0)';
+      }
+    });
+    ticking = false;
+  }
+  window.addEventListener('scroll', function(){
+    if(!ticking){ requestAnimationFrame(update); ticking=true; }
+  }, {passive:true});
+})();
+</script>
+
 </body>
 </html>

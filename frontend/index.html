@@ -20,7 +20,7 @@
 <meta name="robots" content="index, follow, max-image-preview:large" />
 <meta name="theme-color" content="#CA9100" />
 <meta name="geo.region" content="BD-15" />
-<meta name="geo.placename" content="Faridpur" />     
+<meta name="geo.placename" content="Faridpur" />
 <meta name="geo.position" content="23.6070;89.8429" />
 <meta name="ICBM" content="23.6070, 89.8429" />
 <link rel="canonical" href="https://dhopamama.com/" />
@@ -195,7 +195,7 @@ button{font-family:inherit;cursor:pointer}
    spacer works identically on every browser/device, old or new, so this fixes it everywhere. */
 .hero-main::before{content:"";display:block;width:100%;padding-top:50%}/* 16:8 */
 .hero-main img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;display:block}
-@media(min-width:721px){.hero-main img[data-mobile-only],.hero-main .hero-slide-dots[data-mobile-only]{display:none!important}}/* mobile slider assets show only below 721px */
+/* hero slider now runs on all screen sizes — see #index-extra-css */
 .hero-arrows{position:absolute;inset:0;display:flex;justify-content:space-between;align-items:center;padding:0 14px;pointer-events:none}
 .hero-arrow{width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.85);border:none;color:#333;font-size:14px;pointer-events:auto;box-shadow:0 2px 8px rgba(0,0,0,.1)}
 .hero-dots{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);display:flex;gap:6px}
@@ -1067,6 +1067,13 @@ a{color:inherit}
 (function(){
   function _getUser(){
     try{
+      // Check dm_auth first (main login system saves here)
+      var authRaw = localStorage.getItem('dm_auth');
+      if(authRaw){
+        var authData = JSON.parse(authRaw);
+        if(authData && authData.token && authData.user) return authData.user;
+      }
+      // Fallback: legacy keys
       var raw = localStorage.getItem('dmUser') || localStorage.getItem('dm_user');
       if(raw) return JSON.parse(raw);
     }catch(e){}
@@ -1112,6 +1119,38 @@ a{color:inherit}
 })();
 </script>
 
+
+<style id="index-extra-css">
+/* svc-thumb: show full image */
+.svc-thumb { width: 72px !important; height: 72px !important; }
+.svc-thumb img { object-fit: contain !important; padding: 4px !important; background: #fafafa; }
+
+/* service-option disabled (Coming Soon) */
+.service-option { pointer-events: none !important; cursor: not-allowed !important; position: relative !important; }
+
+/* Coming Soon badge */
+.svc-coming-soon {
+  display: inline-block;
+  font-size: 10px; font-weight: 700;
+  color: #fff; background: #997D36;
+  border-radius: 4px; padding: 2px 7px;
+  margin-top: 3px; letter-spacing: .3px;
+}
+
+/* Hero slider — all screen sizes */
+@media(min-width:721px){
+  #heroMainImg { display: none !important; }
+  .hero-main img[data-mobile-only],
+  .hero-main .hero-slide-dots[data-mobile-only] { display: block !important; }
+  .hero-slide { position: absolute; inset: 0; opacity: 0; transition: opacity .55s ease; width:100%; height:100%; object-fit:cover; }
+  .hero-slide.active { opacity: 1 !important; display: block !important; }
+  .hero-slide-dots { display: flex !important; position: absolute; bottom: 12px; left: 50%;
+    transform: translateX(-50%); gap: 6px; z-index: 3; }
+  .hero-slide-dots span { width: 7px; height: 7px; border-radius: 50%;
+    background: rgba(255,255,255,.55); transition: all .3s; display: block; }
+  .hero-slide-dots span.active { background: #fff; width: 22px; border-radius: 4px; }
+}
+</style>
 </head>
 <body>
 
@@ -1201,7 +1240,7 @@ a{color:inherit}
 <!-- Mobile Bottom Nav -->
 <nav class="mobile-bottom-nav">
   <div class="nav-items">
-    <a href="index.html" class="nav-item"><i class="fas fa-home"></i><span>Home</span></a>
+    <a href="index.html" class="nav-item active"><i class="fas fa-home"></i><span>Home</span></a>
     <a href="services.html" class="nav-item"><i class="fas fa-concierge-bell"></i><span>Service</span></a>
     <a href="about.html" class="nav-item"><i class="fas fa-info-circle"></i><span>About Us</span></a>
     <a href="cart.html" class="nav-item" onclick="renderCart();openCartPopup();return false;"><i class="fas fa-shopping-cart"></i><span>Cart</span></a>
@@ -2628,7 +2667,7 @@ function renderModalOptions(opts){
       + 'onclick="selectModalOption(\''+o.key+'\', this)" '
       + 'onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();selectModalOption(\''+o.key+'\', this);}">'
       + '<div class="svc-thumb">'+(img ? '<img loading="lazy" decoding="async" src="'+img+'" alt="'+o.label+'">' : '<i class="fas fa-tshirt"></i>')+'</div>'
-      + '<div class="svc-info"><span class="svc-name">'+o.label+'</span><span class="svc-price">৳'+o.price+'</span></div>'
+      + '<div class="svc-info"><span class="svc-name">'+o.label+'</span><span class="svc-price">৳'+o.price+'</span><span class="svc-coming-soon">Coming Soon</span></div>'
       + '<div class="svc-check"><i class="fas fa-check"></i></div>'
       + '</div>';
   }).join('');
@@ -3545,6 +3584,7 @@ document.addEventListener('DOMContentLoaded', function(){
   if(!slider) return;
   var slides = slider.querySelectorAll('.hero-slide');
   var dots = slider.querySelectorAll('.hero-slide-dots span');
+  if(!slides.length) return;
   var i = 0, timer = null;
   function show(n){
     slides.forEach(function(el,idx){ el.classList.toggle('active', idx===n); });
@@ -3552,13 +3592,11 @@ document.addEventListener('DOMContentLoaded', function(){
   }
   function next(){ i = (i+1) % slides.length; show(i); }
   function start(){ if(!timer) timer = setInterval(next, 3500); }
-  function stop(){ if(timer){ clearInterval(timer); timer=null; } }
-  function check(){
-    if(window.matchMedia('(max-width:720px)').matches){ start(); }
-    else{ stop(); i=0; show(0); }
-  }
-  check();
-  window.addEventListener('resize', check);
+  // Run slider on ALL screen sizes (desktop + mobile)
+  show(0); start();
+  // Pause on hover (desktop UX)
+  slider.addEventListener('mouseenter', function(){ if(timer){ clearInterval(timer); timer=null; } });
+  slider.addEventListener('mouseleave', start);
 })();
 </script>
 
@@ -3578,10 +3616,10 @@ html, body { overflow-x: hidden; }
 /* 5: mobile-bottom-nav — floating card style (matches reference design) */
 .mobile-bottom-nav .nav-item,
 .mobile-bottom-nav .nav-item i,
-.mobile-bottom-nav .nav-item span { color: #9a9a9a !important; }
+.mobile-bottom-nav .nav-item span { color: #997D36 !important; font-weight: 500; }
 .mobile-bottom-nav .nav-item.active,
 .mobile-bottom-nav .nav-item.active i,
-.mobile-bottom-nav .nav-item.active span { color: #1a1a1a !important; font-weight: 700; }
+.mobile-bottom-nav .nav-item.active span { color: #CA9100 !important; font-weight: 700; }
 
 /* 19: mobile-এ dm-tier-grid এক লাইনে 3টি */
 @media (max-width: 520px){
@@ -4169,6 +4207,75 @@ input[type="submit"],
       };
     }
   });
+})();
+</script>
+
+
+<style id="page-transition-css">
+/* ===== Page Transition ===== */
+#page-transition-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: #fff;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+#page-transition-overlay.active { opacity: 1; pointer-events: all; }
+body { animation: pageReveal .28s ease forwards; }
+@keyframes pageReveal { from { opacity:0; } to { opacity:1; } }
+</style>
+<div id="page-transition-overlay"></div>
+
+<style id="mobile-nav-color-override">
+/* Mobile bottom nav — match desktop navbar colors (#CA9100 active, #997D36 inactive) */
+.mobile-bottom-nav .nav-item { color: #997D36 !important; font-weight: 500 !important; }
+.mobile-bottom-nav .nav-item i { color: #997D36 !important; }
+.mobile-bottom-nav .nav-item span { color: #997D36 !important; }
+.mobile-bottom-nav .nav-item.active { color: #CA9100 !important; font-weight: 700 !important; }
+.mobile-bottom-nav .nav-item.active i { color: #CA9100 !important; }
+.mobile-bottom-nav .nav-item.active span { color: #CA9100 !important; font-weight: 700 !important; }
+</style>
+
+<script id="page-transition-js">
+(function(){
+  var overlay = document.getElementById('page-transition-overlay');
+  if(!overlay) return;
+  document.addEventListener('click', function(e){
+    var a = e.target.closest('a[href]');
+    if(!a) return;
+    var href = a.getAttribute('href');
+    if(!href || href.startsWith('#') || href.startsWith('javascript') ||
+       a.target === '_blank' || href.startsWith('http') || href.startsWith('//')) return;
+    var onclick = a.getAttribute('onclick') || '';
+    if(onclick.indexOf('return false') !== -1) return;
+    e.preventDefault();
+    overlay.classList.add('active');
+    setTimeout(function(){ window.location.href = href; }, 230);
+  }, true);
+})();
+</script>
+
+<script id="scroll-nav-js">
+(function(){
+  var lastY = window.pageYOffset || 0;
+  var ticking = false;
+  function update(){
+    var y = window.pageYOffset || 0;
+    var diff = y - lastY;
+    lastY = y;
+    document.querySelectorAll('.header, .mobile-header').forEach(function(h){
+      if(diff > 4 && y > 70){
+        h.style.transition = 'transform .3s ease';
+        h.style.transform = 'translateY(-110%)';
+      } else if(diff < -2 || y <= 70){
+        h.style.transition = 'transform .3s ease';
+        h.style.transform = 'translateY(0)';
+      }
+    });
+    ticking = false;
+  }
+  window.addEventListener('scroll', function(){
+    if(!ticking){ requestAnimationFrame(update); ticking=true; }
+  }, {passive:true});
 })();
 </script>
 
