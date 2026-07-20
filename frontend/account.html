@@ -878,7 +878,11 @@ a{color:inherit}
 </div>
 
 <script>
+<<<<<<< HEAD
 window.API_BASE = window.API_BASE || '';
+=======
+window.API_BASE = window.API_BASE || 'https://dhopa-mama-j75g.onrender.com';
+>>>>>>> 0ad690ef25e8b13d5c8d7d062a26371670fc0899
 var AUTH_KEY = 'dm_auth';
 var mode = 'signin';
 
@@ -1749,6 +1753,7 @@ document.getElementById('forgotOverlay').addEventListener('click', function(e){
   var activeTab = 'all';
 
   function money(n){ return '৳' + Number(n||0).toLocaleString('en-IN'); }
+<<<<<<< HEAD
   var _pfApiOrders = null; // cache from API
   function loadOrders(){
     if (_pfApiOrders !== null) return _pfApiOrders;
@@ -1773,6 +1778,10 @@ document.getElementById('forgotOverlay').addEventListener('click', function(e){
     })
     .catch(function(){});
   }
+=======
+  function loadOrders(){ try{ return JSON.parse(localStorage.getItem(ORDERS_KEY)||'[]'); }catch(e){ return []; } }
+  function saveOrders(list){ try{ localStorage.setItem(ORDERS_KEY, JSON.stringify(list)); }catch(e){} }
+>>>>>>> 0ad690ef25e8b13d5c8d7d062a26371670fc0899
   function loadAddresses(){ try{ return JSON.parse(localStorage.getItem(ADDR_KEY)||'[]'); }catch(e){ return []; } }
   function saveAddresses(a){ try{ localStorage.setItem(ADDR_KEY, JSON.stringify(a)); }catch(e){} }
 
@@ -1879,8 +1888,11 @@ document.getElementById('forgotOverlay').addEventListener('click', function(e){
 
     renderStats();
     renderOrderList();
+<<<<<<< HEAD
     // সার্ভার থেকে অর্ডার লোড করো — admin আপডেটেড স্ট্যাটাস দেখাবে
     fetchAndRenderOrders();
+=======
+>>>>>>> 0ad690ef25e8b13d5c8d7d062a26371670fc0899
   };
 
   function renderStats(){
