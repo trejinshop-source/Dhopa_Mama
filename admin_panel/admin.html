@@ -243,6 +243,25 @@ select.status-select{
   border:1px solid var(--border); border-radius:10px; padding:7px 12px; font-size:12.5px; background:#fff;
 }
 
+/* ===== ENABLE / DISABLE TOGGLE SWITCH ===== */
+.enable-toggle-wrap{display:flex;align-items:center;gap:8px;}
+.enable-toggle{
+  position:relative;display:inline-block;width:40px;height:22px;flex:none;cursor:pointer;
+}
+.enable-toggle input{opacity:0;width:0;height:0;position:absolute;}
+.enable-toggle .track{
+  position:absolute;inset:0;background:#E2E0EE;border-radius:22px;transition:background .18s ease;
+}
+.enable-toggle .thumb{
+  position:absolute;top:2px;left:2px;width:18px;height:18px;background:#fff;border-radius:50%;
+  box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .18s ease;
+}
+.enable-toggle input:checked + .track{background:#1EAE86;}
+.enable-toggle input:checked + .track .thumb{transform:translateX(18px);}
+.enable-status-label{font-size:11.5px;font-weight:700;color:var(--muted);white-space:nowrap;}
+.enable-status-label.on{color:#1EAE86;}
+.enable-status-label.off{color:var(--danger);}
+
 /* view container */
 .view{display:none;}
 .view.active{display:block;}
@@ -861,7 +880,7 @@ window.API_BASE = window.API_BASE || 'https://dhopa-mama-j75g.onrender.com'; // 
       </div>
       <div class="card table-wrap">
         <table>
-          <thead><tr><th>প্রোডাক্ট</th><th>ক্যাটাগরি</th><th>নরমাল ওয়াশ</th><th>ড্রাই ওয়াশ</th><th>আয়রন</th><th style="text-align:right">অ্যাকশন</th></tr></thead>
+          <thead><tr><th>প্রোডাক্ট</th><th>ক্যাটাগরি</th><th>নরমাল ওয়াশ</th><th>ড্রাই ওয়াশ</th><th>আয়রন</th><th>স্ট্যাটাস</th><th style="text-align:right">অ্যাকশন</th></tr></thead>
           <tbody id="productsBody"></tbody>
         </table>
       </div>
@@ -875,7 +894,7 @@ window.API_BASE = window.API_BASE || 'https://dhopa-mama-j75g.onrender.com'; // 
       </div>
       <div class="card table-wrap">
         <table>
-          <thead><tr><th>ক্যাটাগরি</th><th>কী (key)</th><th>প্রোডাক্ট সংখ্যা</th><th style="text-align:right">অ্যাকশন</th></tr></thead>
+          <thead><tr><th>ক্যাটাগরি</th><th>কী (key)</th><th>প্রোডাক্ট সংখ্যা</th><th>স্ট্যাটাস</th><th style="text-align:right">অ্যাকশন</th></tr></thead>
           <tbody id="categoriesBody"></tbody>
         </table>
       </div>
@@ -1720,12 +1739,13 @@ function renderProductsTable(filter){
   const list = products.filter(p=> !filter || String(p.t||'').toLowerCase().includes(filter));
   document.getElementById('productCount').textContent = products.length;
   if (!list.length){
-    body.innerHTML = '<tr><td colspan="6"><div class="empty-state"><i class="fas fa-tshirt"></i>কোনো প্রোডাক্ট পাওয়া যায়নি।</div></td></tr>';
+    body.innerHTML = '<tr><td colspan="7"><div class="empty-state"><i class="fas fa-tshirt"></i>কোনো প্রোডাক্ট পাওয়া যায়নি।</div></td></tr>';
     return;
   }
   body.innerHTML = list.map((p)=>{
     const realIdx = products.indexOf(p);
     const s = p.services || {};
+    const isOn = p.enabled !== false;
     return `
     <tr>
       <td class="flex-cell">
@@ -1739,6 +1759,15 @@ function renderProductsTable(filter){
       <td>${s.dry!=null ? fmt(s.dry) : '<span class="cell-sub">বন্ধ</span>'}</td>
       <td>${s.iron!=null ? fmt(s.iron) : '<span class="cell-sub">বন্ধ</span>'}</td>
       <td>
+        <div class="enable-toggle-wrap">
+          <label class="enable-toggle">
+            <input type="checkbox" ${isOn?'checked':''} onchange="toggleProductEnabled(${realIdx})">
+            <span class="track"><span class="thumb"></span></span>
+          </label>
+          <span class="enable-status-label ${isOn?'on':'off'}">${isOn?'চালু':'বন্ধ'}</span>
+        </div>
+      </td>
+      <td>
         <div class="row-actions" style="justify-content:flex-end">
           <div class="mini-btn" onclick="openProductModal(${realIdx})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
           <div class="mini-btn del" onclick="deleteProduct(${realIdx})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg></div>
@@ -1746,6 +1775,14 @@ function renderProductsTable(filter){
       </td>
     </tr>`;
   }).join('');
+}
+function toggleProductEnabled(idx){
+  const p = products[idx];
+  if (!p) return;
+  p.enabled = (p.enabled === false) ? true : false;
+  saveData(LS.products, products);
+  const searchEl = document.getElementById('globalSearch');
+  renderProductsTable(searchEl ? searchEl.value : '');
 }
 
 /* ================= ইমেজ আপলোড (ড্র্যাগ & ড্রপ) ================= */
@@ -1894,11 +1931,12 @@ function renderCategoriesTable(){
   const body = document.getElementById('categoriesBody');
   document.getElementById('categoryCount').textContent = categories.length;
   if (!categories.length){
-    body.innerHTML = '<tr><td colspan="4"><div class="empty-state"><i class="fas fa-th-large"></i>কোনো ক্যাটাগরি নেই।</div></td></tr>';
+    body.innerHTML = '<tr><td colspan="5"><div class="empty-state"><i class="fas fa-th-large"></i>কোনো ক্যাটাগরি নেই।</div></td></tr>';
     return;
   }
   body.innerHTML = categories.map((c,idx)=>{
     const count = products.filter(p=>p.cat===c.key).length;
+    const isOn = c.enabled !== false;
     return `
     <tr>
       <td class="flex-cell">
@@ -1908,6 +1946,15 @@ function renderCategoriesTable(){
       <td class="cell-sub">${c.key || '—'}</td>
       <td>${count}টি</td>
       <td>
+        <div class="enable-toggle-wrap">
+          <label class="enable-toggle">
+            <input type="checkbox" ${isOn?'checked':''} onchange="toggleCategoryEnabled(${idx})">
+            <span class="track"><span class="thumb"></span></span>
+          </label>
+          <span class="enable-status-label ${isOn?'on':'off'}">${isOn?'চালু':'বন্ধ'}</span>
+        </div>
+      </td>
+      <td>
         <div class="row-actions" style="justify-content:flex-end">
           <div class="mini-btn" onclick="openCategoryModal(${idx})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
           <div class="mini-btn del" onclick="deleteCategory(${idx})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg></div>
@@ -1915,6 +1962,13 @@ function renderCategoriesTable(){
       </td>
     </tr>`;
   }).join('');
+}
+function toggleCategoryEnabled(idx){
+  const c = categories[idx];
+  if (!c) return;
+  c.enabled = (c.enabled === false) ? true : false;
+  saveData(LS.categories, categories);
+  renderCategoriesTable();
 }
 
 function openCategoryModal(idx){
@@ -1966,20 +2020,37 @@ function renderServicesGrid(){
   const grid = document.getElementById('servicesGrid');
   document.getElementById('serviceCount').textContent = services.length;
   if (!services.length){ grid.innerHTML = '<div class="empty-state"><i class="fas fa-water"></i>কোনো সার্ভিস নেই।</div>'; return; }
-  grid.innerHTML = services.map((s,idx)=>`
-    <div class="card" style="padding:18px">
+  grid.innerHTML = services.map((s,idx)=>{
+    const isOn = s.enabled !== false;
+    return `
+    <div class="card" style="padding:18px${isOn?'':';opacity:.6'}">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
         <div class="row-icon" style="width:42px;height:42px;font-size:17px"><i class="fas ${s.icon||'fa-water'}"></i></div>
         ${s.popular ? '<span class="pill delivered">জনপ্রিয়</span>' : ''}
       </div>
       <div class="cell-title" style="font-size:15px;margin-bottom:6px">${s.title}</div>
       <div class="cell-sub" style="margin-bottom:10px;line-height:1.5">${s.short}</div>
-      <div style="display:flex;justify-content:space-between;align-items:center">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
         <div class="cell-title" style="color:var(--brand)">${s.price} <span class="cell-sub" style="font-weight:400">${s.unit}</span></div>
         <div class="mini-btn" onclick="openServiceModal(${idx})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
       </div>
+      <div class="enable-toggle-wrap" style="border-top:1px solid var(--border);padding-top:12px">
+        <label class="enable-toggle">
+          <input type="checkbox" ${isOn?'checked':''} onchange="toggleServiceEnabled(${idx})">
+          <span class="track"><span class="thumb"></span></span>
+        </label>
+        <span class="enable-status-label ${isOn?'on':'off'}">${isOn?'সাইটে চালু আছে':'সাইটে বন্ধ আছে'}</span>
+      </div>
     </div>
-  `).join('');
+  `;
+  }).join('');
+}
+function toggleServiceEnabled(idx){
+  const s = services[idx];
+  if (!s) return;
+  s.enabled = (s.enabled === false) ? true : false;
+  saveData(LS.services, services);
+  renderServicesGrid();
 }
 
 function openServiceModal(idx){

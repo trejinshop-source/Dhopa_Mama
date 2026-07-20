@@ -2179,6 +2179,8 @@ const cats = window.__pickApi("categories", [
   { n: "স্যুট ও পাঞ্জাবি", icon: "fa-user-tie", href:"#suits", key:"suits", img:"assets/93845f0c9238.png", color:"#5b4b8a" },
   { n: "কম্বো অফার", icon: "fa-gift", href:"#combo", key:null, img:"assets/59ce3f7391c8.png", color:"#ab2f2f" }
 ]);
+/* অ্যাডমিন থেকে বন্ধ (disabled) করা ক্যাটাগরি ওয়েবসাইটে দেখানো হবে না */
+for (var __ci = cats.length - 1; __ci >= 0; __ci--) { if (cats[__ci].enabled === false) cats.splice(__ci, 1); }
 var catLabelMap = {};
 cats.forEach(function(c){ if (c.key) catLabelMap[c.key] = c.n; });
 
@@ -2207,6 +2209,8 @@ let products = window.__pickApi("products", [
   {t:"Jacket (জ্যাকেট)",icon:"fa-mitten",cat:"winter-wear",services:{normal:null,dry:90,iron:20},img:"assets/c2ae6f5bd89c.jpg"},
   {t:"Sweater / Hoodie",icon:"fa-mitten",cat:"winter-wear",services:{normal:40,dry:70,iron:15},img:"assets/c2a1e98fd2b9.jpg"}
 ]);
+/* অ্যাডমিন থেকে বন্ধ (disabled) করা প্রোডাক্ট ওয়েবসাইটে দেখানো হবে না */
+products = products.filter(function(p){ return p.enabled !== false; });
 
 document.getElementById('categoryRow').innerHTML=cats.map(function(c){
   var count = c.key ? products.filter(function(p){ return p.cat === c.key; }).length : products.length;
@@ -3409,6 +3413,8 @@ var SERVICES_LIST = window.__pickApi("services", [
     steps:['বিশেষজ্ঞ দ্বারা ফেব্রিক পরীক্ষা','প্রিমিয়াম সলভেন্টে ড্রাই ক্লিন','হ্যান্ড-ফিনিশিং ও প্রেসিং','গার্মেন্ট ব্যাগে সংরক্ষিত ডেলিভারি']
   }
 ]);
+/* অ্যাডমিন থেকে বন্ধ (disabled) করা সার্ভিস ওয়েবসাইটে দেখানো হবে না */
+SERVICES_LIST = SERVICES_LIST.filter(function(s){ return s.enabled !== false; });
 
 function renderServiceGallery(){
   var grid = document.getElementById('svcGalleryGrid');
@@ -3450,7 +3456,7 @@ function closeServiceDetailModal(){
   var ov = document.getElementById('serviceDetailModalOverlay');
   if(ov){ ov.addEventListener('click', function(e){ if(e.target===ov) closeServiceDetailModal(); }); }
 })();
-renderServiceGallery(); window.addEventListener("hashchange", function(){ if(location.hash==="#/services") renderServiceGallery(); }); window.__rerenderFromApi = function(){ try{ if(window.__API_DATA.services && Array.isArray(window.__API_DATA.services) && window.__API_DATA.services.length){ SERVICES_LIST = window.__API_DATA.services; renderServiceGallery(); } if(window.__API_DATA.products && Array.isArray(window.__API_DATA.products) && window.__API_DATA.products.length){ products = window.__API_DATA.products; if(typeof renderProducts==="function") renderProducts(); } if(window.__API_DATA.categories && Array.isArray(window.__API_DATA.categories) && window.__API_DATA.categories.length){ if(typeof window.cats!=="undefined"){} } if(typeof window.__applyHeroassets==="function") window.__applyHeroassets(); }catch(e){ console.warn("rerender failed", e); } };
+renderServiceGallery(); window.addEventListener("hashchange", function(){ if(location.hash==="#/services") renderServiceGallery(); }); window.__rerenderFromApi = function(){ try{ if(window.__API_DATA.services && Array.isArray(window.__API_DATA.services) && window.__API_DATA.services.length){ SERVICES_LIST = window.__API_DATA.services.filter(function(s){ return s.enabled !== false; }); renderServiceGallery(); } if(window.__API_DATA.products && Array.isArray(window.__API_DATA.products) && window.__API_DATA.products.length){ products = window.__API_DATA.products.filter(function(p){ return p.enabled !== false; }); if(typeof renderProducts==="function") renderProducts(); } if(window.__API_DATA.categories && Array.isArray(window.__API_DATA.categories) && window.__API_DATA.categories.length){ if(typeof window.cats!=="undefined"){} } if(typeof window.__applyHeroassets==="function") window.__applyHeroassets(); }catch(e){ console.warn("rerender failed", e); } };
 </script>
 
 
