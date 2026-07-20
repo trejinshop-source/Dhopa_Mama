@@ -560,9 +560,16 @@ window.API_BASE = window.API_BASE || 'https://dhopa-mama-j75g.onrender.com'; // 
   });
 
   // ধাপ ২: ব্যাকগ্রাউন্ডে async fetch, তারপর re-render
+  // Authorization header যোগ করা হয় যাতে সার্ভার admin হিসেবে চিনে disabled আইটেমসহ সব ডেটা পাঠায়
+  function authHeaders(){
+    var h = {};
+    var token = getToken();
+    if (token) h['Authorization'] = 'Bearer ' + token;
+    return h;
+  }
   function preloadAll(){
     Object.keys(LS_MAP).forEach(function(lsKey){
-      fetch(window.API_BASE + '/api/' + LS_MAP[lsKey] + cb(), { cache:'no-store' })
+      fetch(window.API_BASE + '/api/' + LS_MAP[lsKey] + cb(), { cache:'no-store', headers: authHeaders() })
         .then(function(r){ return r.ok ? r.text() : null; })
         .then(function(txt){
           if (!txt || txt === 'null') return;
@@ -628,7 +635,7 @@ window.API_BASE = window.API_BASE || 'https://dhopa-mama-j75g.onrender.com'; // 
   setInterval(function(){
     if (!getToken()) return;
     ['falaqOrders','falaqUsers','falaqProducts','falaqCategories','falaqServices','falaqSettings'].forEach(function(lsKey){
-      fetch(window.API_BASE + '/api/' + LS_MAP[lsKey] + cb(), { cache:'no-store' })
+      fetch(window.API_BASE + '/api/' + LS_MAP[lsKey] + cb(), { cache:'no-store', headers: authHeaders() })
         .then(function(r){ return r.ok ? r.text() : null; })
         .then(function(txt){
           if (!txt || txt === 'null') return;

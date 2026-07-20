@@ -177,6 +177,18 @@ function optionalUser(req, _res, next) {
   }
   next();
 }
+function optionalAdmin(req, _res, next) {
+  const h = req.headers.authorization || '';
+  const token = h.startsWith('Bearer ') ? h.slice(7) : null;
+  req.isAdmin = false;
+  if (token) {
+    try {
+      const p = jwt.verify(token, SECRET);
+      if (p.role === 'admin') req.isAdmin = true;
+    } catch (e) { /* ignore — treat as public/non-admin request */ }
+  }
+  next();
+}
 
 /* ════════════════════════════════════════════
    API ROUTES
@@ -213,10 +225,22 @@ app.post('/api/upload', requireAdmin, async (req, res) => {
   }
 });
 
-/* Bucket routes (products, categories, services, settings) */
+/* Bucket routes (products, categories, services, settings)
+   GET: admin (valid Bearer admin token) সব আইটেম দেখে — disabled সহ, যাতে
+   অ্যাডমিন প্যানেলে টগল করে আবার চালু করা যায়। কিন্তু public/frontend
+   রিকোয়েস্টে (কোনো admin token ছাড়া) enabled:false থাকা আইটেম বাদ দিয়ে
+   পাঠানো হয় — অর্থাৎ অ্যাডমিন প্যানেল থেকে ডিসেবল করলেই তা ফ্রন্টএন্ড থেকে
+   সার্ভার লেভেলেই বাদ পড়ে যাবে। */
 function bucketRoutes(path, Model) {
-  app.get(`/api/${path}`, async (_req, res) => {
-    try { const b = await getBucket(Model); res.json(b.data); }
+  app.get(`/api/${path}`, optionalAdmin, async (req, res) => {
+    try {
+      const b = await getBucket(Model);
+      let data = b.data;
+      if (!req.isAdmin && Array.isArray(data)) {
+        data = data.filter(item => !item || item.enabled !== false);
+      }
+      res.json(data);
+    }
     catch (e) { res.status(500).json({ error: e.message }); }
   });
   app.put(`/api/${path}`, requireAdmin, async (req, res) => {
