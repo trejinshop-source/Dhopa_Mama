@@ -990,15 +990,12 @@ window.API_BASE = window.API_BASE || 'https://dhopa-mama-j75g.onrender.com'; // 
 (function(){
   var EP = { categories:'categories', products:'products', services:'services', settings:'settings' };
   window.__API_DATA = window.__API_DATA || {};
-  function cacheBust(){ return '?t=' + Date.now(); }
 
   // ---- sync preload (page render হবার আগেই const cats / const products পাবে) ----
-  // cache-busting query param যোগ করা হয়েছে যাতে ব্রাউজার/CDN পুরনো (stale) রেসপন্স
-  // ক্যাশ থেকে না দেয় — অ্যাডমিন প্যানেল থেকে enable/disable করলে সাথে সাথেই প্রতিফলিত হয়
   Object.keys(EP).forEach(function(k){
     try {
       var xhr = new XMLHttpRequest();
-      xhr.open('GET', window.API_BASE + '/api/' + EP[k] + cacheBust(), false);
+      xhr.open('GET', window.API_BASE + '/api/' + EP[k], false);
       xhr.timeout = 6000;
       xhr.send();
       if (xhr.status === 200 && xhr.responseText && xhr.responseText !== 'null'){
@@ -1014,10 +1011,10 @@ window.API_BASE = window.API_BASE || 'https://dhopa-mama-j75g.onrender.com'; // 
     return (v && typeof v === 'object') ? v : fallback;
   };
 
-  // ---- Async refresh প্রতি 10 সেকেন্ডে (admin থেকে নতুন পরিবর্তন live দেখতে) ----
+  // ---- Async refresh প্রতি 20 সেকেন্ডে (admin থেকে নতুন পরিবর্তন live দেখতে) ----
   setInterval(function(){
     Object.keys(EP).forEach(function(k){
-      fetch(window.API_BASE + '/api/' + EP[k] + cacheBust(), { cache:'no-store' })
+      fetch(window.API_BASE + '/api/' + EP[k])
         .then(function(r){ return r.ok ? r.json() : null; })
         .then(function(data){
           if (!data) return;
@@ -1030,7 +1027,7 @@ window.API_BASE = window.API_BASE || 'https://dhopa-mama-j75g.onrender.com'; // 
           }
         }).catch(function(){});
     });
-  }, 10000);
+  }, 20000);
 })();
 </script>
 <!-- ===== end API Bridge ===== -->
@@ -2030,11 +2027,14 @@ for (var __ci = cats.length - 1; __ci >= 0; __ci--) { if (cats[__ci].enabled ===
 var catLabelMap = {};
 cats.forEach(function(c){ if (c.key) catLabelMap[c.key] = c.n; });
 
-document.getElementById('categoryRow').innerHTML=cats.map(c=>`
+function renderCategoryRow(){
+  document.getElementById('categoryRow').innerHTML=cats.map(c=>`
   <a href="${c.href}" class="cat-card"${c.key ? ` data-cat="${c.key}" onclick="return handleCategoryLinkClick(event,'${c.key}')"` : ''} style="text-decoration:none">
     <div class="cat-img">${c.img ? `<img loading="lazy" decoding="async" src="${c.img}" alt="${c.n}">` : `<i class="fas ${c.icon}" style="font-size:32px;color:var(--green)"></i>`}</div>
     <span class="cat-name">${c.n}</span>
   </a>`).join('');
+}
+renderCategoryRow();
 
 /* সার্ভিস মূল্য: normal = নরমাল ওয়াশ, dry = ড্রাই ওয়াশ, iron = শুধু আয়রন
    যেই সার্ভিস null/undefined থাকবে, সেটি অ্যাডমিন বন্ধ রেখেছেন ধরে নিয়ে গ্রাহক তা দেখতে বা বাছাই করতে পারবে না */
@@ -3184,12 +3184,6 @@ function syncMainNavActive(){
   });
 }
 window.addEventListener('hashchange',applyRoute);
-/* এই পেজ (services.html) সবসময় সার্ভিস ভিউ দেখাবে — রিফ্রেশ দিলে hash খালি থাকলেও
-   সাথে সাথেই (কোনো দেরি ছাড়া) #/services সেট করে দেওয়া হয়, যাতে pv-body কখনো
-   সাময়িকভাবেও hide না হয়ে যায় */
-if (!location.hash || (location.hash !== '#/about' && location.hash !== '#/contact' && location.hash !== '#/services')) {
-  location.hash = '#/services';
-}
 applyRoute();
 function submitPageContact(e){
   e.preventDefault();
@@ -3311,7 +3305,30 @@ function closeServiceDetailModal(){
   var ov = document.getElementById('serviceDetailModalOverlay');
   if(ov){ ov.addEventListener('click', function(e){ if(e.target===ov) closeServiceDetailModal(); }); }
 })();
-renderServiceGallery(); window.addEventListener("hashchange", function(){ if(location.hash==="#/services") renderServiceGallery(); }); window.__rerenderFromApi = function(){ try{ if(window.__API_DATA.services && Array.isArray(window.__API_DATA.services) && window.__API_DATA.services.length){ SERVICES_LIST = window.__API_DATA.services.filter(function(s){ return s.enabled !== false; }); renderServiceGallery(); } if(window.__API_DATA.products && Array.isArray(window.__API_DATA.products) && window.__API_DATA.products.length){ products = window.__API_DATA.products.filter(function(p){ return p.enabled !== false; }); if(typeof renderProducts==="function") renderProducts(); } if(window.__API_DATA.categories && Array.isArray(window.__API_DATA.categories) && window.__API_DATA.categories.length){ if(typeof window.cats!=="undefined"){} } if(typeof window.__applyHeroassets==="function") window.__applyHeroassets(); }catch(e){ console.warn("rerender failed", e); } };
+renderServiceGallery(); window.addEventListener("hashchange", function(){ if(location.hash==="#/services") renderServiceGallery(); }); window.__rerenderFromApi = function(){ try{
+  if(window.__API_DATA.services && Array.isArray(window.__API_DATA.services) && window.__API_DATA.services.length){
+    SERVICES_LIST = window.__API_DATA.services.filter(function(s){ return s.enabled !== false; });
+    renderServiceGallery();
+  }
+  if(window.__API_DATA.products && Array.isArray(window.__API_DATA.products) && window.__API_DATA.products.length){
+    products = window.__API_DATA.products.filter(function(p){ return p.enabled !== false; });
+    if(typeof renderProducts==="function") renderProducts();
+  }
+  if(window.__API_DATA.categories && Array.isArray(window.__API_DATA.categories) && window.__API_DATA.categories.length){
+    var __newCats = window.__API_DATA.categories.filter(function(c){ return c.enabled !== false; });
+    cats.length = 0;
+    Array.prototype.push.apply(cats, __newCats);
+    catLabelMap = {};
+    cats.forEach(function(c){ if (c.key) catLabelMap[c.key] = c.n; });
+    if (typeof renderCategoryRow === "function") renderCategoryRow();
+    if (activeCategory !== 'all' && !catLabelMap[activeCategory] && typeof resetCategoryFilter === "function") {
+      resetCategoryFilter();
+    } else if (typeof renderProducts === "function") {
+      renderProducts();
+    }
+  }
+  if(typeof window.__applyHeroassets==="function") window.__applyHeroassets();
+}catch(e){ console.warn("rerender failed", e); } };
 </script>
 
 
