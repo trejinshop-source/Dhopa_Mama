@@ -234,6 +234,12 @@ app.post('/api/upload', requireAdmin, async (req, res) => {
 function bucketRoutes(path, Model) {
   app.get(`/api/${path}`, optionalAdmin, async (req, res) => {
     try {
+      // ব্রাউজার/প্রক্সি/CDN কোথাও যেন এই রেসপন্স ক্যাশ না হয় — নাহলে অ্যাডমিন
+      // থেকে ডিসেবল করার পরেও ফ্রন্টএন্ডে পুরনো (ক্যাশড) ডেটা দেখাতে পারে।
+      res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+      res.set('Pragma', 'no-cache');
+      res.set('Expires', '0');
+      res.set('Surrogate-Control', 'no-store');
       const b = await getBucket(Model);
       let data = b.data;
       if (!req.isAdmin && Array.isArray(data)) {

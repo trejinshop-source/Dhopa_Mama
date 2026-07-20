@@ -1919,7 +1919,8 @@ function saveProduct(){
       normal: n===''? null : Number(n),
       dry: d===''? null : Number(d),
       iron: i===''? null : Number(i)
-    }
+    },
+    enabled: (idx>=0 && products[idx]) ? (products[idx].enabled !== false) : true
   };
   if (idx>=0){ products[idx] = obj; } else { products.push(obj); }
   saveData(LS.products, products);
@@ -2008,7 +2009,8 @@ function saveCategory(){
     key: key,
     href: key ? ('#'+key) : '#',
     icon: document.getElementById('catIcon').value.trim() || 'fa-th',
-    img: document.getElementById('catImg').value.trim() || null
+    img: document.getElementById('catImg').value.trim() || null,
+    enabled: (idx>=0 && categories[idx]) ? (categories[idx].enabled !== false) : true
   };
   if (idx>=0){ categories[idx] = obj; } else { categories.push(obj); }
   saveData(LS.categories, categories);

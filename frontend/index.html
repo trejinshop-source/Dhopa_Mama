@@ -987,12 +987,15 @@ window.API_BASE = window.API_BASE || 'https://dhopa-mama-j75g.onrender.com'; // 
 (function(){
   var EP = { categories:'categories', products:'products', services:'services', settings:'settings' };
   window.__API_DATA = window.__API_DATA || {};
+  function cacheBust(){ return '?t=' + Date.now(); }
 
   // ---- sync preload (page render হবার আগেই const cats / const products পাবে) ----
+  // cache-busting query param যোগ করা হয়েছে যাতে ব্রাউজার/CDN পুরনো (stale) রেসপন্স
+  // ক্যাশ থেকে না দেয় — অ্যাডমিন প্যানেল থেকে enable/disable করলে সাথে সাথেই প্রতিফলিত হয়
   Object.keys(EP).forEach(function(k){
     try {
       var xhr = new XMLHttpRequest();
-      xhr.open('GET', window.API_BASE + '/api/' + EP[k], false);
+      xhr.open('GET', window.API_BASE + '/api/' + EP[k] + cacheBust(), false);
       xhr.timeout = 6000;
       xhr.send();
       if (xhr.status === 200 && xhr.responseText && xhr.responseText !== 'null'){
@@ -1008,10 +1011,10 @@ window.API_BASE = window.API_BASE || 'https://dhopa-mama-j75g.onrender.com'; // 
     return (v && typeof v === 'object') ? v : fallback;
   };
 
-  // ---- Async refresh প্রতি 20 সেকেন্ডে (admin থেকে নতুন পরিবর্তন live দেখতে) ----
+  // ---- Async refresh প্রতি 10 সেকেন্ডে (admin থেকে নতুন পরিবর্তন live দেখতে) ----
   setInterval(function(){
     Object.keys(EP).forEach(function(k){
-      fetch(window.API_BASE + '/api/' + EP[k])
+      fetch(window.API_BASE + '/api/' + EP[k] + cacheBust(), { cache:'no-store' })
         .then(function(r){ return r.ok ? r.json() : null; })
         .then(function(data){
           if (!data) return;
@@ -1024,7 +1027,7 @@ window.API_BASE = window.API_BASE || 'https://dhopa-mama-j75g.onrender.com'; // 
           }
         }).catch(function(){});
     });
-  }, 20000);
+  }, 10000);
 })();
 </script>
 <!-- ===== end API Bridge ===== -->
