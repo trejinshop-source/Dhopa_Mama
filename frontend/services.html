@@ -1005,9 +1005,12 @@ window.API_BASE = window.API_BASE || 'https://dhopa-mama-j75g.onrender.com'; // 
   });
 
   // helper — যদি API থেকে valid array/object আসে সেটা ব্যবহার করো, নাহলে default
+  // লক্ষ্য করুন: API থেকে খালি array [] আসলেও সেটাকে valid ধরা হয় (v.length চেক করা হয় না) —
+  // নাহলে অ্যাডমিন থেকে কোনো ক্যাটাগরির সবগুলো আইটেম বন্ধ করলে সেটা প্রতি রিফ্রেশে
+  // পুরনো ডিফল্ট লিস্ট দিয়ে ওভাররাইট হয়ে যেত (অ্যাডমিনের পরিবর্তন বাতিল হয়ে যেত)।
   window.__pickApi = function(key, fallback){
     var v = window.__API_DATA[key];
-    if (Array.isArray(fallback)) return (Array.isArray(v) && v.length) ? v : fallback;
+    if (Array.isArray(fallback)) return Array.isArray(v) ? v : fallback;
     return (v && typeof v === 'object') ? v : fallback;
   };
 
@@ -3223,22 +3226,6 @@ var SERVICES_LIST = window.__pickApi("services", [
     steps:['কাপড়ের ফেব্রিক পরীক্ষা করা হয়','উপযুক্ত সলভেন্টে দাগ তোলা হয়','যত্ন সহকারে প্রেস ও প্যাকেজিং','নির্ধারিত সময়ে ডেলিভারি']
   },
   {
-    id:'iron-only', icon:'fa-temperature-high', title:'শুধু আয়রন', popular:false,
-    short:'ইতিমধ্যে পরিষ্কার কাপড়ে ঝকঝকে প্রেস ফিনিশিং।',
-    price:'৳৫', unit:'প্রতি পিস থেকে',
-    desc:'শুধুমাত্র আয়রন প্রয়োজন হলে এই সার্ভিসটি বেছে নিন। অফিসের শার্ট থেকে শুরু করে যেকোনো কাপড়ে প্রফেশনাল প্রেস ফিনিশিং পাবেন।',
-    priceRows:[['শার্ট/প্যান্ট','৳৫–৮'],['পাঞ্জাবি','৳৮'],['স্যুট','৳২৫']],
-    steps:['কাপড় পিকআপ করা হয়','স্টিম আয়রনে প্রফেশনাল প্রেসিং','ভাঁজ করে প্যাকেজিং','ঘরে ডেলিভারি']
-  },
-  {
-    id:'wash-iron', icon:'fa-layer-group', title:'ওয়াশ + আয়রন কম্বো', popular:true,
-    short:'ওয়াশ ও আয়রন — একসাথে বেছে নিয়ে সময় ও খরচ দুটোই বাঁচান।',
-    price:'৳১৭', unit:'প্রতি পিস থেকে',
-    desc:'নরমাল বা ড্রাই ওয়াশের সাথে আয়রন যুক্ত করে সম্পূর্ণ রেডি-টু-ওয়্যার কাপড় পেয়ে যান। প্রোডাক্ট মডালে অর্ডার করার সময় কম্বো অপশন বেছে নিতে পারবেন।',
-    priceRows:[['নরমাল+আয়রন','যোগফল মূল্যে'],['ড্রাই+আয়রন','যোগফল মূল্যে'],['সময়','৪৮/৭২ ঘন্টা']],
-    steps:['কাপড় অনুযায়ী নরমাল বা ড্রাই ওয়াশ','পরিষ্কারের পর প্রফেশনাল আয়রন','মান পরীক্ষা করে প্যাকেজিং','নির্ধারিত সময়ে ডেলিভারি']
-  },
-  {
     id:'pickup-delivery', icon:'fa-truck', title:'ফ্রি পিকআপ ও ডেলিভারি', popular:false,
     short:'ঘরে বসেই অর্ডার দিন, কোথাও যেতে হবে না — সবকিছু সম্পূর্ণ ফ্রি।',
     price:'ফ্রি', unit:'সকল অর্ডারে',
@@ -3306,15 +3293,15 @@ function closeServiceDetailModal(){
   if(ov){ ov.addEventListener('click', function(e){ if(e.target===ov) closeServiceDetailModal(); }); }
 })();
 renderServiceGallery(); window.addEventListener("hashchange", function(){ if(location.hash==="#/services") renderServiceGallery(); }); window.__rerenderFromApi = function(){ try{
-  if(window.__API_DATA.services && Array.isArray(window.__API_DATA.services) && window.__API_DATA.services.length){
+  if(Array.isArray(window.__API_DATA.services)){
     SERVICES_LIST = window.__API_DATA.services.filter(function(s){ return s.enabled !== false; });
     renderServiceGallery();
   }
-  if(window.__API_DATA.products && Array.isArray(window.__API_DATA.products) && window.__API_DATA.products.length){
+  if(Array.isArray(window.__API_DATA.products)){
     products = window.__API_DATA.products.filter(function(p){ return p.enabled !== false; });
     if(typeof renderProducts==="function") renderProducts();
   }
-  if(window.__API_DATA.categories && Array.isArray(window.__API_DATA.categories) && window.__API_DATA.categories.length){
+  if(Array.isArray(window.__API_DATA.categories)){
     var __newCats = window.__API_DATA.categories.filter(function(c){ return c.enabled !== false; });
     cats.length = 0;
     Array.prototype.push.apply(cats, __newCats);
