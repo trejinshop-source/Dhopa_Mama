@@ -590,15 +590,11 @@ function goBackFromCartPopup() {
 /* ===================== Data ===================== */
 var ORDERS_KEY = 'dmOrders';
 var DEFAULT_ITEM_ICON = '<svg viewBox="0 0 48 48" fill="none" stroke="#997D36" stroke-width="1.6"><rect x="10" y="12" width="28" height="26"/><path d="M16 12v-2a4 4 0 0 1 8 0v2"/></svg>';
-<<<<<<< HEAD
 var API_BASE = window.API_BASE || '';
-=======
->>>>>>> 0ad690ef25e8b13d5c8d7d062a26371670fc0899
 
 function currentUserContact(){
   try{ var u = JSON.parse(localStorage.getItem('dmUser')||'null'); return u && (u.contact||u.email||u.mobile) || null; }catch(e){ return null; }
 }
-<<<<<<< HEAD
 function getAuthToken(){
   try{
     var s = localStorage.getItem('dm_auth') || localStorage.getItem('dmUser');
@@ -606,24 +602,16 @@ function getAuthToken(){
   }catch(e){}
   return '';
 }
-=======
->>>>>>> 0ad690ef25e8b13d5c8d7d062a26371670fc0899
 function normalizeOrder(o){
   var iso = o.paymentDateISO || (o.createdAt ? String(o.createdAt).slice(0,10) : (o.date && /^\d{4}-\d{2}-\d{2}/.test(o.date) ? o.date.slice(0,10) : ''));
   var display = o.paymentDateDisplay;
   if (!display && iso){
     try{ display = new Date(iso).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}); }catch(e){ display = iso; }
   }
-<<<<<<< HEAD
   var st = (o.status||'Pending').toLowerCase();
   if (st==='delivered'||st==='completed') st='completed';
   else if (st==='cancelled'||st==='canceled') st='cancelled';
   else if (st==='pending'||st==='processing') st='processing';
-=======
-  var st = (o.status||'processing').toLowerCase();
-  if (st==='delivered'||st==='completed') st='completed';
-  else if (st==='cancelled'||st==='canceled') st='cancelled';
->>>>>>> 0ad690ef25e8b13d5c8d7d062a26371670fc0899
   else st='processing';
   var items = (o.items||[]).map(function(it){
     return {
@@ -639,35 +627,22 @@ function normalizeOrder(o){
   });
   return {
     id: String(o.id||o.orderId||Date.now()).replace(/[^A-Za-z0-9]/g,'').slice(-8) || String(Date.now()).slice(-8),
-<<<<<<< HEAD
     rawId: o.id || '',
     paymentDateISO: iso || '',
     paymentDateDisplay: display || '—',
     status: st,
     total: o.total || 0,
-=======
-    paymentDateISO: iso || '',
-    paymentDateDisplay: display || '—',
-    status: st,
->>>>>>> 0ad690ef25e8b13d5c8d7d062a26371670fc0899
     userContact: o.userContact || null,
     items: items
   };
 }
-<<<<<<< HEAD
 function loadOrdersFromLocalStorage(){
-=======
-function loadOrders(){
->>>>>>> 0ad690ef25e8b13d5c8d7d062a26371670fc0899
   var raw;
   try{ raw = JSON.parse(localStorage.getItem(ORDERS_KEY)||'[]'); }catch(e){ raw = []; }
   if (!Array.isArray(raw)) raw = [];
   var uc = currentUserContact();
   var list = raw.map(normalizeOrder);
-<<<<<<< HEAD
-=======
-  // If we know the current user, only show their orders (fallback: show all when no user tag exists)
->>>>>>> 0ad690ef25e8b13d5c8d7d062a26371670fc0899
+
   if (uc){
     var owned = list.filter(function(o){ return o.userContact && String(o.userContact) === String(uc); });
     var untagged = list.filter(function(o){ return !o.userContact; });
@@ -675,7 +650,6 @@ function loadOrders(){
   }
   return list;
 }
-<<<<<<< HEAD
 function loadOrders(){
   return loadOrdersFromLocalStorage();
 }
@@ -698,8 +672,6 @@ function fetchOrdersFromAPI(callback){
   })
   .catch(function(){ if(callback) callback(false); });
 }
-=======
->>>>>>> 0ad690ef25e8b13d5c8d7d062a26371670fc0899
 
 let ORDERS = loadOrders();
 let activeTab = 'all';
@@ -945,7 +917,6 @@ function showToast(text){
 
 /* ===================== Init ===================== */
 render();
-<<<<<<< HEAD
 // সার্ভার থেকে অর্ডার লোড করো — admin-updated স্ট্যাটাস দেখাবে
 fetchOrdersFromAPI(function(ok){
   if(!ok){
@@ -959,8 +930,6 @@ fetchOrdersFromAPI(function(ok){
 setInterval(function(){
   fetchOrdersFromAPI(null);
 }, 30000);
-=======
->>>>>>> 0ad690ef25e8b13d5c8d7d062a26371670fc0899
 </script>
 
 <!-- ===== Site Footer ===== -->
